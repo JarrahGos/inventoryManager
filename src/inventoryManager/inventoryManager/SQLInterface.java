@@ -25,8 +25,11 @@ package inventoryManager;
  * Description: This program will allow for the input and retreval of the person database and will set the limits of the database.
  */
 
+//TODO: Consider moving this to the SQLite DBMS. This will mean that the DB will be bundled with the software rather than the installed system.
 import java.io.FileNotFoundException;
 import java.sql.*;
+import java.time.LocalDate;
+import java.util.ArrayList;
 
 
 public class SQLInterface {
@@ -35,7 +38,11 @@ public class SQLInterface {
     private String password = "password";
     private Connection db;
     private Settings config = new Settings();
-    public SQLInterface() throws FileNotFoundException
+    private final int USER = 0;
+    private final int ADMIN = 2;
+    private final int ROOT = 3;
+
+    public SQLInterface()
     {
         try {
             Class.forName("org.mariadb.jdbc.Driver").newInstance();
@@ -47,7 +54,12 @@ public class SQLInterface {
         {
             System.out.println("could not create instance\n" + e.toString());
         }
-        String[] settings = config.SQLInterfaceSettings();
+        String[] settings = new String[0];
+        try {
+            settings = config.SQLInterfaceSettings();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
         URL = settings[0];
         user = settings[1];
         password = settings[2];
@@ -61,28 +73,6 @@ public class SQLInterface {
         }
         System.out.println(db == null ? "null" : db.toString());
     }
-    public final String getDatabase(String type) {
-        String statement = "";
-        ResultSet rs = null;
-        switch (type) {
-            case "person":
-                statement = "Select * from people";
-                break;
-            case "item":
-                statement = "select * from controlledItems AND GeneralItems";
-                break;
-        }
-        try {
-            PreparedStatement ps = db.prepareStatement(statement);
-            rs = ps.executeQuery(statement);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        if (rs != null) {
-            return rs.toString();
-        }
-        return "";
-    }
 
     public void deleteEntry(String type, String barcode) {
         String statement = "";
@@ -91,8 +81,9 @@ public class SQLInterface {
                 statement = "DELETE * FROM people WHERE barcode = ?";
                 break;
             case "GeneralItem":
-                statement = "DELETE * FROM generalITems WHERE barcode = ?";
+                statement = "DELETE * FROM generalItems WHERE barcode = ?";
                 break;
+            case "controlledItem": statement = "DELETE * FROM controlledItems WHERE barcode = \"?\""; // TODO: this will delete controlled but not item. Use the key and a delete on cascade.
         }
         try {
             PreparedStatement ps = db.prepareStatement(statement);
@@ -102,93 +93,689 @@ public class SQLInterface {
             e.printStackTrace();
         }
     }
-    public final String SQLRead(String table,String columnName, String where)
-    {
-        String result = "";
-        ResultSet rs = null;
+    public void addEntry(String ID, String name, boolean admin, boolean root, String password) { // add a new person
+        String statement = "INSERT INTO people (ID, name, admin, root, password)" +
+                "VALUES(?, ?, ?, ?, ?)";
         try {
-            Statement request = db.createStatement();
-            rs = request.executeQuery("SELECT " + columnName + " FROM " + table + " WHERE " + where);
+            PreparedStatement ps = db.prepareStatement(statement);
+            ps.setString(1, ID);
+            ps.setString(2, name);
+            ps.setBoolean(3, admin);
+            ps.setBoolean(3, root);
+            ps.setString(4, password);
+            ps.execute();
+        } catch (SQLException e) {
+            Log.print(e);
         }
-        catch (java.sql.SQLException e) {
-            System.out.println("Unable to read database.\n" + e.toString());
-        }
-        try {
-            if(rs != null)
-                result = rs.getString(1);
-        }
-        catch (java.sql.SQLException e) {
-            System.out.println("could not read string from result" + e.toString());
-        }
-        return result;
     }
-    public final String[] SQLReadSet(String table, String columnName, String where)
+    public void addEntry(String name) // add new set
     {
-        String[] result = null;
-        ResultSet rs = null;
+        String statement = "INSERT INTO sets (name) VALUES(?)";
         try {
-            Statement request = db.createStatement();
-            rs = request.executeQuery("SELECT " + columnName + " FROM " + table + " WHERE " + where);
+            PreparedStatement ps = db.prepareStatement(statement);
+            ps.setString(1, name);
+            ps.execute();
         }
-        catch (java.sql.SQLException e) {
-            System.out.println("Unable to read database.\n" + e.toString());
+        catch (SQLException e) {
+            Log.print(e);
         }
+    }
+    public void addEntry(String ID, String name, String setName, String Description, Long Quantity) { // Add general Item
+        String statement = "INSERT INTO items (ID, name)" +
+                "VALUES(?, ?)";
         try {
-            if(rs != null){
-                for(int i = 0; rs.next(); i++) {
-                    result[i] = rs.getString(1);
+            PreparedStatement ps = db.prepareStatement(statement);
+            ps.setString(1, ID);
+            ps.setString(2, name);
+            ps.execute();
+        } catch (SQLException e) {
+            Log.print(e);
+        }
+        statement = "INSERT INTO general (ID, description, quantity)" +
+                "VALUES(?, ?, ?, ?, ?)";
+        try {
+            PreparedStatement ps = db.prepareStatement(statement);
+            ps.setString(1, ID);
+            ps.setString(2, Description);
+            ps.setLong(3, Quantity);
+            ps.execute();
+        } catch (SQLException e) {
+            Log.print(e);
+        }
+        if(setName != null && setName != "") {
+            statement = "SELECT ID FROM sets where name = \"?\"";
+            ResultSet rs = null;
+            try {
+                PreparedStatement ps = db.prepareStatement(statement);
+                ps.setString(1, setName);
+                rs = ps.executeQuery();
+            } catch (SQLException e) {
+                Log.print(e);
+            }
+            if (rs.next()) {
+                statement = ""; // TODO: List of items is fucked.
+                try {
+                    PreparedStatement ps = db.prepareStatement(statement);
+                    ps.setString(1, name);
+                } catch (SQLException e) {
+                    Log.print(e);
                 }
             }
         }
-        catch (java.sql.SQLException e) {
-            System.out.println("could not read string from result" + e.toString());
-        }
-        return result;
     }
-    public final void SQLSet(String table, String set, String where)
-    {
+    public void addEntry(String ID, String name, String setName, String state, String tagpos, String type) { // add Controlled Item
+        String statement = "INSERT INTO items (ID, name)" +
+                "VALUES(?, ?)"; // Sort SetID at the end. There may not be a set ID for every item.
         try {
-            Statement request = db.createStatement();
-            request.executeQuery("UPDATE " + table + " SET " + set + " WHERE " + where);
+            PreparedStatement ps = db.prepareStatement(statement);
+            ps.setString(1, ID);
+            ps.setString(2, name);
+            ps.execute();
+        } catch (SQLException e) {
+            Log.print(e);
         }
-        catch (java.sql.SQLException e) {
-            System.out.println("Unable to write to database.\n" + e.toString());
+        if(type != null && type != "") {
+            statement = "SELECT ID FROM type where name = \"?\"";
+            ResultSet rs = null;
+            try {
+                PreparedStatement ps = db.prepareStatement(statement);
+                ps.setString(1, type);
+                rs = ps.executeQuery();
+
+                if (!rs.next()) {
+                    statement = "INSERT INTO controlledType (\"?\")";
+                    ps = db.prepareStatement(statement);
+                    ps.setString(1, type);
+                    ps.execute();
+                    statement = "SELECT ID FROM type where name = \"?\"";
+                    ps = db.prepareStatement(statement);
+                    ps.setString(1, type);
+                    rs = ps.executeQuery();
+                }
+
+                statement = "INSERT INTO controlled (ID, tagpos, State)" +
+                        "VALUES(?, ?, ?, ?, ?)";
+                try {
+                    ps = db.prepareStatement(statement);
+                    ps.setString(1, ID);
+                    ps.setString(2, tagpos);
+                    ps.setInt(3, rs.getInt("ID"));
+                    ps.setString(4, state);
+                    ps.execute();
+                } catch (SQLException e) {
+                    Log.print(e);
+                }
+            } catch (SQLException e) {
+                Log.print(e);
+            }
+        }
+        if(setName != null && setName != "") {
+            statement = "SELECT ID FROM sets where name = \"?\"";
+            ResultSet rs = null;
+            try {
+                PreparedStatement ps = db.prepareStatement(statement);
+                ps.setString(1, setName);
+                rs = ps.executeQuery();
+            } catch (SQLException e) {
+                Log.print(e);
+            }
+            if (rs.next()) {
+                statement = ""; // TODO: List of items is fucked.
+                try {
+                    PreparedStatement ps = db.prepareStatement(statement);
+                    ps.setString(1, name);
+                    ps.execute();
+                } catch (SQLException e) {
+                    Log.print(e);
+                }
+            }
         }
     }
-    public final void SQLDelete(String table, String where)
-    {
+    public void addEntry(String persID, String adminID) { // add to change password log.
+        String statement = "INSERT INTO personLog (persID, date, authName) " +
+                "VALUES(\"?\", NOW(), (Select name FROM people where ID = \"?\")";
         try {
-            Statement request = db.createStatement();
-            request.executeQuery("UPDATE " + table + " DELETE " + " WHERE " + where);
+            PreparedStatement ps = db.prepareStatement(statement);
+            ps.setString(1, persID);
+            ps.setString(2, adminID);
+            ps.execute();
         }
-        catch (java.sql.SQLException e) {
-            System.out.println("Unable to write to database.\n" + e.toString());
+        catch (SQLException e) {
+            Log.print(e);
         }
+
     }
-    public final boolean SQLOutputCSV(String table, String file)
-    {
+    public void addEntry(String itemID, String persID, boolean controlled) { // Sign an item out
+        //TODO: Should this check the item as out in the controlled table?
+        String statment = "INSERT INTO itemLog (ID, date, out, in, persID, controlled) " +
+                "VALUES("\"?\", NOW(), TRUE, \"FALSE\", \"?\", \"?\"");
         try {
-            Statement request = db.createStatement();
-            request.executeQuery("SELECT a,b,a+b INTO OUTFILE '" + file + "'" +
-                    "FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '\"'" +
-                    "LINES TERMINATED BY '\n'" +
-                    "FROM " + table);
-            return true;
+            PreparedStatement ps = db.prepareStatement(statment);
+            ps.setString(1, itemID);
+            ps.setString(2, persID);
+            ps.setBoolean(3, controlled);
+            ps.execute();
         }
-        catch (java.sql.SQLException e) {
-            System.out.println("Unable to write out table  " + table + " to csv.\n" + e.toString());
-            return false;
+        catch (SQLException e) {
+            Log.print(e);
         }
     }
-    public final void SQLInsert(String table, String values) // make a field for the column required
-    {
+    public void returnItem(String itemID) { // Return an item
+        String statement = "update itemLog SET in=TRUE, inDate=NOW()" +
+                "WHERE ID=\"?\"";
         try {
-            Statement request = db.createStatement();
-            request.executeUpdate("INSERT INTO " + table + " VALUES " + values + ";");
+            PreparedStatement ps = db.prepareStatement(statement);
+            ps.setString(1, itemID);
+            ps.execute();
         }
-        catch (java.sql.SQLException e) {
-            System.out.println("Unable to write to database.\n" + e.toString());
+        catch (SQLException e) {
+            Log.print(e);
         }
     }
+    public void returnItem(String itemId, String persID) { // Return a general item.
+        String statement = "update itemLog SET in=TRUE, inDate=NOW()" +
+                "WHERE ID=\"?\" AND persID=\"?\"";
+        try {
+            PreparedStatement ps = db.prepareStatement(statement);
+            ps.setString(1, itemID);
+            ps.setString(2, persID);
+            ps.execute();
+        }
+        catch (SQLException e) {
+            Log.print(e);
+        }
+    }
+
+    /**
+    *<b>On Logs</b>
+    * The logs in this system are created in the following suituations:
+    * <ul>
+    *     <li>Password reset</li>
+    *     <li>Item signed out</li>
+    * </ul>
+    * Thus, logs will be available for people (passwords), and items.
+    * Logs will be condensed by item type, date and ID.
+     */
+    public ArrayList<String> getLog(String type) {
+        String statement;
+        ResultSet rs = null;
+        switch (type) {
+            case "person":
+                statement = "SELECT * FROM personLog ";
+                break;
+            case "item":
+                statement = "Select * FROM itemLog";
+                break;
+            case "controlled":
+                statement = "SELECT * FROM itemLog " +
+                        "WHERE controlled=TRUE";
+                break;
+            case "general":
+                statement = "SELECT * FROM itemLog " +
+                        "WHERE controlled=FALSE";
+                break;
+            default:
+                statement = "Select * FROM itemLog";
+                break;
+        }
+        try {
+            PreparedStatement ps = db.prepareStatement(statement);
+            rs = ps.executeQuery();
+        }
+        catch (SQLException e) {
+            Log.print(e);
+        }
+        ArrayList<String> ret = null;
+        try {
+            for (int i = 0; rs.next(); i++) {
+                ret.add(rs.getRow().toString()); // TODO: this doesn't work. Should parse the whole row as a string.
+            }
+        }
+        catch (SQLException e) {
+            Log.print(e);
+        }
+        return ret;
+    }
+    public ArrayList<String> getLog(String type, String ID) {
+        String statement;
+        ResultSet rs = null;
+        switch (type) {
+            case "person":
+                statement = "SELECT * FROM personLog " +
+                        "WHERE ID = \"?\"";
+                break;
+            case "item":
+                statement = "Select * FROM itemLog " +
+                        "WHERE ID = \"?\"";
+                break;
+            case "controlled":
+                statement = "SELECT * FROM itemLog " +
+                        "WHERE controlled=TRUE AND " +
+                        "ID = \"?\"";
+                break;
+            case "general":
+                statement = "SELECT * FROM itemLog " +
+                        "WHERE controlled=FALSE AND " +
+                        "ID = \"?\"";
+                break;
+            default:
+                statement = "Select * FROM itemLog " +
+                        "WHERE ID = \"?\"";
+                break;
+        }
+        try {
+            PreparedStatement ps = db.prepareStatement(statement);
+            ps.setString(1, ID);
+            rs = ps.executeQuery();
+        }
+        catch (SQLException e) {
+            Log.print(e);
+        }
+        ArrayList<String> ret = null;
+        try {
+            for (int i = 0; rs.next(); i++) {
+                ret.add(rs.getRow().toString()); // TODO: this doesn't work. Should parse the whole row as a string.
+            }
+        }
+        catch (SQLException e) {
+            Log.print(e);
+        }
+        return ret;
+    }
+    public ArrayList<String> getLog(String type, LocalDate date) {
+        String statement;
+        ResultSet rs = null;
+        switch (type) {
+            case "person":
+                statement = "SELECT * FROM personLog " +
+                        "WHERE date > \"?\"";
+                break;
+            case "item":
+                statement = "Select * FROM itemLog " +
+                        "WHERE date > \"?\"";
+                break;
+            case "controlled":
+                statement = "SELECT * FROM itemLog " +
+                        "WHERE controlled=TRUE AND " +
+                        "date > \"?\"";
+                break;
+            case "general":
+                statement = "SELECT * FROM itemLog " +
+                        "WHERE controlled=FALSE AND " +
+                        "date >  \"?\"";
+                break;
+            default:
+                statement = "Select * FROM itemLog " +
+                        "WHERE date > \"?\"";
+                break;
+        }
+        try {
+            PreparedStatement ps = db.prepareStatement(statement);
+            ps.setString(1, ID);
+            rs = ps.executeQuery();
+        }
+        catch (SQLException e) {
+            Log.print(e);
+        }
+        ArrayList<String> ret = null;
+        try {
+            for (int i = 0; rs.next(); i++) {
+                ret.add(rs.getRow().toString()); // TODO: this doesn't work. Should parse the whole row as a string.
+            }
+        }
+        catch (SQLException e) {
+            Log.print(e);
+        }
+        return ret;
+    }
+    public ArrayList<String> getDatabase(String type) {
+        String statement;
+        ResultSet rs = null;
+        switch (type) {
+            case "person":
+                statement = "SELECT * FROM people ";
+                break;
+            case "item":
+                statement = "Select * FROM items i" +
+                        "INNER JOIN general g" +
+                        " on i.ID = g.ID" +
+                        "INNER JOIN controlled c " +
+                        "on i.ID = c.ID";
+                break;
+            case "controlled":
+                statement = "SELECT * FROM items i " +
+                        "INNER JOIN controlled c " +
+                        "on i.ID = c.ID";
+                break;
+            case "general":
+                statement = "SELECT * FROM items i " +
+                        "INNER JOIN general g " +
+                        "ON i.ID = g.ID";
+                break;
+            default:
+                statement = "Select * FROM items i" +
+                        "INNER JOIN general g" +
+                        " on i.ID = g.ID" +
+                        "INNER JOIN controlled c " +
+                        "on i.ID = c.ID";
+                break;
+        }
+        try {
+            PreparedStatement ps = db.prepareStatement(statement);
+            rs = ps.executeQuery();
+        }
+        catch (SQLException e) {
+            Log.print(e);
+        }
+        ArrayList<String> ret = null;
+        try {
+            for (int i = 0; rs.next(); i++) {
+                ret.add(rs.getRow().toString()); // TODO: this doesn't work. Should parse the whole row as a string. rs.toString() may do the job.
+            }
+        }
+        catch (SQLException e) {
+            Log.print(e);
+        }
+        return ret;
+    }
+    public ArrayList<String> getDatabase(String type, String ID)
+    {
+        String statement;
+        ResultSet rs = null;
+        switch (type) {
+            case "person":
+                statement = "SELECT * FROM people WHERE ID=\"?\"";
+                break;
+            case "item":
+                statement = "Select * FROM items i " +
+                        "INNER JOIN general g" +
+                        " on i.ID = g.ID" +
+                        "INNER JOIN controlled c " +
+                        "on i.ID = c.ID" +
+                        " WHERE ID = \"?\"";
+                break;
+            case "controlled":
+                statement = "SELECT * FROM items i " +
+                        "INNER JOIN controlled c " +
+                        "on i.ID = c.ID" +
+                        " WHERE ID = \"?\"";
+                break;
+            case "general":
+                statement = "SELECT * FROM items i " +
+                        "INNER JOIN general g " +
+                        "ON i.ID = g.ID" +
+                        " WHERE ID = \"?\"";
+                break;
+            case "persGeneral":
+                statement = "SELECT * FROM items i " +
+                        "INNER JOIN general g " +
+                        "ON i.ID = g.ID" +
+                        " WHERE persID = \"?\"";
+                break;
+            case "persControlled":
+                statement = "SELECT * FROM items i " +
+                        "INNER JOIN controlled c " +
+                        "ON i.ID = c.ID" +
+                        " WHERE persID = \"?\"";
+                break;
+            default:
+                statement = "Select * FROM items i" +
+                        "INNER JOIN general g" +
+                        " on i.ID = g.ID" +
+                        "INNER JOIN controlled c " +
+                        "on i.ID = c.ID" +
+                        " WHERE ID = \"?\"";
+                break;
+        }
+        try {
+            PreparedStatement ps = db.prepareStatement(statement);
+            ps.setString(1, ID);
+            rs = ps.executeQuery();
+        }
+        catch (SQLException e) {
+            Log.print(e);
+        }
+        ArrayList<String> ret = null;
+        try {
+            for (int i = 0; rs.next(); i++) {
+                ret.add(rs.getRow().toString()); // TODO: this doesn't work. Should parse the whole row as a string.
+            }
+        }
+        catch (SQLException e) {
+            Log.print(e);
+        }
+        return ret;
+    }
+    public ArrayList<String> getDatabase(String type, LocalDate date) {
+        String statement;
+        ResultSet rs = null;
+        switch (type) {
+            case "person":
+                statement = "SELECT * FROM people WHERE ID=\"?\"";
+                break;
+            case "item":
+                statement = "Select * FROM items i " +
+                        "INNER JOIN general g" +
+                        " on i.ID = g.ID" +
+                        "INNER JOIN controlled c " +
+                        "on i.ID = c.ID" +
+                        " WHERE date > \"?\"";
+                break;
+            case "controlled":
+                statement = "SELECT * FROM items i " +
+                        "INNER JOIN controlled c " +
+                        "on i.ID = c.ID" +
+                        " WHERE date > \"?\"";
+                break;
+            case "general":
+                statement = "SELECT * FROM items i " +
+                        "INNER JOIN general g " +
+                        "ON i.ID = g.ID" +
+                        " WHERE date > \"?\"";
+                break;
+            default:
+                statement = "Select * FROM items i" +
+                        "INNER JOIN general g" +
+                        " on i.ID = g.ID" +
+                        "INNER JOIN controlled c " +
+                        "on i.ID = c.ID" +
+                        " WHERE date > \"?\"";
+                break;
+        }
+        try {
+            PreparedStatement ps = db.prepareStatement(statement);
+            ps.setDate(1, date); //TODO: this is not the data type you are looking for. You want to go home and rethink your date.
+            rs = ps.executeQuery();
+        } catch (SQLException e) {
+            Log.print(e);
+        }
+        ArrayList<String> ret = null;
+        try {
+            for (int i = 0; rs.next(); i++) {
+                ret.add(rs.getRow().toString()); // TODO: this doesn't work. Should parse the whole row as a string.
+            }
+        } catch (SQLException e) {
+            Log.print(e);
+        }
+        return ret;
+    }
+    public void lowerQuantity(String ID, int sub) {
+        String statement = "UPDATE general SET quantity = " +
+                "((Select quantity From general WHERE ID = \"?\") - \"?\")" +
+                " WHERE ID = \"?\"";
+        try {
+            PreparedStatement ps = db.prepareStatement(statement);
+            ps.setString(1, ID);
+            ps.setInt(2, sub);
+            ps.setString(3, ID);
+            ps.execute();
+        } catch (SQLException e) {
+            Log.print(e);
+        }
+    }
+    public String getName(String type, String ID) {
+        String statement;
+        ResultSet rs;
+        String out;
+        switch (type) {
+            case "person":
+                statement = "SELECT name FROM people WHERE ID=\"?\"";
+                break;
+            case "item":
+                statement = "Select name FROM items" +
+                        " WHERE name = \"?\"";
+                break;
+            default:
+                statement = "SELECT name FROM people WHERE ID=\"?\"";
+                break;
+        }
+        try {
+            PreparedStatement ps = db.prepareStatement(statement);
+            ps.setString(1, ID);
+            rs = ps.executeQuery();
+            out = rs.getString(0);
+        } catch (SQLException e) {
+            Log.print(e);
+        }
+        return out;
+    }
+    public ArrayList<String> getName(String type) {
+        String statement;
+        ResultSet rs;
+        ArrayList<String> out = new ArrayList<>();
+        switch (type) {
+            case "person":
+                statement = "SELECT name FROM people";
+                break;
+            case "item":
+                statement = "Select name FROM items";
+                break;
+            default:
+                statement = "SELECT name FROM people";
+                break;
+        }
+        try {
+            PreparedStatement ps = db.prepareStatement(statement);
+            rs = ps.executeQuery();
+            while(rs.next()) {
+                out.add(rs.getString(0));
+            }
+        } catch (SQLException e) {
+            Log.print(e);
+        }
+        return out;
+    }
+    public String getPassword(String barcode) {
+        String statement = "SELECT password FROM people WHERE ID = \"?\"";
+        ResultSet rs;
+        String out = null;
+        try {
+            PreparedStatement ps = db.prepareStatement(statement);
+            ps.setString(barcode);
+            rs = ps.executeQuery();
+            out = rs.getString(1);
+        } catch (SQLException e) {
+            Log.print(e);
+        }
+        return out;
+    }
+    public int getRole(String barcode) {
+        String statement = "SELECT admin FROM people WHERE ID = \"?\"";
+        ResultSet rs;
+        boolean admin = false;
+        try {
+            PreparedStatement ps = db.prepareStatement(statement);
+            ps.setString(barcode);
+            rs = ps.executeQuery();
+            admin = rs.getBoolean(1);
+            if(admin) {
+                statement = "SELECT root FROM people WHERE ID = \"?\"";
+                ps = db.prepareStatement(statement);
+                ps.setString(barcode);
+                rs = ps.executeQuery();
+                admin = rs.getBoolean(1);
+                if (admin) return ROOT;
+                return ADMIN;
+            }
+        } catch (SQLException e) {
+            Log.print(e);
+        }
+        return USER;
+    }
+    public boolean entryExists(String type, String ID) {
+        String statement;
+        ResultSet rs;
+        switch (type) {
+            case "person":
+                statement = "SELECT name FROM people WHERE ID = \"?\"";
+                break;
+            case "item":
+                statement = "Select name FROM items WHERE ID = \"?\"";
+                break;
+            default:
+                statement = "SELECT name FROM people WHERE ID = \"?\"";
+                break;
+        }
+        try {
+            PreparedStatement ps = db.prepareStatement(statement);
+            ps.setString(1, ID);
+            rs = ps.executeQuery();
+            if(rs.next()) {
+                return true;
+            }
+        } catch (SQLException e) {
+            Log.print(e);
+        }
+        return false;
+    }
+    public void export(String type, String path) {
+        String statement;
+        switch (type) {
+            case "person":
+                statement = "SELECT * INTO OUTFILE \'?\' " +
+                        "FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY \'\"\' " +
+                        "LINES TERMINATED BY \'\n\' " +
+                        "FROM people";
+                break;
+            case "item":
+                statement = "Select * INTO OUTFILE '?' \" +\n" +
+                        "FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY \'\"\' " +
+                        "LINES TERMINATED BY \'\n\' FROM items i " +
+                        "INNER JOIN general g" +
+                        " on i.ID = g.ID" +
+                        "INNER JOIN controlled c " +
+                        "on i.ID = c.ID";
+                break;
+            case "controlled":
+                statement = "Select * INTO OUTFILE '?' \" +\n" +
+                        "FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY \'\"\' " +
+                        "LINES TERMINATED BY \'\n\' FROM items i " +
+                        "INNER JOIN controlled c " +
+                        "on i.ID = c.ID";
+                break;
+            case "general":
+                statement = "Select * INTO OUTFILE '?' \" +\n" +
+                        "FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY \'\"\' " +
+                        "LINES TERMINATED BY \'\n\' FROM items i " +
+                        "INNER JOIN general g " +
+                        "on i.ID = g.ID";
+                break;
+            default:
+                statement = "Select * INTO OUTFILE '?' \" +\n" +
+                        "FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY \'\"\' " +
+                        "LINES TERMINATED BY \'\n\' FROM items i " +
+                        "INNER JOIN general g" +
+                        " on i.ID = g.ID" +
+                        "INNER JOIN controlled c " +
+                        "on i.ID = c.ID";
+                break;
+        }
+        try {
+            PreparedStatement ps = db.prepareStatement(statement);
+            ps.setString(1, path);
+            ps.execute();
+        } catch (SQLException e) {
+            Log.print(e);
+        }
 
 }

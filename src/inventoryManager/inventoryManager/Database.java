@@ -1,5 +1,7 @@
 package inventoryManager;
 
+import java.util.ArrayList;
+
 /**
  * Created by jarrah on 3/08/15.
  */
@@ -10,7 +12,7 @@ public interface Database {
 
     String getEntryName(String barcode);
 
-    String[] getNamesOfEntries();
+    ArrayList<String> getNamesOfEntries();
 
     boolean entryExists(String name, String barcode);
 
