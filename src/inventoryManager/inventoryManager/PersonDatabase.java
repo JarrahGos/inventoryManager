@@ -229,46 +229,14 @@ final class PersonDatabase implements  Database{
 	}
 
     /**
-     * Reset the current bill of the entire database to zero. Will not effect the running bill.
-     */
-	public final void resetBills() {
-		File root = new File (databaseLocation);
-		File[] list = root.listFiles();
-		String[] stringList = new String[list.length];
-		for(int i = 0; i < list.length; i++) {
-			stringList[i] = list[i].getPath();
-		}
-		Person[] database = readEntries(stringList);
-		for (Person person : database) {
-            if(person != null) {
-                person.resetWeekCost();
-                writeDatabaseEntry(person);
-            }
-		}
-	}
-
-    /**
      * Changes the Admin password to the one specified
      * @param extPassword The new password, prehashed.
      */
-	public final void setAdminPassword(String extPassword) {
-		admin.setName(extPassword);
-        	writeDatabaseEntry(admin);
+	public final void setPassword(String barcode, String password) {
+		db.setPassword(barcode, password);
 	}
-
-    /**
-     * Set weather the specified person can buy from the program
-     * @param userName The name (or barcode) of the person you are changing
-     * @param canBuy A boolean of whether the person should be able to buy.
-     */
-	public final void setPersonCanBuy(String userName, boolean canBuy)
-	{
-		Person set = readEntry(userName);
-		set.setCanBuy(canBuy);
-		writeDatabaseEntry(set);
-	}
-
-	public void changeDatabasePerson(String selectedIndex, String name, long pmkeys, long oldPmkeys) 
+	//TODO: this needs to be written for SQL
+    public void changeDatabasePerson(String selectedIndex, String name, long pmkeys, long oldPmkeys) 
 	{
 		Person oldPerson = readEntry(oldPmkeys);
 		Person newPerson = new Person(name, pmkeys, (long)oldPerson.totalCostRunning()*100, (long)oldPerson.totalCostWeek() *100,oldPerson.canBuy());

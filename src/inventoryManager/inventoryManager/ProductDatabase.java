@@ -30,6 +30,7 @@ final class ProductDatabase
      * Stores the path of the database as a string, based on the OS being run.
      */
 	private String databaseLocation;
+	private SQLInterface db = new SQLInterface();
 
     /**
      * Constructor for ProductDatabase.
@@ -96,20 +97,10 @@ final class ProductDatabase
      * Postcondition: the user will be see an output of the persons in the database.
      * @return A string containing the entire database
      */
-	public final String getDatabase() {
-
-		File root = new File (databaseLocation);
-		File[] list = root.listFiles();
-		Product[] database = readDatabase(list);
-		StringBuilder output = new StringBuilder();
-		for(int i = 0; i < database.length; i++) { // loop until the all of the databases data has been output
-			if(database[i] != null) {
-				output.append(String.format("\nProduct %d:\n",1+i));
-				output.append(database[i].getData());
-			}
-		}
-		return output.toString(); // send the calling program one large string containing the ingredients of all the products in the database
+	public final ArrayList<String> getDatabase() {
+		return db.getDatabase("item");
 	}
+	
 
     /**
      * Deletes the specified product from the database
@@ -117,35 +108,10 @@ final class ProductDatabase
      * Postconditions: the chosen product will no longer exist.
      * @param name The barcode of the person you wish to delete
      */
-	public final void delProduct(String name) {
-        try {
-            File toDelLn = new File(databaseLocation + name);
-            Product del = readDatabaseProduct(name);
-            File toDel = new File(databaseLocation + String.valueOf(del.getBarCode()));
-            toDel.delete();
-            toDelLn.delete();
-        }
-        catch (NullPointerException e ) {
-            Log.print("File " + name + " not found when trying to delete");
-        }
+	public final void delProduct(String type, String barcode) {
+        db.deleteEntry(type, barcode);
 	}
 
-    /**
-     * Get the price of the specified product
-     * Preconditions: setDatabase has been run for the invoking product
-     * Postconditions: the price of the invoking product will be returned as a double
-     * @param productNo The barcode or name of the product desired as a string
-     * @return the price of the product as a double
-     */
-    public final double getProductPrice(String productNo)
-    {
-        Product getting = readDatabaseProduct(productNo);
-        if (getting != null) { // check that the desired person exists
-            return getting.productPrice(); // now that we know it does, give it to the interface
-        }
-        else return 0;
-
-    }
     // TODO: why is this still a thing.
 	public final long getBarCode(int productNo)
 	{
@@ -165,14 +131,10 @@ final class ProductDatabase
      * @param extProductName The name of the product you wish to check for
      * @return A boolean value of whether the product exists or not
      */
-	final boolean productExists(String extProductName, Long extBarCode)
+	final boolean productExists(String barcode)
 	{
-		File root = new File (databaseLocation);
-		File[] list = root.listFiles();
-		for(File file : list) {
-			if(file.getName().equals(extProductName) || file.getName().equals(extBarCode.toString())) return true;
-		}
-	    return false; // if you are running this, no product was found and therefore it is logical to conclude none exist.
+		return db.entryExists("item", barcode);
+		// if you are running this, no product was found and therefore it is logical to conclude none exist.
 		// similar to Kiri-Kin-Tha's first law of metaphysics.
 	}
 
@@ -241,60 +203,14 @@ final class ProductDatabase
      * @param path The path to the directory you wish to output to
      * @return An integer of 1 if the file was not found and 0 if it worked.
      */
-	public final int adminWriteOutDatabase(String path)  {
-		FileWriter outfile = null;
-        BufferedWriter bufOut = null;
-		double total = 0;
-		File root = new File (databaseLocation);
-		File[] list = root.listFiles();
-		Product[] database = readDatabase(list);
-		try {
-			File file = new File(path);
-			outfile = new FileWriter(file); // attempt to open the file that has been created.
-            bufOut = new BufferedWriter(outfile);
-		} catch (FileNotFoundException e) { // if the opening fails, close the file and return 1, telling the program that everything went wrong.
-            Log.print(e);
-			if (bufOut != null) {
-                try {
-                    bufOut.close();
-                    outfile.close();
-                } catch (IOException e1) {
-                    Log.print(e1);
-                }
-            }
-			return 1;
-		} catch (IOException e) {
-            Log.print(e);
-        }
-        String out = "Name, Price, Barcode, Stock Count";
-        try {
-            bufOut.write(out, 0, out.length());
-            bufOut.newLine();
-        } catch (IOException e) {
-            Log.print(e);
-        }
-        for(Product product : database) {
-            if(product != null) {
-                out = product.getName() + "," + product.productPrice() + ","
-                        + product.getBarCode() + "," + product.getNumber();
-                try {
-                    bufOut.write(out, 0, out.length());
-                    bufOut.newLine();
-                } catch (IOException e) {
-                    Log.print(e);
-                }
-                total += product.productPrice() * product.getNumber();
-            }
-		}
-        out = "Total stock value, " + total;
-        try {
-            bufOut.write(out, 0, out.length());
-            bufOut.close();
-            outfile.close(); // close the file to ensure that it actually writes out to the file on the hard drive
-        } catch (IOException e) {
-            Log.print(e);
-        }
-		return 0; // let the program and thus the user know that everything is shiny.
+	public final void adminWriteOutDatabase(String path)  {
+		db.export("item", path);
+	}
+	public final void controlWriteOutDatabase(String path) {
+		db.export("controlled", path);
+	}
+	public final void generalWriteOutDatabase(String path) {
+		db.export("general", path);
 	}
     /**
      * Reads one product from the database.
@@ -388,20 +304,25 @@ final class ProductDatabase
     final Product[] readDatabase(String[] databaseList){
         Product[] importing = new Product[databaseList.length];
         int i = 0;
-        for(String product : databaseList) {
+     
+		for(String product : databaseList) {
             Product inProd = null;
-            try {
+        
+			try {
                 FileInputStream productIn = new FileInputStream(product);
                 ObjectInputStream in = new ObjectInputStream(new BufferedInputStream(productIn));
                 inProd = (Product) in.readObject();
                 in.close();
                 productIn.close();
-            } catch (IOException e) {
+            
+			} catch (IOException e) {
                 Log.print(e);
                 return null;
-            } catch (ClassNotFoundException e) {
+            
+			} catch (ClassNotFoundException e) {
                 Log.print(e);
-            }
+            
+			}
             boolean alreadyExists = false;
             if(inProd != null) {
                 for (Product prod : importing) {
@@ -425,10 +346,9 @@ final class ProductDatabase
      * @param productName the name of the product you wish to check
      * @return The number as an int of the product left in stock
      */
-	public final int getNumber(String productName)
+	public final int getNumber(String barcode)
 	{
-		Product getting = readDatabaseProduct(productName);
-        return getting.getNumber();
+		return db.getQuantity(barcode);
 	}
 
     /**
@@ -437,7 +357,7 @@ final class ProductDatabase
      * @param number The number of that item you now have.
      */
 	public final void setNumber(String name, int number)
-	{
+	{ //TODO: create a SQLInterface method to handle this. 
 		Product setting = readDatabaseProduct(name);
         setting.setNumber(number);
         writeOutDatabaseProduct(setting);
@@ -463,22 +383,7 @@ final class ProductDatabase
      * A list of the names of all products in the database
      * @return A String array of the names of all products in the database.
      */
-	public final String[] getProductNames() {
-        File root = new File (databaseLocation);
-        File[] list = root.listFiles();
-        String[] stringList = new String[list.length];
-        for(int i = 0; i < list.length; i++) {
-            stringList[i] = list[i].getPath();
-        }
-        String[] output = new String[list.length];
-        Product[] database = readDatabase(stringList);
-        for(int i = 0; i < database.length; i++) {
-            if(database[i] != null)
-                output[i] = database[i].getName();
-        }
-        output = Arrays.stream(output)
-                .filter(s -> (s != null && s.length() > 0))
-                .toArray(String[]::new);
-        return output;
+	public final ArrayList<String> getProductNames() {
+		return db.getName("item");
 	}
 }
