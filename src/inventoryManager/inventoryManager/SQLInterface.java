@@ -26,6 +26,7 @@ package inventoryManager;
  */
 
 //TODO: Consider moving this to the SQLite DBMS. This will mean that the DB will be bundled with the software rather than the installed system.
+
 import java.io.FileNotFoundException;
 import java.sql.*;
 import java.time.LocalDate;
@@ -231,7 +232,20 @@ public class SQLInterface {
             }
         }
     }
-    public void addEntry(String persID, String adminID) { // add to change password log.
+    public void addEntry(String ID, String name) {
+        String statement = "INSERT INTO items (ID, name) " +
+                "VALUES(\"?\", \"?\")";
+        try {
+            PreparedStatement ps = db.prepareStatement(statement);
+            ps.setString(1, ID);
+            ps.setString(2, name);
+            ps.execute();
+        }
+        catch (SQLException e) {
+            Log.print(e);
+        }
+    }
+    public void addLog(String persID, String adminID) { // add to change password log.
         String statement = "INSERT INTO personLog (persID, date, authName) " +
                 "VALUES(\"?\", NOW(), (Select name FROM people where ID = \"?\")";
         try {
@@ -245,10 +259,10 @@ public class SQLInterface {
         }
 
     }
-    public void addEntry(String itemID, String persID, boolean controlled) { // Sign an item out
+    public void addLog(String itemID, String persID, boolean controlled) { // Sign an item out
         //TODO: Should this check the item as out in the controlled table?
         String statment = "INSERT INTO itemLog (ID, date, out, in, persID, controlled) " +
-                "VALUES("\"?\", NOW(), TRUE, \"FALSE\", \"?\", \"?\"");
+                "VALUES("\"?\", NOW(), TRUE, \"FALSE\", \"?\", \"?\"")
         try {
             PreparedStatement ps = db.prepareStatement(statment);
             ps.setString(1, itemID);
@@ -777,5 +791,38 @@ public class SQLInterface {
         } catch (SQLException e) {
             Log.print(e);
         }
+    }
+    public int getQuantity(String ID) {
+        String statement = "SELECT quantity FROM general WHERE ID = \"?\"";
+        ResultSet rs = null;
+        try {
+            PreparedStatement ps = db.prepareStatement(statement);
+            ps.setString(1, ID);
+            rs = ps.executeQuery();
+            if (rs != null) {
+                rs.next();
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            Log.print(e);
+        }
+        return 0;
+    }
+    public void setQuantity(String ID, int quantity) {
+        String statement = "UPDATE general SET quantity=\"?\"  WHERE ID = \"?\"";
+        try {
+            PreparedStatement ps = db.prepareStatement(statement);
+            ps.setInt(1, quantity);
+            ps.setString(2, ID);
+            ps.execute();
+        } catch (SQLException e) {
+            Log.print(e);
+        }
+    }
+    public void updateEntry(String ID, String name, String newID) {
+        //TODO: Finish this
+    }
+
+
 
 }

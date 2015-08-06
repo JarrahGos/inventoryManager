@@ -8,7 +8,6 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
@@ -38,7 +37,7 @@ import java.security.spec.InvalidKeySpecException;
 class WorkingUser {
 
     /** The database which stores all products used by the system. */
-    private final ProductDatabase productDatabase;
+    private final ItemDatabase itemDatabase;
     /** The database which stores all people who can use the system */
     private final PersonDatabase personDatabase;
     /** the checkout used to store what a person is purchasing at a given time */
@@ -50,7 +49,7 @@ class WorkingUser {
      * Create the working user instance with both databases and a checkout.
      */
     public WorkingUser() {
-        productDatabase = new ProductDatabase();
+        itemDatabase = new ItemDatabase();
         personDatabase = new PersonDatabase();
         checkOuts = new CheckOut();
         user = null;
@@ -95,7 +94,7 @@ class WorkingUser {
      * @return A string array of the product names
      */
     public final String[] getProductNames() {
-        return productDatabase.getProductNames();
+        return itemDatabase.getItemNames();
     }
 
     /**
@@ -203,7 +202,7 @@ class WorkingUser {
         TextArea textArea;
         switch (type) {
             case ("Product"):
-                textArea = new TextArea(productDatabase.getDatabase());
+                textArea = new TextArea(itemDatabase.getDatabase());
                 break;
             case ("Person"):
                 textArea = new TextArea(personDatabase.getDatabase());
@@ -236,7 +235,7 @@ class WorkingUser {
     public final void buyProducts() {
         user.addPrice(checkOuts.getPrice());
         Product[] purchased = checkOuts.productBought(); // clear the quantities and checkout
-        productDatabase.writeOutDatabase(purchased);
+        itemDatabase.writeOutDatabase(purchased);
         personDatabase.writeDatabaseEntry(user);
         checkOuts = new CheckOut(); // ensure checkout clear
         user = null;
@@ -287,7 +286,7 @@ class WorkingUser {
         } else if ((input == null) || ("".equals(input))) {
             return false;
         }
-        Product adding = productDatabase.getProductRef(tempBarCode);
+        Product adding = itemDatabase.getProductRef(tempBarCode);
         if (adding != null) {
             checkOuts.addProduct(adding); //otherwise, add the product as normal.
             return true;
@@ -325,7 +324,7 @@ class WorkingUser {
      * @param price The price of the product you wish to add.
      */
     public final void addProductToDatabase(String name, long barCode, long price) {
-        productDatabase.setDatabaseProduct(name, price, barCode);
+        itemDatabase.setEntry(name, price, barCode);
     }
 
     /**
@@ -337,7 +336,7 @@ class WorkingUser {
      * @param oldBarcode The old barcode of the product
      */
     public final void changeDatabaseProduct(String name, String oldName, long price, long barcode, long oldBarcode) {
-        productDatabase.changeDatabaseProduct(name, oldName, price, barcode, oldBarcode);
+        itemDatabase.changeDatabaseProduct(name, oldName, price, barcode, oldBarcode);
     }
 
 
@@ -363,7 +362,7 @@ class WorkingUser {
                 personDatabase.writeDatabaseCSV("adminPersonDatabase.csv");
                 break;
             case ("Product"):
-                productDatabase.adminWriteOutDatabase("adminProductDatabase.csv");
+                itemDatabase.adminWriteOutDatabase("adminProductDatabase.csv");
                 break;
             default:
                 personDatabase.writeDatabaseCSV("adminPersonDatabase.csv");
@@ -387,7 +386,7 @@ class WorkingUser {
      * @throws InterruptedException
      */
     public final void removeProduct(String index) throws IOException, InterruptedException {
-        productDatabase.delProduct(index);
+        itemDatabase.delProduct(index);
     }
 
     /**
@@ -400,7 +399,7 @@ class WorkingUser {
     }
 
     public final long getProductBarCode(int index) {
-        return productDatabase.getBarCode(index);
+        return itemDatabase.getBarCode(index);
     }
 
     /**
@@ -409,7 +408,7 @@ class WorkingUser {
      * @return The barcode of the product with the name specified.
      */
     public final long getProductBarCode(String name) {
-        Product getting = productDatabase.readDatabaseProduct(name);
+        Product getting = itemDatabase.readDatabaseProduct(name);
         return getting.getBarCode();
     }
 
@@ -419,7 +418,7 @@ class WorkingUser {
      * @return The name of the product with the given barcode
      */
     public final String getProductName(String index) {
-        Product getting = productDatabase.readDatabaseProduct(index);
+        Product getting = itemDatabase.readDatabaseProduct(index);
         return getting.getName();
     }
 
@@ -429,7 +428,7 @@ class WorkingUser {
      * @return The price of the specified product
      */
     public final double getProductPrice(String index) {
-        return productDatabase.getProductPrice(index);
+        return itemDatabase.getProductPrice(index);
     }
 
     /**
@@ -438,7 +437,7 @@ class WorkingUser {
      * @return The number of the specified product in stock
      */
     public final int getProductNumber(String name) {
-        return productDatabase.getNumber(name);
+        return itemDatabase.getNumber(name);
     }
 
     /**
@@ -447,7 +446,7 @@ class WorkingUser {
      * @param numberOfProducts The new stock count.
      */
     public final void setNumberOfProducts(String name, int numberOfProducts) {
-        productDatabase.setNumber(name, numberOfProducts);
+        itemDatabase.setNumber(name, numberOfProducts);
     }
 
     public final boolean userCanBuy() {
