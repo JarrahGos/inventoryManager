@@ -22,7 +22,6 @@ package inventoryManager;
 * @author Jarrah Gosbell
 */
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
@@ -71,23 +70,13 @@ class ItemDatabase
      * Alter an existing product within the database
      * Precondition: augments int productNo, String name, String artist, double size, double duration are input
      * Postcondition: Data for the currant working product in this database will be set.
-     * @param name The new name of the product.
-     * @param oldName The old name of the product
-     * @param price The new price of the product
-     * @param barCode The new barcode of the product
+	 * @param barCode The new barcode of the product
      * @param oldBarCode The old barcode of the product
-     */
-    public final void changeDatabaseProduct(String name, String oldName, long price, long barCode, long oldBarCode) // take the products data and pass it to the products constructor
+	 * @param oldName The old name of the product
+	 */
+    public final void changeItem(String name, String newID, String ID) // take the products data and pass it to the products constructor
     {
-        Product newProduct;
-        newProduct = new Product(name, price, barCode); // pass off the work to the constructor: "make it so."
-        File check = new File(databaseLocation + oldName);
-        if(check.exists()) check.delete();
-        check = new File(databaseLocation + oldBarCode);
-        if(check.exists()) check.delete();
-        check = null;
-        writeOutDatabaseProduct(newProduct);
-
+		db.updateEntry(ID, name, newID);
     }
     /**
      * Get the entire database as a string
@@ -104,7 +93,8 @@ class ItemDatabase
      * Deletes the specified product from the database
      * Preconditions: setDatabase has been run
      * Postconditions: the chosen product will no longer exist.
-     * @param name The barcode of the person you wish to delete
+	 * @param type The type of item you wish to delete
+     * @param barcode The barcode of the item you wish to delete
      */
 	public final void delProduct(String type, String barcode) {
         db.deleteEntry(type, barcode);
@@ -113,8 +103,7 @@ class ItemDatabase
 
     /**
      * Determine Whether a product Exists given only their barcode
-     * @param extBarCode The barcode of the person you wish to check for
-     * @param extProductName The name of the product you wish to check for
+     * @param barcode The barcode of the person you wish to check for
      * @return A boolean value of whether the product exists or not
      */
 	final boolean itemExists(String barcode)
@@ -333,5 +322,8 @@ class ItemDatabase
      */
 	public ArrayList<String> getItemNames() {
 		return db.getName("item");
+	}
+	public String getItemName(String ID) {
+		return db.getName("item", ID);
 	}
 }

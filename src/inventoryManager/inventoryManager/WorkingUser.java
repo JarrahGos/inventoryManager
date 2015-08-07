@@ -7,10 +7,11 @@ import javafx.scene.control.TextArea;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
+import java.util.ArrayList;
+import java.util.LinkedList;
 
 /*
 *    TOC19 is a simple program to run TOC payments within a small group.
@@ -43,7 +44,8 @@ class WorkingUser {
     /** the checkout used to store what a person is purchasing at a given time */
     private CheckOut checkOuts;
     /** The currently logged in user */
-    private static inventoryManager.Person user;
+    private static String userID;
+    private static String userName;
 
     /**
      * Create the working user instance with both databases and a checkout.
@@ -52,7 +54,8 @@ class WorkingUser {
         itemDatabase = new ItemDatabase();
         personDatabase = new PersonDatabase();
         checkOuts = new CheckOut();
-        user = null;
+        userID = null;
+        userName = null;
     }
 
     /**
@@ -64,11 +67,11 @@ class WorkingUser {
         if ((input != null && !input.equals("")) && (!input.matches("[0-9]+"))) {
             input = input.substring(1);
         }
-        if (input == null || input.equals("") || !isLong(input) || !personDatabase.entryExists(Long.parseLong(input))) { // checks for valid numbers in the PMKeyS
+        if (input == null || input.equals("") || !isLong(input) || !personDatabase.entryExists(input)) { // checks for valid numbers in the PMKeyS
             user = null;
             return 1;
         } else {
-            user = personDatabase.readEntry(Long.parseLong(input));
+            user = personDatabase.readEntry((input));
         }
         if (user != null &&(!user.canBuy()|| input.equals("7000000"))) {
             user = null;
@@ -81,7 +84,7 @@ class WorkingUser {
      * Get a list of the names of all users in the database
      * @return A string array of the usernames
      */
-    public final String[] getUserNames() {
+    public final ArrayList<String> getUserNames() {
         return personDatabase.getNamesOfEntries();
     }
     
@@ -93,7 +96,7 @@ class WorkingUser {
      * Get a list of the names of all products in the database
      * @return A string array of the product names
      */
-    public final String[] getProductNames() {
+    public final ArrayList<String> getProductNames() {
         return itemDatabase.getItemNames();
     }
 
@@ -127,7 +130,7 @@ class WorkingUser {
         PBEKeySpec spec = new PBEKeySpec(chars, salt, iterations, 64 * 8);
         SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
         byte[] hash = skf.generateSecret(spec).getEncoded();
-        String[] ret = {toHex(salt),toHex(hash)};
+        String[] ret = {hash.toString(), salt.toString()};
         return ret;
     }
     private static String[] getSecurePassword(String password, String NaCl) throws NoSuchAlgorithmException, InvalidKeySpecException
@@ -139,7 +142,7 @@ class WorkingUser {
         PBEKeySpec spec = new PBEKeySpec(chars, salt, iterations, 64 * 8);
         SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
         byte[] hash = skf.generateSecret(spec).getEncoded();
-        String[] ret = {toHex(salt),toHex(hash)};
+        String[] ret = {hash.toString(), salt.toString()};
         return ret;
     }
 
@@ -151,35 +154,30 @@ class WorkingUser {
         return salt.toString();
     }
 
-    private static String toHex(byte[] array) throws NoSuchAlgorithmException
-    {
-        BigInteger bi = new BigInteger(1, array);
-        String hex = bi.toString(16);
-        int paddingLength = (array.length * 2) - hex.length();
-        if(paddingLength > 0)
-        {
-            return String.format("%0"  +paddingLength + "d", 0) + hex;
-        }else{
-            return hex;
-        }
-    }
-
     /**
      * Test whether a cleartext password is equal to the stored admin password
      * @param PW A cleartext password to test
      * @return The boolean test for whether the passwords are equal.
      */
     public final boolean passwordsEqual(String barcode, String PW) {
-        String[] testing = getSecurePassword(PW, PersonDatabase.getSalt(barcode));
-        return (testing.equals(personDatabase.getPass(barcode)));
+        String[] old = personDatabase.getPassword(barcode);
+        String[] testing = new String[0];
+        try {
+            testing = getSecurePassword(PW, old[1]); //get secure password from new password and old salt
+        } catch (NoSuchAlgorithmException e) {
+            Log.print(e);
+        } catch (InvalidKeySpecException e) {
+            Log.print(e);
+        }
+        return (testing[0].equals(old[0]));
     }
 
     /**
      * Takes the given (prehashed) password and set it as the admin password
      * @param PW The prehashed password to be set
      */
-    public final void setPassword(String barcode, String PW) {
-        personDatabase.setPassword(barcode, PW);
+    public final void setPassword(String barcode, String[] PW) {
+        personDatabase.setPassword(barcode, PW[0], PW[1]);
     }
 
     final boolean isLong(String s) {
@@ -202,13 +200,13 @@ class WorkingUser {
         TextArea textArea;
         switch (type) {
             case ("Product"):
-                textArea = new TextArea(itemDatabase.getDatabase());
+                textArea = new TextArea(itemDatabase.getDatabase().toString());
                 break;
             case ("Person"):
-                textArea = new TextArea(personDatabase.getDatabase());
+                textArea = new TextArea(personDatabase.getDatabase().toString());
                 break;
             default:
-                textArea = new TextArea(personDatabase.getDatabase());
+                textArea = new TextArea(personDatabase.getDatabase().toString());
                 break;
         }
         textArea.setEditable(false); // stop the user being able to edit this and thinking it will save.
@@ -223,7 +221,7 @@ class WorkingUser {
     /**
      * Log the user out from this class
      */
-    public final void logOut() {
+    public final void logOut() { //TODO: this will probably have ta change.
         user = null;
         checkOuts = new CheckOut();
     }
@@ -233,10 +231,8 @@ class WorkingUser {
      * taking the number bought from the products in the database and clearing both the user and the checkout
      */
     public final void buyProducts() {
-        user.addPrice(checkOuts.getPrice());
-        Product[] purchased = checkOuts.productBought(); // clear the quantities and checkout
-        itemDatabase.writeOutDatabase(purchased);
-        personDatabase.writeDatabaseEntry(user);
+        LinkedList purchased = checkOuts.productBought(); // clear the quantities and checkout
+        itemDatabase.writeOutDatabase(purchased); //TODO: Make this actually write out the items.
         checkOuts = new CheckOut(); // ensure checkout clear
         user = null;
     }
@@ -245,17 +241,10 @@ class WorkingUser {
      * Get the names of all products in the checkout
      * @return A string array of the names of all products in the checkout
      */
-    public final String[] getCheckOutNames() {
+    public final LinkedList<String> getCheckOutNames() {
         return checkOuts.getCheckOutNames();
     }
 
-    /**
-     * Get the prices of all products in teh checkout
-     * @return A string array of the prices of all products in the checkout.
-     */
-    public final String[] getCheckOutPrices() {
-        return checkOuts.getCheckOutPrices();
-    }
 
     /**
      * Takes the error value given by getPMKeyS and uses it to give the username or an error message
@@ -268,8 +257,6 @@ class WorkingUser {
                 if(user != null) return user.getName();
             case 1:
                 return "User not found";
-            case 2:
-                return "You have been locked out.\n See the TOC treasurer";
         }
         return user == null ? "Error" : user.getName();
     }
@@ -280,20 +267,20 @@ class WorkingUser {
      * @return True if the product was added, false if it failed
      */
     public final boolean addToCart(String input) {
-        long tempBarCode = -1;
+        String tempBarCode = "-1";
         if (input != null && !input.equals("") && isLong(input)) {
-            tempBarCode = Long.parseLong(input); // disallows the user from entering nothing or clicking cancel.
+            tempBarCode = input; // disallows the user from entering nothing or clicking cancel.
         } else if ((input == null) || ("".equals(input))) {
             return false;
         }
-        Product adding = itemDatabase.getProductRef(tempBarCode);
+        String adding = itemDatabase.getItemName(tempBarCode);
         if (adding != null) {
-            checkOuts.addProduct(adding); //otherwise, add the product as normal.
+            checkOuts.addProduct(tempBarCode, adding); //otherwise, add the product as normal.
             return true;
         }
         else if(user.getBarCode() == tempBarCode) {
-            adding = new Product("Buying yourself are you? You can't do that.", 0, tempBarCode);
-            checkOuts.addProduct(adding);
+            adding = "Checking yourself out are you? You can't do that.";
+            checkOuts.addProduct("-1", adding);
             return true;
         }
         return false;
@@ -336,7 +323,7 @@ class WorkingUser {
      * @param oldBarcode The old barcode of the product
      */
     public final void changeDatabaseProduct(String name, String oldName, long price, long barcode, long oldBarcode) {
-        itemDatabase.changeDatabaseProduct(name, oldName, price, barcode, oldBarcode);
+        itemDatabase.changeItem(oldName, barcode, oldBarcode);
     }
 
 
@@ -395,7 +382,7 @@ class WorkingUser {
      */
     public final void deleteProduct(int index)
     {
-        checkOuts.delProduct(index);
+        checkOuts.delItem(index);
     }
 
     public final long getProductBarCode(int index) {

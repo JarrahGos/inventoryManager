@@ -1,6 +1,5 @@
 package inventoryManager;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 /*
 *    TOC19 is a simple program to run TOC payments within a small group. 
@@ -24,52 +23,51 @@ import java.util.LinkedList;
 * Author: Jarrah Gosbell
 * Student Number: z5012558
 * Class: CheckOut
-* Description: This program will allow for the creation, retrieval, modification and deletion of checkOuts created from products in the product database.
+* Description: This program will allow for the creation, retrieval, modification and deletion of checkOuts created from items in the product database.
 */
 
 final class CheckOut
 {
 	// create the necessary variables in the order of use
-    /** A list of all products which are currently in the checkout */
-	private ArrayList<inventoryManager.Product> products;
-    /** A list corresponding to products which contains integers, each denoting the number of it's respective product being bought */
+    /** A list of all items which are currently in the checkout */
+	private LinkedList<String> items;
+    private LinkedList<String> names;
+    /** A list corresponding to items which contains integers, each denoting the number of it's respective product being bought */
 	private LinkedList<Integer> quantities;
     /** The size of the above two lists */
 	private int logicalSize;
-    /** The sum of the prices of the products stored. Calculated as sum(products[i] = quantities[i]) */
-	private long totalPrice;
 
     private int first;
+    private ItemDatabase itemDB = new ItemDatabase();
 
     /**
-     * Construct a new checkout with no products
+     * Construct a new checkout with no items
      */
 	public CheckOut()
 	{
-	    products = new ArrayList<>();
+	    items = new LinkedList<>();
         quantities = new LinkedList<>();
 	    logicalSize = 0;
-	    totalPrice = 0;
         first = 0;
 	}
 
     /**
      * Add a new product to the checkout
-     * @param item The product to be added to the checkout
      */
-	public final void addProduct(inventoryManager.Product item) {
+	public final void addProduct(String ID, String name) {
         int quantity = 1; // this can be changed when the user can input a number.
         boolean alreadyExists = false;
         int i = 0;
-        found:
-        for (inventoryManager.Product prod : products) {// replace this with the library method
-            if (prod.equals(item)) {
+        for (String item : items) {// replace this with the library method
+            if (ID.equals(item)) {
                 alreadyExists = true;
-                break found;
+                break;
             } else i++;
         }
 		if(!alreadyExists) {
-			products.add(item);
+			items.add(ID);
+            names.add(name);
+            names.add(itemDB.getItemName(ID));
 			quantities.add(quantity);
 			++logicalSize;
 		}
@@ -78,58 +76,24 @@ final class CheckOut
 			quantities.add(i, quantityStored);
             quantities.remove(i+1);
 		}
-		totalPrice += item.productPrice()*quantity;
-        if(totalPrice >= 20000 && 0 == first) {
-            first = 1;
-            addProduct(new Product("The high roller has come to town.", 0, -3546654));
-        }
-        else if(totalPrice > 110000 && 1 == first) {
-            first = 2;
-            addProduct(new Product("That's a paycheck", 0, -1651198189));
-
-        }
 	}
 
     /**
      * Get the names and quantities of everything in the checkout
      * @return A String array of all names and quantities
      */
-	public final String[] getCheckOutNames()
+	public final LinkedList<String> getCheckOutNames()
 	{
-		String[] output = new String[logicalSize];
-		for (int i = 0; i < logicalSize; i++) {
-			output[i] = (products.get(i).getDataName() + quantities.get(i) + "\n");
-		}
-		return output;
+
+		return names;
 	}
 
-    /**
-     * Get the prices of all items in the checkout
-     * @return A string array of the prices.
-     */
-    public final String[] getCheckOutPrices()
-    {
-        String[] output = new String[logicalSize];
-        for (int i = 0; i < logicalSize; i++) {
-            output[i] = "Price: $" + products.get(i).getDataPrice() * quantities.get(i);
-        }
-        return output;
-    }
-
-    /**
-     * Get the total price of the checkout
-     * @return The summation of the prices for all items.
-     */
-    public long getPrice()
-    {
-        return totalPrice;
-    }
 
     /**
      * Delete a product within the checkout.
      * @param productNo The index of the item within the checkout.
      */
-    public final void delProduct(int productNo) // array store exception
+    public final void delItem(int productNo) // array store exception
 	{
 		/**
 		Class CheckOut: Method delProduct
@@ -139,13 +103,11 @@ final class CheckOut
 		
 		if(productNo < logicalSize) { // check that the product exists
             if(quantities.get(productNo) != 1) {
-                totalPrice -= products.get(productNo).productPrice(); // remove the products data from the summaries of the checkOut
                 quantities.add(productNo, quantities.get(productNo) -1);
                 quantities.remove(productNo + 1);
             }
             else {
-                totalPrice -= products.get(productNo).productPrice();
-                products.remove(productNo);
+                items.remove(productNo);
                 quantities.remove(productNo);
                 logicalSize--;
             }
@@ -154,16 +116,11 @@ final class CheckOut
 
 
     /**
-     * Reduce the stock counts for the purchased products and return the product array to be stored
+     * Reduce the stock counts for the purchased items and return the product array to be stored
      * @return The product array, having been reduced in stock. 
      */
-	public final Product[] productBought()
+	public final LinkedList<String> productBought()
     {
-        for (int i = logicalSize - 1; i > 0; i--) {
-            for (int z = 0; z < quantities.get(i); z++) {
-                products.get(i).decrementNumber();
-            }
-        }
-		return products.toArray(new Product[products.size()]);
+		return items;
 	}
 }

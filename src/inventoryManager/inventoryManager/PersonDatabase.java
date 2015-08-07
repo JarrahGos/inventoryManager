@@ -23,7 +23,6 @@ package inventoryManager;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 final class PersonDatabase implements  Database{
 
@@ -99,9 +98,6 @@ final class PersonDatabase implements  Database{
      */
 	public final String getEntryName(String barcode) {
 		return db.getName("person", barcode);
-	}
-	public final String getPassword(String barcode) {
-		return db.getPassword(barcode);
 	}
 	public final int getRole(String barcode) { // 0 = user, 1 = admin, 2 = root
 		return db.getRole(barcode);
@@ -232,8 +228,11 @@ final class PersonDatabase implements  Database{
      * Changes the Admin password to the one specified
      * @param extPassword The new password, prehashed.
      */
-	public final void setPassword(String barcode, String password) {
-		db.setPassword(barcode, password);
+	public final void setPassword(String barcode, String password, String salt) {
+		db.setPassword(barcode, password, salt);
+	}
+	public final String[] getPassword(String ID) {
+		return db.getPassword(ID);
 	}
 	//TODO: this needs to be written for SQL
     public void changeDatabasePerson(String selectedIndex, String name, long pmkeys, long oldPmkeys) 

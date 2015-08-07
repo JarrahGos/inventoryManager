@@ -150,18 +150,15 @@ public class SQLInterface {
                 PreparedStatement ps = db.prepareStatement(statement);
                 ps.setString(1, setName);
                 rs = ps.executeQuery();
+                if (rs.next()) {
+                    statement = ""; // TODO: List of items is fucked.
+                    ps = db.prepareStatement(statement);
+                    ps.setString(1, name);
+                }
             } catch (SQLException e) {
                 Log.print(e);
             }
-            if (rs.next()) {
-                statement = ""; // TODO: List of items is fucked.
-                try {
-                    PreparedStatement ps = db.prepareStatement(statement);
-                    ps.setString(1, name);
-                } catch (SQLException e) {
-                    Log.print(e);
-                }
-            }
+
         }
     }
     public void addEntry(String ID, String name, String setName, String state, String tagpos, String type) { // add Controlled Item
@@ -217,19 +214,16 @@ public class SQLInterface {
                 PreparedStatement ps = db.prepareStatement(statement);
                 ps.setString(1, setName);
                 rs = ps.executeQuery();
+                if (rs.next()) {
+                    statement = ""; // TODO: List of items is fucked.
+                    ps = db.prepareStatement(statement);
+                    ps.setString(1, name);
+                    ps.execute();
+                }
             } catch (SQLException e) {
                 Log.print(e);
             }
-            if (rs.next()) {
-                statement = ""; // TODO: List of items is fucked.
-                try {
-                    PreparedStatement ps = db.prepareStatement(statement);
-                    ps.setString(1, name);
-                    ps.execute();
-                } catch (SQLException e) {
-                    Log.print(e);
-                }
-            }
+
         }
     }
     public void addEntry(String ID, String name) {
@@ -262,7 +256,7 @@ public class SQLInterface {
     public void addLog(String itemID, String persID, boolean controlled) { // Sign an item out
         //TODO: Should this check the item as out in the controlled table?
         String statment = "INSERT INTO itemLog (ID, date, out, in, persID, controlled) " +
-                "VALUES("\"?\", NOW(), TRUE, \"FALSE\", \"?\", \"?\"")
+                "VALUES(\"?\", NOW(), TRUE, \"FALSE\", \"?\", \"?\")";
         try {
             PreparedStatement ps = db.prepareStatement(statment);
             ps.setString(1, itemID);
@@ -286,7 +280,7 @@ public class SQLInterface {
             Log.print(e);
         }
     }
-    public void returnItem(String itemId, String persID) { // Return a general item.
+    public void returnItem(String itemID, String persID) { // Return a general item.
         String statement = "update itemLog SET in=TRUE, inDate=NOW()" +
                 "WHERE ID=\"?\" AND persID=\"?\"";
         try {
@@ -342,7 +336,7 @@ public class SQLInterface {
         ArrayList<String> ret = null;
         try {
             for (int i = 0; rs.next(); i++) {
-                ret.add(rs.getRow().toString()); // TODO: this doesn't work. Should parse the whole row as a string.
+                ret.add(rs.toString()); // TODO: test this toString
             }
         }
         catch (SQLException e) {
@@ -388,7 +382,7 @@ public class SQLInterface {
         ArrayList<String> ret = null;
         try {
             for (int i = 0; rs.next(); i++) {
-                ret.add(rs.getRow().toString()); // TODO: this doesn't work. Should parse the whole row as a string.
+                ret.add(rs.toString()); // TODO: test this toString.
             }
         }
         catch (SQLException e) {
@@ -425,7 +419,7 @@ public class SQLInterface {
         }
         try {
             PreparedStatement ps = db.prepareStatement(statement);
-            ps.setString(1, ID);
+            ps.setDate(1, java.sql.Date.valueOf(date));
             rs = ps.executeQuery();
         }
         catch (SQLException e) {
@@ -434,7 +428,7 @@ public class SQLInterface {
         ArrayList<String> ret = null;
         try {
             for (int i = 0; rs.next(); i++) {
-                ret.add(rs.getRow().toString()); // TODO: this doesn't work. Should parse the whole row as a string.
+                ret.add(rs.toString()); // TODO: test this toString.
             }
         }
         catch (SQLException e) {
@@ -484,7 +478,7 @@ public class SQLInterface {
         ArrayList<String> ret = null;
         try {
             for (int i = 0; rs.next(); i++) {
-                ret.add(rs.getRow().toString()); // TODO: this doesn't work. Should parse the whole row as a string. rs.toString() may do the job.
+                ret.add(rs.toString()); // TODO: Test this toString.
             }
         }
         catch (SQLException e) {
@@ -552,7 +546,7 @@ public class SQLInterface {
         ArrayList<String> ret = null;
         try {
             for (int i = 0; rs.next(); i++) {
-                ret.add(rs.getRow().toString()); // TODO: this doesn't work. Should parse the whole row as a string.
+                ret.add(rs.toString()); // TODO: test this toString
             }
         }
         catch (SQLException e) {
@@ -598,7 +592,7 @@ public class SQLInterface {
         }
         try {
             PreparedStatement ps = db.prepareStatement(statement);
-            ps.setDate(1, date); //TODO: this is not the data type you are looking for. You want to go home and rethink your date.
+            ps.setDate(1, java.sql.Date.valueOf(date));
             rs = ps.executeQuery();
         } catch (SQLException e) {
             Log.print(e);
@@ -606,7 +600,7 @@ public class SQLInterface {
         ArrayList<String> ret = null;
         try {
             for (int i = 0; rs.next(); i++) {
-                ret.add(rs.getRow().toString()); // TODO: this doesn't work. Should parse the whole row as a string.
+                ret.add(rs.toString()); // TODO: test this toString
             }
         } catch (SQLException e) {
             Log.print(e);
@@ -630,7 +624,7 @@ public class SQLInterface {
     public String getName(String type, String ID) {
         String statement;
         ResultSet rs;
-        String out;
+        String out = "";
         switch (type) {
             case "person":
                 statement = "SELECT name FROM people WHERE ID=\"?\"";
@@ -679,19 +673,34 @@ public class SQLInterface {
         }
         return out;
     }
-    public String getPassword(String barcode) {
-        String statement = "SELECT password FROM people WHERE ID = \"?\"";
+    public String[] getPassword(String barcode) {
+        String statement = "SELECT password, salt FROM people WHERE ID = \"?\"";
         ResultSet rs;
-        String out = null;
+        String[] out = new String[2];
         try {
             PreparedStatement ps = db.prepareStatement(statement);
-            ps.setString(barcode);
+            ps.setString(1, barcode);
             rs = ps.executeQuery();
-            out = rs.getString(1);
+            out[0] = rs.getString("password");
+            out[1] = rs.getString("salt");
         } catch (SQLException e) {
             Log.print(e);
         }
         return out;
+    }
+    public void setPassword(String ID, String password, String salt) {
+        String statement = "UPDATE people SET password = \"?\", salt = \"?\" WHERE ID = \"?\"";
+        try {
+            PreparedStatement ps = db.prepareStatement(statement);
+            ps.setString(1, password);
+            ps.setString(2, salt);
+            ps.setString(3, ID);
+            ps.execute();
+        }
+        catch (SQLException e) {
+            Log.print(e);
+        }
+
     }
     public int getRole(String barcode) {
         String statement = "SELECT admin FROM people WHERE ID = \"?\"";
@@ -699,13 +708,13 @@ public class SQLInterface {
         boolean admin = false;
         try {
             PreparedStatement ps = db.prepareStatement(statement);
-            ps.setString(barcode);
+            ps.setString(1, barcode);
             rs = ps.executeQuery();
             admin = rs.getBoolean(1);
             if(admin) {
                 statement = "SELECT root FROM people WHERE ID = \"?\"";
                 ps = db.prepareStatement(statement);
-                ps.setString(barcode);
+                ps.setString(1, barcode);
                 rs = ps.executeQuery();
                 admin = rs.getBoolean(1);
                 if (admin) return ROOT;
@@ -820,9 +829,17 @@ public class SQLInterface {
         }
     }
     public void updateEntry(String ID, String name, String newID) {
-        //TODO: Finish this
+        String statement = "UPDATE item SET name = \"?\", set ID = \"?\" " +
+                "WHERE ID = \"?\"";
+        try {
+            PreparedStatement ps = db.prepareStatement(statement);
+            ps.setString(1, name);
+            ps.setString(2, newID);
+            ps.setString(3, ID);
+            ps.execute();
+        } catch (SQLException e) {
+            Log.print(e);
+        }
     }
-
-
 
 }
