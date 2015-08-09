@@ -39,6 +39,8 @@ class WorkingUser {
 
     /** The database which stores all products used by the system. */
     private final ItemDatabase itemDatabase;
+	private final GeneralDatabase gd;
+	private final ControlledDatabase cd;
     /** The database which stores all people who can use the system */
     private final PersonDatabase personDatabase;
     /** the checkout used to store what a person is purchasing at a given time */
@@ -52,6 +54,8 @@ class WorkingUser {
      */
     public WorkingUser() {
         itemDatabase = new ItemDatabase();
+		gd = new GeneralDatabase();
+		cd = new ControlledDatabase();
         personDatabase = new PersonDatabase();
         checkOuts = new CheckOut();
         userID = null;
@@ -222,7 +226,8 @@ class WorkingUser {
      * Log the user out from this class
      */
     public final void logOut() { //TODO: this will probably have ta change.
-        user = null;
+        userID = null;
+		username = null; 
         checkOuts = new CheckOut();
     }
 
@@ -287,21 +292,12 @@ class WorkingUser {
     }
 
     /**
-     * Gets the price of the whole checkout
-     * @return The price of the whole checkout as a double
-     */
-    public final double getPrice() {
-        long price = checkOuts.getPrice();
-        return ((double) price) / 100;
-    }
-
-    /**
      * Add a person to the database, given their name and PMKeyS
      * @param name The name of the person you wish to add
      * @param PMKeyS The PMKeyS of the person you wish to add
      */
-    public final void addPersonToDatabase(String name, long PMKeyS) {
-        personDatabase.setEntry(name, 0, 0, PMKeyS, true);
+    public final void addPersonToDatabase(String ID, String name, boolean admin, boolean root, String password) {
+        personDatabase.setEntry(ID, name, admin, root, password);
     }
 
     /**
@@ -310,9 +306,13 @@ class WorkingUser {
      * @param barCode The barcode for the product you wish to add.
      * @param price The price of the product you wish to add.
      */
-    public final void addProductToDatabase(String name, long barCode, long price) {
-        itemDatabase.setEntry(name, price, barCode);
+    public final void addProductToDatabase(String barcode, String name) {
+        itemDatabase.setEntry(String barcode, String name);
     }
+
+	public final void addProductToDatabase(String barcode, String name, String setName, String description, Long quantity) {
+		gd.addEntry(barcode, name, setName, description, quantity);
+	}
 
     /**
      * Alter a product in the database
@@ -351,10 +351,40 @@ class WorkingUser {
             case ("Product"):
                 itemDatabase.adminWriteOutDatabase("adminProductDatabase.csv");
                 break;
+			case ("general"):
+				gd.adminWriteOutdatabase("adminGeneralDatabase.csv");
+				break;
+			case ("controlled"): 
+				cd.adminWriteOutDatabase("adminControlledDatabase.csv");
+				break;
             default:
                 personDatabase.writeDatabaseCSV("adminPersonDatabase.csv");
         }
     }
+	/**
+	 * 342      * Write out the CSV version of the database for the admin.
+	 * 343      * @param type "Person" for the person database or "Produt" for the product database
+	 * 344      * @throws IOException
+	 * 345      */
+	public final void adminWriteOutDatabase(String type, String path) throws IOException {
+		switch (type) {
+			case ("Person"):
+				personDatabase.writeDatabaseCSV(path);
+			    break;
+			case ("Product"):
+			    itemDatabase.adminWriteOutDatabase(path);
+			    break;
+			case ("general"):
+			    gd.adminWriteOutdatabase(path);
+			    break;
+			case ("controlled"):
+			    cd.adminWriteOutDatabase(path);
+				break;
+			default:
+			    itemDatabase.writeDatabaseCSV(path);
+		}
+	}
+
 
     /**
      * Delete the specified person
@@ -362,8 +392,8 @@ class WorkingUser {
      * @throws IOException
      * @throws InterruptedException
      */
-    public final void removePerson(String index) throws IOException, InterruptedException {
-        personDatabase.delPerson(index);
+    public final void removePerson(String barcode) throws IOException, InterruptedException {
+        personDatabase.delPerson(barcode);
     }
 
     /**
@@ -372,20 +402,19 @@ class WorkingUser {
      * @throws IOException
      * @throws InterruptedException
      */
-    public final void removeProduct(String index) throws IOException, InterruptedException {
-        itemDatabase.delProduct(index);
+    public final void removeProduct(String barcode) throws IOException, InterruptedException {
+        itemDatabase.delProduct(barcode);
     }
 
     /**
      * Delete a product from the checkout given it's index in the checkout array
      * @param index The index of the item to delete in the checkout array
      */
-    public final void deleteProduct(int index)
-    {
-        checkOuts.delItem(index);
-    }
+    public final void deleteProduct(int index) {
+		checkouts.delItem(index);
+	}
 
-    public final long getProductBarCode(int index) {
+    public final String getProductBarCode(int index) {
         return itemDatabase.getBarCode(index);
     }
 
@@ -394,7 +423,7 @@ class WorkingUser {
      * @param name The name of the product to get the barcode of
      * @return The barcode of the product with the name specified.
      */
-    public final long getProductBarCode(String name) {
+    public final String getProductBarCode(String name) {
         Product getting = itemDatabase.readDatabaseProduct(name);
         return getting.getBarCode();
     }
@@ -404,21 +433,11 @@ class WorkingUser {
      * @param index The barcode of the product as a string
      * @return The name of the product with the given barcode
      */
-    public final String getProductName(String index) {
-        Product getting = itemDatabase.readDatabaseProduct(index);
-        return getting.getName();
+    public final String getProductName(String barcode) {
+        return itemDatabase.getName(barcode);
     }
 
-    /**
-     * Get the price of a product given it's name or barcode
-     * @param index the name or barcode of the desired product
-     * @return The price of the specified product
-     */
-    public final double getProductPrice(String index) {
-        return itemDatabase.getProductPrice(index);
-    }
-
-    /**
+     /**
      * Get the number of a product left in stock
      * @param name The name of the product you wish to check stock count.
      * @return The number of the specified product in stock
@@ -436,7 +455,7 @@ class WorkingUser {
         itemDatabase.setNumber(name, numberOfProducts);
     }
 
-    public final boolean userCanBuy() {
+    public final boolean userCanBuy() {//TODO: Use this for admin and root. 
         return user.canBuy(); //not sure whether this will do the requested job.
     }
 
@@ -464,26 +483,11 @@ class WorkingUser {
      * @return The boolean value of whether the user is logged in.
      */
     public final boolean userLoggedIn() {
-        return user != null;
+        return (userName != null && userID != null);
     }
 
-    /**
-     * Reset the bills of all users to zero for this billing period.
-     */
-    public final void resetBills()
+    public static String getLogedInBarcode()
     {
-        personDatabase.resetBills();
-    }
-    public static long getLogedInBarcode()
-    {
-        return user.getBarCode();
-    }
-
-    /**
-     * Get the current users current bill.
-     * @return The current bill of the current user as a double.
-     */
-    public final double getUserBill() {
-        return user.totalCostWeek();
+        return userID;
     }
 }

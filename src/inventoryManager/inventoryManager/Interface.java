@@ -97,7 +97,7 @@ public final class Interface extends Application
     public void start(Stage primaryStage)
     {
         // create the layout
-        primaryStage.setTitle("TOC19"); // set the window title.
+        primaryStage.setTitle("Inventory Management System"); // set the window title.
         GridPane grid = new GridPane(); // create the layout manager
 //	    grid.setGridLinesVisible(true); // used for debugging object placement
         grid.setAlignment(Pos.CENTER);
@@ -107,7 +107,7 @@ public final class Interface extends Application
 
         // create the thread which will be used for logging the user out after a given time.
         // create label for input
-        Text inputLabel = new Text("Enter your PMKeyS");
+        Text inputLabel = new Text("Enter your ID");
         inputLabel.setFont(Font.font("Tahoma", FontWeight.NORMAL, textSize));
         grid.add(inputLabel, 0,0); // place in top left hand corner
 
@@ -118,7 +118,7 @@ public final class Interface extends Application
         Text userLabel = new Text("Error");
 
         // create label and text field for totalOutput
-        Text totalLabel = new Text("				Total:");
+        Text totalLabel = new Text("\t\t\tTotal:");
         totalLabel.setTextAlignment(TextAlignment.RIGHT);
         grid.add(totalLabel, 2,8); // place at the bottum right, before total and purchase.
         TextField total = new TextField(String.valueOf("$" + workingUser.getPrice())); // create a textfield with the price of the currant checkout.
@@ -170,7 +170,7 @@ public final class Interface extends Application
 
 
                 if(workingUser.userLoggedIn()) {
-                    Thread thread = new Thread(new Runnable()
+                    Thread thread = new Thread(new Runnable() //TODO: make this work. 
                     {
 
                         @Override
@@ -194,6 +194,7 @@ public final class Interface extends Application
                     thread.start();
                     thread.interrupt();
                     flashColour(input, 1500, Color.AQUAMARINE);
+					input.requestFocus();
                     userLabel.setText(workingUser.userName(userError) + "—$" + workingUser.getUserBill()); // find the name of those who dare log on.
                     inputLabel.setText("Enter Barcode"); // change the label to suit the next action.
                     grid.getChildren().remove(userLabel); // remove any error labels which may have appeared.
@@ -204,6 +205,7 @@ public final class Interface extends Application
                 }
                 else {
                     input.clear(); // there was an error with the PMKeyS, get ready for another.
+					input.requestFocus();
                     userLabel.setText(workingUser.userName(userError)); // tell the user there was a problem. Maybe this could be done better.
                     grid.getChildren().remove(userLabel); // Remove a userlabel, as above.
                     grid.add(userLabel, 3,0); // add it again, as above.
@@ -232,7 +234,7 @@ public final class Interface extends Application
             }
         });
         input.setOnKeyPressed((KeyEvent ke) -> { // the following allows the user to hit enter rather than OK. Works exactly the same as hitting OK.
-            if (ke.getCode().equals(KeyCode.ENTER)) {
+            if (ke.getCode().equals(KeyCode.ENTER)) { //TODO: this is duplicate code, make a method call. 
                 if(!workingUser.userLoggedIn()) {
                     int userError = PMKeySEntered(input.getText());
 
