@@ -42,4 +42,11 @@ public class ControlledDatabase extends ItemDatabase {
     public final ArrayList<String> getItemNames() {
         return db.getName("controlled");
     }
+    public final boolean isControlled(String ID) {
+        return db.isItemControlled(ID);
+    }
+    @Override
+    public void delItem(String ID) {
+        db.deleteEntry("controlled", ID);
+    }
 }

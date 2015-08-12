@@ -317,7 +317,7 @@ public final class Interface extends Application
         Button purchase = new Button("Purchase"); // button which will add the cost of the items to the users bill
         purchase.setOnAction((ActionEvent e) -> {
             if(workingUser.userLoggedIn()) {
-                workingUser.buyProducts(); // add the cost to the bill.
+                workingUser.checkOutItems(); // add the cost to the bill.
                 grid.getChildren().remove(userLabel); // make it look like the user has been logged out.
                 inputLabel.setText("Enter your PMKeyS"); // Set the input label to something better for user login.
                 total.setText(String.valueOf(workingUser.getPrice())); //set total to the working users price, which after logout is 0.00
@@ -669,7 +669,7 @@ public final class Interface extends Application
                                 flashColour(priceEntry, 1500, Color.RED);
                             }
                             if(barCode != -1 && price != -1) {
-                                workingUser.addProductToDatabase(nameEntry.getText(), barCode, price);
+                                workingUser.addItemToDatabase(nameEntry.getText(), barCode, price);
                                 nameEntry.clear();
                                 BarCodeEntry.clear();
                                 priceEntry.clear();
@@ -692,7 +692,7 @@ public final class Interface extends Application
                         remove.setOnAction((ActionEvent e) -> {
                             String index = productList.getSelectionModel().getSelectedItem();
                             try {
-                                workingUser.removeProduct(index);
+                                workingUser.removeItem(index);
                                 flashColour(remove, 1500, Color.AQUAMARINE);
                             } catch (IOException | InterruptedException e1) {
                                 e1.printStackTrace();

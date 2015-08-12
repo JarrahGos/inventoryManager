@@ -94,9 +94,9 @@ public class SQLInterface {
             e.printStackTrace();
         }
     }
-    public void addEntry(String ID, String name, boolean admin, boolean root, String password) { // add a new person
-        String statement = "INSERT INTO people (ID, name, admin, root, password)" +
-                "VALUES(?, ?, ?, ?, ?)";
+    public void addEntry(String ID, String name, boolean admin, boolean root, String password, String salt) { // add a new person
+        String statement = "INSERT INTO people (ID, name, admin, root, password, salt)" +
+                "VALUES(?, ?, ?, ?, ?, ?)";
         try {
             PreparedStatement ps = db.prepareStatement(statement);
             ps.setString(1, ID);
@@ -104,6 +104,7 @@ public class SQLInterface {
             ps.setBoolean(3, admin);
             ps.setBoolean(3, root);
             ps.setString(4, password);
+            ps.setString(5, salt);
             ps.execute();
         } catch (SQLException e) {
             Log.print(e);
@@ -840,6 +841,23 @@ public class SQLInterface {
         } catch (SQLException e) {
             Log.print(e);
         }
+    }
+    public boolean isItemControlled(String ID) {
+        String statement = "SELECT ID FROM controlled WHERE ID = \"?\"";
+        ResultSet rs;
+        try {
+            PreparedStatement ps = db.prepareStatement(statement);
+            ps.setString(1, ID);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                return true;
+            }
+        } catch (SQLException e) {
+            Log.print(e);
+        }
+        return false;
+    }
+
     }
 
 }

@@ -24,6 +24,7 @@ package inventoryManager;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 class ItemDatabase
 {
@@ -32,6 +33,8 @@ class ItemDatabase
      */
 	private String databaseLocation;
 	private SQLInterface db = new SQLInterface();
+	private ControlledDatabase cd = new ControlledDatabase();
+	private GeneralDatabase gd = new GeneralDatabase();
 
     /**
      * Constructor for ItemDatabase.
@@ -95,9 +98,11 @@ class ItemDatabase
      * Postconditions: the chosen product will no longer exist.
 	 * @param type The type of item you wish to delete
      * @param barcode The barcode of the item you wish to delete
-     */
-	public final void delProduct(String type, String barcode) {
-        db.deleteEntry(type, barcode);
+	 */
+	public void delItem(String barcode) {
+		if(!cd.isControlled(barcode)) {
+			db.deleteEntry("general", barcode);
+		}
 	}
 
 
@@ -325,5 +330,12 @@ class ItemDatabase
 	}
 	public String getItemName(String ID) {
 		return db.getName("item", ID);
+	}
+	public void logItemOut(String ID, String persID) {
+		db.addLog(ID, persID, cd.isControlled(ID));
+	}
+	public void logItemsOut(LinkedList<String> IDs, String persID) {
+		for(String ID : IDs) {
+			logItemOut(ID, persID);
 	}
 }

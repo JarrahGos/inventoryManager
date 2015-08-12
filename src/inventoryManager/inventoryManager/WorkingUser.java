@@ -46,6 +46,8 @@ class WorkingUser {
     /** The currently logged in user */
     private static String userID;
     private static String userName;
+    private GeneralDatabase generalDatabase = new GeneralDatabase();
+    private ControlledDatabase controlledDatabase = new ControlledDatabase();
 
     /**
      * Create the working user instance with both databases and a checkout.
@@ -68,14 +70,12 @@ class WorkingUser {
             input = input.substring(1);
         }
         if (input == null || input.equals("") || !isLong(input) || !personDatabase.entryExists(input)) { // checks for valid numbers in the PMKeyS
-            user = null;
+            userName = null;
+            userID = null;
             return 1;
         } else {
-            user = personDatabase.readEntry((input));
-        }
-        if (user != null &&(!user.canBuy()|| input.equals("7000000"))) {
-            user = null;
-            return 2;
+            userName = personDatabase.getEntryName(input);
+            userID = input;
         }
         return 0;
     }
@@ -121,27 +121,43 @@ class WorkingUser {
 //        return generatedPassword;
 //    }
 
-    private static String[] getSecurePassword(String password) throws NoSuchAlgorithmException, InvalidKeySpecException
+    private static String[] getSecurePassword(String password) //throws NoSuchAlgorithmException, InvalidKeySpecException
     {
         int iterations = 1000;
         char[] chars = password.toCharArray();
         byte[] salt = getSalt().getBytes();
 
         PBEKeySpec spec = new PBEKeySpec(chars, salt, iterations, 64 * 8);
-        SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-        byte[] hash = skf.generateSecret(spec).getEncoded();
+        SecretKeyFactory skf = null;
+        try {
+            skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+            byte[] hash = skf.generateSecret(spec).getEncoded();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (InvalidKeySpecException e) {
+            e.printStackTrace();
+        }
         String[] ret = {hash.toString(), salt.toString()};
         return ret;
     }
-    private static String[] getSecurePassword(String password, String NaCl) throws NoSuchAlgorithmException, InvalidKeySpecException
+    private static String[] getSecurePassword(String password, String NaCl) //throws NoSuchAlgorithmException, InvalidKeySpecException
     {
         int iterations = 1000;
         char[] chars = password.toCharArray();
         byte[] salt = NaCl.getBytes();
 
         PBEKeySpec spec = new PBEKeySpec(chars, salt, iterations, 64 * 8);
-        SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-        byte[] hash = skf.generateSecret(spec).getEncoded();
+        SecretKeyFactory skf = null;
+        byte[] hash = null;
+        try {
+            skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+            hash = skf.generateSecret(spec).getEncoded();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (InvalidKeySpecException e) {
+            e.printStackTrace();
+        }
+
         String[] ret = {hash.toString(), salt.toString()};
         return ret;
     }
@@ -161,14 +177,9 @@ class WorkingUser {
      */
     public final boolean passwordsEqual(String barcode, String PW) {
         String[] old = personDatabase.getPassword(barcode);
+        if(old == null) return false;
         String[] testing = new String[0];
-        try {
-            testing = getSecurePassword(PW, old[1]); //get secure password from new password and old salt
-        } catch (NoSuchAlgorithmException e) {
-            Log.print(e);
-        } catch (InvalidKeySpecException e) {
-            Log.print(e);
-        }
+        testing = getSecurePassword(PW, old[1]); //get secure password from new password and old salt
         return (testing[0].equals(old[0]));
     }
 
@@ -222,7 +233,8 @@ class WorkingUser {
      * Log the user out from this class
      */
     public final void logOut() { //TODO: this will probably have ta change.
-        user = null;
+        userName = null;
+        userID = null;
         checkOuts = new CheckOut();
     }
 
@@ -230,11 +242,12 @@ class WorkingUser {
      * Have the connected user buy the products in the checkout, adding the total cost to the users bill,
      * taking the number bought from the products in the database and clearing both the user and the checkout
      */
-    public final void buyProducts() {
+    public final void checkOutItems() {
         LinkedList purchased = checkOuts.productBought(); // clear the quantities and checkout
-        itemDatabase.writeOutDatabase(purchased); //TODO: Make this actually write out the items.
+        itemDatabase.logItemsOut(purchased, userID); //TODO: Make this actually write out the items.
         checkOuts = new CheckOut(); // ensure checkout clear
-        user = null;
+        userName = null;
+        userID = null;
     }
 
     /**
@@ -254,11 +267,11 @@ class WorkingUser {
     public final String userName(int userError) {
         switch (userError) {
             case 0:
-                if(user != null) return user.getName();
+                if(userName != null) return userName;
             case 1:
                 return "User not found";
         }
-        return user == null ? "Error" : user.getName();
+        return (userID == null && userName != null) ? "Error" : userName;
     }
 
     /**
@@ -278,7 +291,7 @@ class WorkingUser {
             checkOuts.addProduct(tempBarCode, adding); //otherwise, add the product as normal.
             return true;
         }
-        else if(user.getBarCode() == tempBarCode) {
+        else if(userID == tempBarCode) {
             adding = "Checking yourself out are you? You can't do that.";
             checkOuts.addProduct("-1", adding);
             return true;
@@ -286,22 +299,15 @@ class WorkingUser {
         return false;
     }
 
-    /**
-     * Gets the price of the whole checkout
-     * @return The price of the whole checkout as a double
-     */
-    public final double getPrice() {
-        long price = checkOuts.getPrice();
-        return ((double) price) / 100;
-    }
 
     /**
      * Add a person to the database, given their name and PMKeyS
      * @param name The name of the person you wish to add
      * @param PMKeyS The PMKeyS of the person you wish to add
      */
-    public final void addPersonToDatabase(String name, long PMKeyS) {
-        personDatabase.setEntry(name, 0, 0, PMKeyS, true);
+    public final void addPersonToDatabase(String name, String ID, String password) {
+        String[] passwd = getSecurePassword(password);
+        personDatabase.setEntry(ID, name, false, false, passwd[0], passwd[1]);
     }
 
     /**
@@ -310,7 +316,7 @@ class WorkingUser {
      * @param barCode The barcode for the product you wish to add.
      * @param price The price of the product you wish to add.
      */
-    public final void addProductToDatabase(String name, long barCode, long price) {
+    public final void addItemToDatabase(String name, long barCode, long price) {
         itemDatabase.setEntry(name, price, barCode);
     }
 
@@ -343,16 +349,37 @@ class WorkingUser {
      * @param type "Person" for the person database or "Produt" for the product database
      * @throws IOException
      */
-    public final void adminWriteOutDatabase(String type) throws IOException {
+    public final void adminWriteOutDatabase(String type) {
         switch (type) {
             case ("Person"):
                 personDatabase.writeDatabaseCSV("adminPersonDatabase.csv");
                 break;
-            case ("Product"):
-                itemDatabase.adminWriteOutDatabase("adminProductDatabase.csv");
+            case ("Item"): //TODO: change all instances of this in interface from product to item.
+                itemDatabase.adminWriteOutDatabase("adminItemDatabase.csv");
                 break;
+            case ("general"): generalDatabase.adminWriteOutDatabase("adminGeneralDatabase.CSV");
+                break;
+            case ("controlled"): controlledDatabase.adminWriteOutDatabase("adminControlledDatabase.CSV");
             default:
-                personDatabase.writeDatabaseCSV("adminPersonDatabase.csv");
+                personDatabase.writeDatabaseCSV("adminItemDatabase.csv");
+        }
+    }
+    public final void adminWriteOutDatabase(String type, String path)
+    {
+        switch (type) {
+            case ("Person"):
+                personDatabase.writeDatabaseCSV(path);
+                break;
+            case ("Item"): //TODO: change all instances of this in interface from product to item.
+                itemDatabase.adminWriteOutDatabase(path);
+                break;
+            case ("general"):
+                generalDatabase.adminWriteOutDatabase(path);
+                break;
+            case ("controlled"):
+                controlledDatabase.adminWriteOutDatabase(path);
+            default:
+                personDatabase.writeDatabaseCSV(path);
         }
     }
 
@@ -362,8 +389,10 @@ class WorkingUser {
      * @throws IOException
      * @throws InterruptedException
      */
-    public final void removePerson(String index) throws IOException, InterruptedException {
-        personDatabase.delPerson(index);
+    public final void removePerson(String ID, String rootID, String rootPasswd) throws IOException, InterruptedException {
+        if(passwordsEqual(rootID, rootPasswd)) {
+            personDatabase.deleteEntry(ID);
+        }
     }
 
     /**
@@ -372,8 +401,13 @@ class WorkingUser {
      * @throws IOException
      * @throws InterruptedException
      */
-    public final void removeProduct(String index) throws IOException, InterruptedException {
-        itemDatabase.delProduct(index);
+    public final void removeItem(String ID) throws IOException, InterruptedException {
+        itemDatabase.delItem(ID);
+    }
+    public final void removeItem(String ID, String rootID, String rootPassWd) {
+        if(passwordsEqual(rootID, rootPassWd)) {
+            controlledDatabase.delItem(ID);
+        }
     }
 
     /**
@@ -385,9 +419,6 @@ class WorkingUser {
         checkOuts.delItem(index);
     }
 
-    public final long getProductBarCode(int index) {
-        return itemDatabase.getBarCode(index);
-    }
 
     /**
      * Get the barcode of a product given it's name
@@ -409,22 +440,14 @@ class WorkingUser {
         return getting.getName();
     }
 
-    /**
-     * Get the price of a product given it's name or barcode
-     * @param index the name or barcode of the desired product
-     * @return The price of the specified product
-     */
-    public final double getProductPrice(String index) {
-        return itemDatabase.getProductPrice(index);
-    }
 
     /**
      * Get the number of a product left in stock
      * @param name The name of the product you wish to check stock count.
      * @return The number of the specified product in stock
      */
-    public final int getProductNumber(String name) {
-        return itemDatabase.getNumber(name);
+    public final int getProductNumber(String ID) {
+        return generalDatabase.getNumber(ID);
     }
 
     /**
@@ -432,31 +455,8 @@ class WorkingUser {
      * @param name The name of the product you wish to set the stock count for
      * @param numberOfProducts The new stock count.
      */
-    public final void setNumberOfProducts(String name, int numberOfProducts) {
-        itemDatabase.setNumber(name, numberOfProducts);
-    }
-
-    public final boolean userCanBuy() {
-        return user.canBuy(); //not sure whether this will do the requested job.
-    }
-
-    /**
-     * Determine whether the given user can buy from the program
-     * @param name The name of the product you wish to check for.
-     * @return The boolean of whether the user can buy or not.
-     */
-    public final boolean userCanBuyAdmin(String name) {
-        Person usr = personDatabase.readEntry(name);
-        return usr.canBuy();
-    }
-
-    /**
-     * Set Whether the user can buy from the program
-     * @param userName The name of the user to change
-     * @param canBuy Whether you wish the user to be able to buy or not.
-     */
-    public final void setUserCanBuy(String userName, boolean canBuy) {
-        personDatabase.setPersonCanBuy(userName, canBuy);
+    public final void setNumberOfProducts(String ID, int numberOfProducts) {
+        generalDatabase.setNumber(ID, numberOfProducts);
     }
 
     /**
@@ -464,26 +464,12 @@ class WorkingUser {
      * @return The boolean value of whether the user is logged in.
      */
     public final boolean userLoggedIn() {
-        return user != null;
+        return (userID != null && userName != null);
     }
 
-    /**
-     * Reset the bills of all users to zero for this billing period.
-     */
-    public final void resetBills()
+    public static String getLogedInBarcode()
     {
-        personDatabase.resetBills();
-    }
-    public static long getLogedInBarcode()
-    {
-        return user.getBarCode();
+        return userID;
     }
 
-    /**
-     * Get the current users current bill.
-     * @return The current bill of the current user as a double.
-     */
-    public final double getUserBill() {
-        return user.totalCostWeek();
-    }
 }

@@ -56,12 +56,12 @@ final class PersonDatabase implements  Database{
      * @param barCode The barcode of the person
      * @param canBuy Whether the person can buy or not
      */
-	public final void setEntry(String ID, String name, boolean admin, boolean root, String passwd) // take the persons data and pass it to the persons constructor
+	public final void setEntry(String ID, String name, boolean admin, boolean root, String passwd, String salt) // take the persons data and pass it to the persons constructor
 	{
 
 				Person newPerson;
 		if (!entryExists(name, ID)) { // check whether the person already exists
-			db.addEntry(ID, name, admin, root, passwd); // pass off the work to the constructor: "make it so."
+			db.addEntry(ID, name, admin, root, passwd, salt); // pass off the work to the constructor: "make it so."
 		}
 	}
 
