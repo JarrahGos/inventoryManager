@@ -67,17 +67,18 @@ class WorkingUser {
      * @param input The PMKeyS that you wish to search for as a string
      * @return 0 if the user found, 1 if the user dose not exist, 2 if the user cannot buy.
      */
-    public final int getPMKeyS(String input, String barcode) {
+    public final int getPMKeyS(String ID, String pass) {
         //if ((input != null && !input.equals("")) && (!input.matches("[0-9]+"))) {
         //    input = input.substring(1);
         //}
-        if (input == null || input.equals("") || !personDatabase.entryExists(input)) { // checks for valid numbers in the PMKeyS
-            user = null;
+        if (ID == null || ID.equals("") || !personDatabase.entryExists(ID)) { // checks for valid numbers in the PMKeyS
+            userName = null;
+            userID = null;
             return 1;
         } else {
-			if(passwordsEqual(input, barcode)) {
-	            userName = personDatabase.getName(input);
-				userID = personDatabase.getID(input);
+			if(passwordsEqual(ID, ID)) {
+	            userName = personDatabase.getEntryName(ID);
+				userID = ID;
 			}
 			else {
 				return 1;
@@ -93,10 +94,7 @@ class WorkingUser {
     public final ArrayList<String> getUserNames() {
         return personDatabase.getNamesOfEntries();
     }
-    
-    public final inventoryManager.Person getUser(String name){
-        return personDatabase.readEntry(name);
-    }
+
 
     /**
      * Get a list of the names of all products in the database
@@ -131,13 +129,19 @@ class WorkingUser {
     {
         int iterations = 1000;
         char[] chars = password.toCharArray();
-        byte[] salt = getSalt().getBytes();
+        byte[] salt = new byte[0];
+        try {
+            salt = getSalt().getBytes();
+        } catch (NoSuchAlgorithmException e) {
+            Log.print(e);
+        }
+        byte[] hash = null;
 
         PBEKeySpec spec = new PBEKeySpec(chars, salt, iterations, 64 * 8);
         SecretKeyFactory skf = null;
         try {
             skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-            byte[] hash = skf.generateSecret(spec).getEncoded();
+            hash = skf.generateSecret(spec).getEncoded();
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         } catch (InvalidKeySpecException e) {
@@ -304,12 +308,16 @@ class WorkingUser {
         }
         return false;
     }
+    public final int getRole() {
+        if(userID == null || userName == null) return 0;
+        return personDatabase.getRole(userID);
+    }
 
 
     /**
      * Add a person to the database, given their name and PMKeyS
      * @param name The name of the person you wish to add
-     * @param PMKeyS The PMKeyS of the person you wish to add
+     * @param ID The PMKeyS of the person you wish to add
      */
     public final void addPersonToDatabase(String name, String ID, String password) {
         String[] passwd = getSecurePassword(password);
@@ -322,9 +330,9 @@ class WorkingUser {
      * @param barCode The barcode for the product you wish to add.
      * @param price The price of the product you wish to add.
      */
-    public final void addItemToDatabase(String name, long barCode, long price) {
-        itemDatabase.setEntry(name, price, barCode);
-    }
+    public final void addItemToDatabase(String barcode, String name) {
+        itemDatabase.addEntry(barcode, name);
+    } //TODO: make this work for general and controlled items
 
     /**
      * Alter a product in the database
@@ -364,7 +372,7 @@ class WorkingUser {
                 itemDatabase.adminWriteOutDatabase("adminItemDatabase.csv");
                 break;
 			case ("general"):
-				gd.adminWriteOutdatabase("adminGeneralDatabase.csv");
+				gd.adminWriteOutDatabase("adminGeneralDatabase.csv");
 				break;
 			case ("controlled"): 
 				cd.adminWriteOutDatabase("adminControlledDatabase.csv");

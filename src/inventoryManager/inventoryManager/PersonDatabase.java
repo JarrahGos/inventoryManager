@@ -26,11 +26,12 @@ import java.util.ArrayList;
 
 final class PersonDatabase implements  Database{
 
-	/** Stores the admin user for the TOC program. Used for getting the password. */
-	private static Person admin;
 	/** Stores the path of the database as a string, based on the OS being run. */
 	private String databaseLocation;
 	private SQLInterface db = new SQLInterface();
+	public static final int USER = 0;
+	public static final int ADMIN = 2;
+	public static final int ROOT = 3;
 
     /**
      * Constructor for PersonDatabase.
@@ -99,6 +100,9 @@ final class PersonDatabase implements  Database{
 	public final String getEntryName(String barcode) {
 		return db.getName("person", barcode);
 	}
+	public final String getEntryID(String name) {
+		return db.getID("person", name);
+	}
 	public final int getRole(String barcode) { // 0 = user, 1 = admin, 2 = root
 		return db.getRole(barcode);
 	}
@@ -127,33 +131,33 @@ final class PersonDatabase implements  Database{
      * @param persOut The person you wish to write out
      * @return An integer, 0 meaning correct completion, 1 meaning an exception. Stack trace will be printed on error.
      */ //TODO is this necessary?
-	public final int writeDatabaseEntry(Person persOut) {
-            try {
-                File check = new File(databaseLocation + persOut.getName());
-                if(check.exists()) check.delete();
-                check = new File(databaseLocation + persOut.getBarCode());
-                if(check.exists()) check.delete();
-                check = null;
-                if(persOut.getBarCode() != 7000000) {
-                    FileOutputStream personOut = new FileOutputStream(databaseLocation + persOut.getName());
-                    ObjectOutputStream out = new ObjectOutputStream(new BufferedOutputStream(personOut));
-                    out.writeObject(persOut);
-		            out.close();
-                    personOut.close();
-                }
-                // it may be quicker to do this with the java.properties setup that I have made. The code for that will sit unused in settings.java.
-				FileOutputStream personOut1 = new FileOutputStream(databaseLocation + persOut.getBarCode());
-				ObjectOutputStream out1 = new ObjectOutputStream(personOut1);
-				out1.writeObject(persOut);
-				out1.close();
-				personOut1.close();
-			}
-            catch (Exception e) {
-                Log.print(e);
-                return 1;
-            }
-            return 0;
-    }
+//	public final int writeDatabaseEntry(Person persOut) {
+//            try {
+//                File check = new File(databaseLocation + persOut.getEName());
+//                if(check.exists()) check.delete();
+//                check = new File(databaseLocation + persOut.getBarCode());
+//                if(check.exists()) check.delete();
+//                check = null;
+//                if(persOut.getBarCode() != 7000000) {
+//                    FileOutputStream personOut = new FileOutputStream(databaseLocation + persOut.getName());
+//                    ObjectOutputStream out = new ObjectOutputStream(new BufferedOutputStream(personOut));
+//                    out.writeObject(persOut);
+//		            out.close();
+//                    personOut.close();
+//                }
+//                // it may be quicker to do this with the java.properties setup that I have made. The code for that will sit unused in settings.java.
+//				FileOutputStream personOut1 = new FileOutputStream(databaseLocation + persOut.getBarCode());
+//				ObjectOutputStream out1 = new ObjectOutputStream(personOut1);
+//				out1.writeObject(persOut);
+//				out1.close();
+//				personOut1.close();
+//			}
+//            catch (Exception e) {
+//                Log.print(e);
+//                return 1;
+//            }
+//            return 0;
+//    }
 
     /**
      * Write out a CSV version of the database for future import.
@@ -164,65 +168,65 @@ final class PersonDatabase implements  Database{
 		db.export("person", path); // ensure that this path is the full absolute path rather than a relative one.
 	}
 
-    /**
-     * Reads one person from the database
-     * @param barcode The name of the person you wish to read
-     * @return The person in the database which correlates with the name, or null if the person is not found
-     */
-         public final Person readEntry(String barcode) {
-			 Person importing = null;
-			 try {
-				 FileInputStream personIn = new FileInputStream(databaseLocation + barcode );
-				 ObjectInputStream in = new ObjectInputStream(new BufferedInputStream(personIn));
-				 importing = (Person) in.readObject();
-				 in.close();
-				 personIn.close();
-			 } catch (IOException e) {
-				 Log.print(e);
-				 return null;
-			 } catch (ClassNotFoundException e) {
-				 Log.print(e);
-			 }
-			 return importing;
-		 }
+//    /**
+//     * Reads one person from the database
+//     * @param barcode The name of the person you wish to read
+//     * @return The person in the database which correlates with the name, or null if the person is not found
+//     */
+//         public final Person readEntry(String barcode) {
+//			 Person importing = null;
+//			 try {
+//				 FileInputStream personIn = new FileInputStream(databaseLocation + barcode );
+//				 ObjectInputStream in = new ObjectInputStream(new BufferedInputStream(personIn));
+//				 importing = (Person) in.readObject();
+//				 in.close();
+//				 personIn.close();
+//			 } catch (IOException e) {
+//				 Log.print(e);
+//				 return null;
+//			 } catch (ClassNotFoundException e) {
+//				 Log.print(e);
+//			 }
+//			 return importing;
+//		 }
 
     /**
      * Create an array of people from the provided string of paths
      * @param databaseList A string array of paths to files which are to be put into the array
      * @return An array of all people found from the given string
      */
-	public final Person[] readEntries(String[] databaseList){
-		Person[] importing = new Person[databaseList.length];
-        int i = 0;
-		for(String person : databaseList) {
-			Person inPers = null;
-			try {
-				FileInputStream personIn = new FileInputStream(person);
-				ObjectInputStream in = new ObjectInputStream(new BufferedInputStream(personIn));
-				inPers = (Person) in.readObject();
-				in.close();
-				personIn.close();
-			}
-			catch (IOException | ClassNotFoundException e) {
-				Log.print(e);
-			}
-            boolean alreadyExists = false;
-			if(inPers != null) {
-				for (Person pers : importing) {
-					if ( pers != null && inPers.getBarCode() != 7000000 && inPers.getBarCode() == pers.getBarCode()) {
-						alreadyExists = true;
-						break;
-					}
-				}
-			}
-			else alreadyExists = true;
-			if(!alreadyExists) {
-                importing[i] = inPers;
-                i++;
-            }
-		}
-		return importing;
-	}
+//	public final Person[] readEntries(String[] databaseList){
+//		Person[] importing = new Person[databaseList.length];
+//        int i = 0;
+//		for(String person : databaseList) {
+//			Person inPers = null;
+//			try {
+//				FileInputStream personIn = new FileInputStream(person);
+//				ObjectInputStream in = new ObjectInputStream(new BufferedInputStream(personIn));
+//				inPers = (Person) in.readObject();
+//				in.close();
+//				personIn.close();
+//			}
+//			catch (IOException | ClassNotFoundException e) {
+//				Log.print(e);
+//			}
+//            boolean alreadyExists = false;
+//			if(inPers != null) {
+//				for (Person pers : importing) {
+//					if ( pers != null && inPers.getBarCode() != 7000000 && inPers.getBarCode() == pers.getBarCode()) {
+//						alreadyExists = true;
+//						break;
+//					}
+//				}
+//			}
+//			else alreadyExists = true;
+//			if(!alreadyExists) {
+//                importing[i] = inPers;
+//                i++;
+//            }
+//		}
+//		return importing;
+//	}
 
     /**
      * Changes the Admin password to the one specified

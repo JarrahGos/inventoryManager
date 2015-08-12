@@ -39,9 +39,6 @@ public class SQLInterface {
     private String password = "password";
     private Connection db;
     private Settings config = new Settings();
-    private final int USER = 0;
-    private final int ADMIN = 2;
-    private final int ROOT = 3;
 
     public SQLInterface()
     {
@@ -674,6 +671,32 @@ public class SQLInterface {
         }
         return out;
     }
+    public String getID(String type, String name) {
+        String statement;
+        ResultSet rs;
+        String out = "";
+        switch (type) {
+            case "person":
+                statement = "SELECT ID FROM people WHERE name=\"?\"";
+                break;
+            case "item":
+                statement = "Select ID FROM items" +
+                        " WHERE name = \"?\"";
+                break;
+            default:
+                statement = "SELECT name FROM people WHERE name=\"?\"";
+                break;
+        }
+        try {
+            PreparedStatement ps = db.prepareStatement(statement);
+            ps.setString(1, name);
+            rs = ps.executeQuery();
+            out = rs.getString(0);
+        } catch (SQLException e) {
+            Log.print(e);
+        }
+        return out;
+    }
     public String[] getPassword(String barcode) {
         String statement = "SELECT password, salt FROM people WHERE ID = \"?\"";
         ResultSet rs;
@@ -718,13 +741,13 @@ public class SQLInterface {
                 ps.setString(1, barcode);
                 rs = ps.executeQuery();
                 admin = rs.getBoolean(1);
-                if (admin) return ROOT;
-                return ADMIN;
+                if (admin) return PersonDatabase.ROOT;
+                return PersonDatabase.ADMIN;
             }
         } catch (SQLException e) {
             Log.print(e);
         }
-        return USER;
+        return PersonDatabase.USER;
     }
     public boolean entryExists(String type, String ID) {
         String statement;

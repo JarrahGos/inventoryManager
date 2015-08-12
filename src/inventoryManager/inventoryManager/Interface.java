@@ -71,6 +71,7 @@ public final class Interface extends Application
     private static int verticalSize = 576;
     /** The text size of the program, set by the settings class */
     private final int textSize;
+    private int privelage = 0; //ensure that this is set back to 0 on logout.
 
 
     /**
@@ -154,17 +155,18 @@ public final class Interface extends Application
         //priceList.setItems(prices);
         //checkoutOut.getItems().addAll(itemList);
         //checkoutOut.setDividerPositions(0.8f);
-        itemList.setSelectionModel(priceList.getSelectionModel());
-        itemList.getSelectionModel().selectedItemProperty().addListener(
-                (ObservableValue<? extends String> ov, String old_val, String selectedOption) -> {
-                    priceList.scrollTo(itemList.getSelectionModel().getSelectedIndex());
-                });
+        //itemList.setSelectionModel(priceList.getSelectionModel());
+//        itemList.getSelectionModel().selectedItemProperty().addListener(
+//                (ObservableValue<? extends String> ov, String old_val, String selectedOption) -> {
+//                    priceList.scrollTo(itemList.getSelectionModel().getSelectedIndex());
+//                });
         //priceList.getSelectionModel().selectedItemProperty().addListener(
         //        (ObservableValue<? extends String> ov, String old_val, String selectedOption) -> {
         //            itemList.scrollTo(priceList.getSelectionModel().getSelectedIndex());
         //        });
 
         grid.add(itemList, 0, 1, 7, 7);
+        Button adminMode;
 
 //		bind(itemList, priceList);
         //listen on enter product barcode button
@@ -172,15 +174,17 @@ public final class Interface extends Application
 			if(pass.getText() == null || pass.getText() == "") {
 				pass.requestFocus();
 			}
-			else if if(!workingUser.userLoggedIn()) { // treat the input as a PMKeyS
+			else if (!workingUser.userLoggedIn()) { // treat the input as a PMKeyS
                 int userError;
                 userError = PMKeySEntered(input.getText(), pass.getText()); // take the text, do user logon stuff with it.
 
 
 
+
                 if(workingUser.userLoggedIn()) {
-                    Thread thread = new Thread(new Runnable() //TODO: make this work. 
-                    {
+                    privelage = workingUser.getRole();
+                    Thread thread = new Thread(new Runnable()
+                    { //TODO: make this work.
 
                         @Override
                         public void run()
@@ -191,7 +195,7 @@ public final class Interface extends Application
 
                                 grid.getChildren().remove(userLabel); // make it look like no user is logged in
                                 inputLabel.setText("Enter your PMKeyS"); // set the input label to something appropriate.
-                                total.setText(String.valueOf("$" + workingUser.getPrice())); // set the total price to 0.00.
+//                                total.setText(String.valueOf("$" + workingUser.getPrice())); // set the total price to 0.00.
                             }
                             catch (InterruptedException e) {
                                 // do nothing here.
@@ -204,12 +208,12 @@ public final class Interface extends Application
                     thread.interrupt();
                     flashColour(input, 1500, Color.AQUAMARINE);
 					input.requestFocus();
-                    userLabel.setText(workingUser.userName(userError) + "—$" + workingUser.getUserBill()); // find the name of those who dare log on.
+                    userLabel.setText(workingUser.userName(userError)); // find the name of those who dare log on.
                     inputLabel.setText("Enter Barcode"); // change the label to suit the next action.
                     grid.getChildren().remove(userLabel); // remove any error labels which may have appeared.
                     grid.add(userLabel, 3,0); // add the new user label
                     // the above two are done as we do not know whether a user label exists there. Adding two things to the same place causes an exception.
-					if (workingUser.userIsAdmin()) {
+					if (privelage > PersonDatabase.USER) {
 						grid.add(adminMode, 0,8); // add the button to the bottum left of the screen.
 					}
                     input.clear(); // clear the PMKeyS from the input ready for product bar codes.
@@ -232,9 +236,9 @@ public final class Interface extends Application
                     productError.setText("");
                     items.setAll(workingUser.getCheckOutNames());
                     itemList.setItems(items);
-                    prices.setAll(workingUser.getCheckOutPrices());
-                    priceList.setItems(prices);
-                    total.setText(String.valueOf("$" + workingUser.getPrice()));
+//                    prices.setAll(workingUser.getCheckOutPrices());
+//                    priceList.setItems(prices);
+//                    total.setText(String.valueOf("$" + workingUser.getPrice()));
                     input.clear();
                     input.requestFocus();
                     flashColour(input, 500, Color.AQUAMARINE);
@@ -242,7 +246,7 @@ public final class Interface extends Application
                 else{
                     productError.setText("Could not read that product");
                     input.clear();
-                    input.RequestFocus();
+                    input.requestFocus();
                     flashColour(input, 500, Color.RED);
                 }
             }
@@ -253,17 +257,17 @@ public final class Interface extends Application
 					pass.requestFocus();
 				}
 				else if(!workingUser.userLoggedIn()) {
-                    int userError = PMKeySEntered(input.getText());
+                    int userError = PMKeySEntered(input.getText(), pass.getText());
 
                     if(workingUser.userLoggedIn()) {
-                        userLabel.setText(workingUser.userName(userError) + "—$" + workingUser.getUserBill());
+                        userLabel.setText(workingUser.userName(userError));
                         inputLabel.setText("Enter Barcode");
                         grid.getChildren().remove(userLabel);
                         grid.add(userLabel, 3,0);
                         input.clear();
                         flashColour(input, 1500, Color.AQUAMARINE);
                         input.requestFocus();
-						if(workingUser.userIsAdmin()) {
+						if(privelage > PersonDatabase.USER) {
 							grid.add(adminMode, 0,8); // add the button to the bottum left of the screen.
 						}
 						pass.clear();
@@ -276,7 +280,7 @@ public final class Interface extends Application
                         grid.getChildren().remove(userLabel);
                         grid.add(userLabel, 3,0);
                         input.clear();
-                        input.RequestFocus();
+                        input.requestFocus();
                         flashColour(input, 1500, Color.RED);
                     }
                 }
@@ -285,9 +289,9 @@ public final class Interface extends Application
                     if (correct) {
                         items.setAll(workingUser.getCheckOutNames());
                         itemList.setItems(items);
-                        prices.setAll(workingUser.getCheckOutPrices());
-                        priceList.setItems(prices);
-                        total.setText(String.valueOf("$" + workingUser.getPrice()));
+//                        prices.setAll(workingUser.getCheckOutPrices());
+//                        priceList.setItems(prices);
+//                        total.setText(String.valueOf("$" + workingUser.getPrice()));
                         input.clear();
                         input.requestFocus();
                         flashColour(input, 500, Color.AQUAMARINE);
@@ -303,7 +307,7 @@ public final class Interface extends Application
 
 
         // create and listen on admin button
-        Button adminMode = new Button("Enter Admin Mode"); // button which will bring up the admin mode.
+        adminMode = new Button("Enter Admin Mode"); // button which will bring up the admin mode.
         adminMode.setOnAction((ActionEvent e) -> {
 			//TODO: Should this log out the user?
             workingUser.logOut(); // set user number to -1 and delete any checkout made.
@@ -311,14 +315,15 @@ public final class Interface extends Application
             inputLabel.setText("Enter your PMKeyS"); // set the input label to something appropriate.
             items.setAll(workingUser.getCheckOutNames());
             itemList.setItems(items);
-            prices.setAll(workingUser.getCheckOutPrices());
-            priceList.setItems(prices);
-            total.setText(String.valueOf(workingUser.getPrice())); // set the total price to 0.00.
+//            prices.setAll(workingUser.getCheckOutPrices());
+//            priceList.setItems(prices);
+//            total.setText(String.valueOf(workingUser.getPrice())); // set the total price to 0.00.
             //checkoutOut.setDividerPositions(0.8f);
             input.requestFocus();
-            enterAdminMode(); // method which will work the admin mode features.
+            enterAdminMode(primaryStage); // method which will work the admin mode features.
         });
-        if(workingUser.userIsAdmin()) {
+
+        if() {
 			grid.add(adminMode, 0,8); // add the button to the bottum left of the screen.
 		}
 
@@ -327,11 +332,11 @@ public final class Interface extends Application
             int index = itemList.getSelectionModel().getSelectedIndex();
             if(index >= 0) {
                 workingUser.deleteProduct(index);
-                prices.setAll(workingUser.getCheckOutPrices());
-                priceList.setItems(prices);
+//                prices.setAll(workingUser.getCheckOutPrices());
+//                priceList.setItems(prices);
                 items.setAll(workingUser.getCheckOutNames());
                 itemList.setItems(items); //TODO: add select top.
-                total.setText(String.valueOf("$" + workingUser.getPrice()));
+//                total.setText(String.valueOf("$" + workingUser.getPrice()));
                 itemList.scrollTo(index);
                 input.requestFocus();
                 flashColour(removeProduct, 1500, Color.AQUAMARINE);
@@ -344,15 +349,16 @@ public final class Interface extends Application
         Button purchase = new Button("Purchase"); // button which will add the cost of the items to the users bill
         purchase.setOnAction((ActionEvent e) -> {
             if(workingUser.userLoggedIn()) {
+                privelage = PersonDatabase.USER;
                 workingUser.checkOutItems(); // add the cost to the bill.
                 grid.getChildren().remove(userLabel); // make it look like the user has been logged out.
                 inputLabel.setText("Enter your PMKeyS"); // Set the input label to something better for user login.
-                total.setText(String.valueOf(workingUser.getPrice())); //set total to the working users price, which after logout is 0.00
+//                total.setText(String.valueOf(workingUser.getPrice())); //set total to the working users price, which after logout is 0.00
                 input.clear(); // clear the input ready for a PMKeyS
                 items.setAll(workingUser.getCheckOutNames());
                 itemList.setItems(items);
-                prices.setAll(workingUser.getCheckOutPrices());
-                priceList.setItems(prices);
+//                prices.setAll(workingUser.getCheckOutPrices());
+//                priceList.setItems(prices);
                 //checkoutOut.setDividerPositions(0.8f);
                 input.requestFocus();
 				grid.getChildren().remove(adminMode);
@@ -367,13 +373,14 @@ public final class Interface extends Application
 
         Button cancel = new Button("Cancel");
         cancel.setOnAction((ActionEvent e) -> {
+            privelage = PersonDatabase.USER;
             workingUser.logOut(); // set user number to -1 and delete any checkout made.
             grid.getChildren().remove(userLabel); // make it look like no user is logged in
             inputLabel.setText("Enter your PMKeyS"); // set the input label to something appropriate.
             items.setAll(workingUser.getCheckOutNames());
             itemList.setItems(items);
-            prices.setAll(workingUser.getCheckOutPrices());
-            priceList.setItems(prices);
+//            prices.setAll(workingUser.getCheckOutPrices());
+//            priceList.setItems(prices);
             input.requestFocus();
 			grid.getChildren().remove(adminMode);
             //total.setText(String.valueOf(workingUser.getPrice())); // set the total price to 0.00.
@@ -396,9 +403,9 @@ public final class Interface extends Application
      * @param input The users PMKeyS as a string
      * @return The error from logging the user in.
      */
-    private int PMKeySEntered(String input)
+    private int PMKeySEntered(String input, String pass)
     {
-        return workingUser.getPMKeyS(input);
+        return workingUser.getPMKeyS(input, pass);
     }
 
     /**
@@ -411,36 +418,6 @@ public final class Interface extends Application
         return workingUser.addToCart(input);
     }
 
-    /**
-     * Allows the user to enter the password for the admin user.
-     * Will start the admin stage if the password is entered correctly.
-     */
-    private void enterPassword()
-    {
-        Stage passwordStage = new Stage();
-        passwordStage.setTitle("Password");
-        GridPane grid = new GridPane();
-        grid.setAlignment(Pos.CENTER);
-        grid.setHgap(10);
-        grid.setVgap(10);
-        grid.setPadding(new Insets(15, 15, 15, 15));
-        Text PWLabel = new Text("Enter password");
-        PasswordField PW = new PasswordField();
-        grid.add(PWLabel, 0,0);
-        grid.add(PW, 1,0);
-        PW.setOnAction((ActionEvent e) -> {
-            if(!workingUser.passwordsEqual(PW.getText())) {
-                flashColour(PW, 1500, Color.RED);
-                PW.setText("");
-            }
-            else {
-                enterAdminMode(passwordStage);
-            }
-        });
-        Scene passwordScene = new Scene(grid, 400, 200);
-        passwordStage.setScene(passwordScene);
-        passwordStage.show();
-    }
 
     /**
      * Will open the admin panel of the program.
