@@ -67,20 +67,26 @@ class WorkingUser {
      * @param input The PMKeyS that you wish to search for as a string
      * @return 0 if the user found, 1 if the user dose not exist, 2 if the user cannot buy.
      */
-    public final int getPMKeyS(String input) {
-        if ((input != null && !input.equals("")) && (!input.matches("[0-9]+"))) {
-            input = input.substring(1);
-        }
-        if (input == null || input.equals("") || !isLong(input) || !personDatabase.entryExists(input)) { // checks for valid numbers in the PMKeyS
+    public final int getPMKeyS(String input, String barcode) {
+        //if ((input != null && !input.equals("")) && (!input.matches("[0-9]+"))) {
+        //    input = input.substring(1);
+        //}
+        if (input == null || input.equals("") || !personDatabase.entryExists(input)) { // checks for valid numbers in the PMKeyS
             user = null;
             return 1;
         } else {
-            user = personDatabase.readEntry((input));
+			if(passwordsEqual(input, barcode)) {
+	            userName = personDatabase.getName(input);
+				userID = personDatabase.getID(input);
+			}
+			else {
+				return 1;
+			}
         }
-        if (user != null &&(!user.canBuy()|| input.equals("7000000"))) {
-            user = null;
-            return 2;
-        }
+        //if (user != null &&(!user.canBuy()|| input.equals("7000000"))) {
+        //    user = null;
+        //    return 2;
+        //}
         return 0;
     }
 
