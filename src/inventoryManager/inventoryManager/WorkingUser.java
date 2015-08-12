@@ -39,6 +39,8 @@ class WorkingUser {
 
     /** The database which stores all products used by the system. */
     private final ItemDatabase itemDatabase;
+	private final GeneralDatabase gd;
+	private final ControlledDatabase cd;
     /** The database which stores all people who can use the system */
     private final PersonDatabase personDatabase;
     /** the checkout used to store what a person is purchasing at a given time */
@@ -46,14 +48,14 @@ class WorkingUser {
     /** The currently logged in user */
     private static String userID;
     private static String userName;
-    private GeneralDatabase generalDatabase = new GeneralDatabase();
-    private ControlledDatabase controlledDatabase = new ControlledDatabase();
 
     /**
      * Create the working user instance with both databases and a checkout.
      */
     public WorkingUser() {
         itemDatabase = new ItemDatabase();
+		gd = new GeneralDatabase();
+		cd = new ControlledDatabase();
         personDatabase = new PersonDatabase();
         checkOuts = new CheckOut();
         userID = null;
@@ -65,17 +67,21 @@ class WorkingUser {
      * @param input The PMKeyS that you wish to search for as a string
      * @return 0 if the user found, 1 if the user dose not exist, 2 if the user cannot buy.
      */
-    public final int getPMKeyS(String input) {
-        if ((input != null && !input.equals("")) && (!input.matches("[0-9]+"))) {
-            input = input.substring(1);
-        }
-        if (input == null || input.equals("") || !isLong(input) || !personDatabase.entryExists(input)) { // checks for valid numbers in the PMKeyS
-            userName = null;
-            userID = null;
+    public final int getPMKeyS(String input, String barcode) {
+        //if ((input != null && !input.equals("")) && (!input.matches("[0-9]+"))) {
+        //    input = input.substring(1);
+        //}
+        if (input == null || input.equals("") || !personDatabase.entryExists(input)) { // checks for valid numbers in the PMKeyS
+            user = null;
             return 1;
         } else {
-            userName = personDatabase.getEntryName(input);
-            userID = input;
+			if(passwordsEqual(input, barcode)) {
+	            userName = personDatabase.getName(input);
+				userID = personDatabase.getID(input);
+			}
+			else {
+				return 1;
+			}
         }
         return 0;
     }
@@ -357,9 +363,12 @@ class WorkingUser {
             case ("Item"): //TODO: change all instances of this in interface from product to item.
                 itemDatabase.adminWriteOutDatabase("adminItemDatabase.csv");
                 break;
-            case ("general"): generalDatabase.adminWriteOutDatabase("adminGeneralDatabase.CSV");
-                break;
-            case ("controlled"): controlledDatabase.adminWriteOutDatabase("adminControlledDatabase.CSV");
+			case ("general"):
+				gd.adminWriteOutdatabase("adminGeneralDatabase.csv");
+				break;
+			case ("controlled"): 
+				cd.adminWriteOutDatabase("adminControlledDatabase.csv");
+				break;
             default:
                 personDatabase.writeDatabaseCSV("adminItemDatabase.csv");
         }
@@ -374,10 +383,10 @@ class WorkingUser {
                 itemDatabase.adminWriteOutDatabase(path);
                 break;
             case ("general"):
-                generalDatabase.adminWriteOutDatabase(path);
+                gd.adminWriteOutDatabase(path);
                 break;
             case ("controlled"):
-                controlledDatabase.adminWriteOutDatabase(path);
+                cd.adminWriteOutDatabase(path);
             default:
                 personDatabase.writeDatabaseCSV(path);
         }
@@ -406,7 +415,7 @@ class WorkingUser {
     }
     public final void removeItem(String ID, String rootID, String rootPassWd) {
         if(passwordsEqual(rootID, rootPassWd)) {
-            controlledDatabase.delItem(ID);
+            cd.delItem(ID);
         }
     }
 
@@ -419,13 +428,16 @@ class WorkingUser {
         checkOuts.delItem(index);
     }
 
+    public final String getProductBarCode(int index) {
+        return itemDatabase.getBarCode(index);
+    }
 
     /**
      * Get the barcode of a product given it's name
      * @param name The name of the product to get the barcode of
      * @return The barcode of the product with the name specified.
      */
-    public final long getProductBarCode(String name) {
+    public final String getProductBarCode(String name) {
         Product getting = itemDatabase.readDatabaseProduct(name);
         return getting.getBarCode();
     }
@@ -435,9 +447,8 @@ class WorkingUser {
      * @param index The barcode of the product as a string
      * @return The name of the product with the given barcode
      */
-    public final String getProductName(String index) {
-        Product getting = itemDatabase.readDatabaseProduct(index);
-        return getting.getName();
+    public final String getProductName(String barcode) {
+        return itemDatabase.getName(barcode);
     }
 
 
@@ -447,7 +458,7 @@ class WorkingUser {
      * @return The number of the specified product in stock
      */
     public final int getProductNumber(String ID) {
-        return generalDatabase.getNumber(ID);
+        return gd.getNumber(ID);
     }
 
     /**
@@ -456,7 +467,7 @@ class WorkingUser {
      * @param numberOfProducts The new stock count.
      */
     public final void setNumberOfProducts(String ID, int numberOfProducts) {
-        generalDatabase.setNumber(ID, numberOfProducts);
+        gd.setNumber(ID, numberOfProducts);
     }
 
     /**
