@@ -166,7 +166,7 @@ public final class Interface extends Application
         //        });
 
         grid.add(itemList, 0, 1, 7, 7);
-        Button adminMode;
+        Button adminMode = new Button();
 
 //		bind(itemList, priceList);
         //listen on enter product barcode button
@@ -323,7 +323,7 @@ public final class Interface extends Application
             enterAdminMode(primaryStage); // method which will work the admin mode features.
         });
 
-        if() {
+        if(privelage > PersonDatabase.USER) {
 			grid.add(adminMode, 0,8); // add the button to the bottum left of the screen.
 		}
 
@@ -450,7 +450,7 @@ public final class Interface extends Application
             optionList.setItems(items);
             optionList.getSelectionModel().select(0);
         });
-        Button products = new Button("Products");
+        Button products = new Button("Items");
         products.setOnAction((ActionEvent e) -> {
             items.setAll(ProductSettingsList);
             optionList.setItems(items);
@@ -474,42 +474,42 @@ public final class Interface extends Application
                 (ObservableValue<? extends String> ov, String old_val, String selectedOption) -> {
                     if(selectedOption == null) {
                     }
-                    else if( selectedOption.equals("Add Person")) {
-                        grid.getChildren().clear();
-                        Text nameLabel = new Text("Name:");
-                        grid.add(nameLabel, 0,0);
-                        TextField nameEntry = new TextField();
-                        nameEntry.requestFocus();
-                        grid.add(nameEntry, 1, 0);
-                        Text PMKeySLabel = new Text("PMKeyS:");
-                        grid.add(PMKeySLabel, 0,1);
-                        TextField PMKeySEntry = new TextField();
-                        grid.add(PMKeySEntry, 1,1);
-                        nameEntry.setOnAction((ActionEvent e) -> {
-                            PMKeySEntry.requestFocus();
-                        });
-                        PMKeySEntry.setOnAction((ActionEvent e) -> {
-                            long PMKeyS = 7000000;
-                            try {
-                                PMKeyS = Long.parseLong(PMKeySEntry.getText());
-                            }
-                            catch (NumberFormatException e1) {
-                                Log.print(e1);
-                            }
-                            if(PMKeyS != 7000000) {
-                                workingUser.addPersonToDatabase(nameEntry.getText(), PMKeyS);
-                                nameEntry.clear();
-                                PMKeySEntry.clear();
-                                nameEntry.requestFocus();
-                                flashColour(nameEntry, 1500, Color.AQUAMARINE);
-                                flashColour(PMKeySEntry, 1500, Color.AQUAMARINE);
-                            }
-                            else {
-                                flashColour(PMKeySEntry, 1500, Color.RED);
-                            }
-                        });
-
-                    }
+//                    else if( selectedOption.equals("Add Person")) {
+//                        grid.getChildren().clear();
+//                        Text nameLabel = new Text("Name:");
+//                        grid.add(nameLabel, 0,0);
+//                        TextField nameEntry = new TextField();
+//                        nameEntry.requestFocus();
+//                        grid.add(nameEntry, 1, 0);
+//                        Text PMKeySLabel = new Text("PMKeyS:");
+//                        grid.add(PMKeySLabel, 0,1);
+//                        TextField PMKeySEntry = new TextField();
+//                        grid.add(PMKeySEntry, 1,1);
+//                        nameEntry.setOnAction((ActionEvent e) -> {
+//                            PMKeySEntry.requestFocus();
+//                        });
+//                        PMKeySEntry.setOnAction((ActionEvent e) -> {
+//                            long PMKeyS = 7000000;
+//                            try {
+//                                PMKeyS = Long.parseLong(PMKeySEntry.getText());
+//                            }
+//                            catch (NumberFormatException e1) {
+//                                Log.print(e1);
+//                            }
+//                            if(PMKeyS != 7000000) {
+//                                workingUser.addPersonToDatabase(nameEntry.getText(), PMKeyS);
+//                                nameEntry.clear();
+//                                PMKeySEntry.clear();
+//                                nameEntry.requestFocus();
+//                                flashColour(nameEntry, 1500, Color.AQUAMARINE);
+//                                flashColour(PMKeySEntry, 1500, Color.AQUAMARINE);
+//                            }
+//                            else {
+//                                flashColour(PMKeySEntry, 1500, Color.RED);
+//                            }
+//                        });
+//
+//                    }
                     else if(selectedOption.equals("Remove Person")) {
                         grid.getChildren().clear();
                         Button remove = new Button("Remove");
@@ -521,73 +521,73 @@ public final class Interface extends Application
                         grid.add(personList,0,0);
                         remove.setOnAction((ActionEvent e) -> {
                             String index = personList.getSelectionModel().getSelectedItem();
-                            try {
-                                workingUser.removePerson(index);
-                                flashColour(remove, 1500, Color.AQUAMARINE);
-                            } catch (IOException e1) {
-                                e1.printStackTrace();
-                                flashColour(remove, 1500, Color.RED);
-                            } catch (InterruptedException e1) {
-                                e1.printStackTrace();
-                                flashColour(remove, 1500, Color.RED);
-                            }
+//                            try {
+//                                workingUser.removePerson(index); // TODO: Should this even be a thing?
+//                                flashColour(remove, 1500, Color.AQUAMARINE);
+//                            } catch (IOException e1) {
+//                                e1.printStackTrace();
+//                                flashColour(remove, 1500, Color.RED);
+//                            } catch (InterruptedException e1) {
+//                                e1.printStackTrace();
+//                                flashColour(remove, 1500, Color.RED);
+//                            }
                             persons.setAll(workingUser.getUserNames());
                         });
 
                     }
-                    else if(selectedOption.equals("Change a Person")){
-                        grid.getChildren().clear();
-                        ListView<String> personList = new ListView<>();
-                        ObservableList<String> person = FXCollections.observableArrayList();
-                        person.setAll(workingUser.getUserNames());
-                        personList.setItems(person);
-                        grid.add(personList, 0, 0, 1, 4);
-                        Text nameLabel = new Text("Name:");
-                        grid.add(nameLabel, 1, 0);
-                        TextField nameEntry = new TextField();
-                        nameEntry.requestFocus();
-                        grid.add(nameEntry, 2, 0);
-                        Text pmkeysLabel = new Text("PMKeyS:");
-                        grid.add(pmkeysLabel, 1,1);
-                        TextField pmkeys = new TextField();
-                        grid.add(pmkeys, 2, 1);
-                        personList.getSelectionModel().selectedItemProperty().addListener(
-                                (ObservableValue<? extends String> vo, String oldVal, String selectedPerson) -> {
-                                    if(selectedPerson != null) {
-                                        nameEntry.setText(selectedPerson);
-                                        String pmkeysVal = String.valueOf(workingUser.getUser(selectedPerson).getBarCode());
-                                        pmkeys.setText(pmkeysVal);
-                                    }
-                                });
-                        nameEntry.setOnAction((ActionEvent e) -> {
-                            pmkeys.requestFocus();
-                        });
-
-                        pmkeys.setOnAction((ActionEvent e) -> {
-                            long pmkeysNew = -1;
-                            try {
-                                pmkeysNew = Long.parseLong(pmkeys.getText());
-                            }
-                            catch (NumberFormatException e1) {
-                                flashColour(pmkeys, 1500, Color.RED);
-                            }
-                            if (pmkeysNew != -1) {
-                                Person oldPerson = workingUser.getUser(personList.getSelectionModel().getSelectedItem());
-
-                                workingUser.changeDatabasePerson(personList.getSelectionModel().getSelectedItem(), nameEntry.getText(), pmkeysNew, oldPerson.getBarCode());
-                                nameEntry.clear();
-                                pmkeys.clear();
-                                nameEntry.requestFocus();
-                                flashColour(nameEntry, 1500, Color.AQUAMARINE);
-                                flashColour(pmkeys, 1500, Color.AQUAMARINE);
-                                //Now need to update the form
-                                String selectedIndex = personList.getSelectionModel().getSelectedItem();
-                                person.setAll(workingUser.getUserNames());
-                                personList.setItems(person);
-                                personList.getSelectionModel().select(selectedIndex);
-                            }
-                        });
-                    }
+//                    else if(selectedOption.equals("Change a Person")){
+//                        grid.getChildren().clear();
+//                        ListView<String> personList = new ListView<>();
+//                        ObservableList<String> person = FXCollections.observableArrayList();
+//                        person.setAll(workingUser.getUserNames());
+//                        personList.setItems(person);
+//                        grid.add(personList, 0, 0, 1, 4);
+//                        Text nameLabel = new Text("Name:");
+//                        grid.add(nameLabel, 1, 0);
+//                        TextField nameEntry = new TextField();
+//                        nameEntry.requestFocus();
+//                        grid.add(nameEntry, 2, 0);
+//                        Text pmkeysLabel = new Text("PMKeyS:");
+//                        grid.add(pmkeysLabel, 1,1);
+//                        TextField pmkeys = new TextField();
+//                        grid.add(pmkeys, 2, 1);
+//                        personList.getSelectionModel().selectedItemProperty().addListener(
+//                                (ObservableValue<? extends String> vo, String oldVal, String selectedPerson) -> {
+//                                    if(selectedPerson != null) {
+//                                        nameEntry.setText(selectedPerson);
+//                                        String pmkeysVal = String.valueOf(workingUser.(selectedPerson).getBarCode());
+//                                        pmkeys.setText(pmkeysVal);
+//                                    }
+//                                });
+//                        nameEntry.setOnAction((ActionEvent e) -> {
+//                            pmkeys.requestFocus();
+//                        });
+//
+//                        pmkeys.setOnAction((ActionEvent e) -> {
+//                            long pmkeysNew = -1;
+//                            try {
+//                                pmkeysNew = Long.parseLong(pmkeys.getText());
+//                            }
+//                            catch (NumberFormatException e1) {
+//                                flashColour(pmkeys, 1500, Color.RED);
+//                            }
+//                            if (pmkeysNew != -1) {
+//                                Person oldPerson = workingUser.getUser(personList.getSelectionModel().getSelectedItem());
+//
+//                                workingUser.changeDatabasePerson(personList.getSelectionModel().getSelectedItem(), nameEntry.getText(), pmkeysNew, oldPerson.getBarCode());
+//                                nameEntry.clear();
+//                                pmkeys.clear();
+//                                nameEntry.requestFocus();
+//                                flashColour(nameEntry, 1500, Color.AQUAMARINE);
+//                                flashColour(pmkeys, 1500, Color.AQUAMARINE);
+//                                //Now need to update the form
+//                                String selectedIndex = personList.getSelectionModel().getSelectedItem();
+//                                person.setAll(workingUser.getUserNames());
+//                                personList.setItems(person);
+//                                personList.getSelectionModel().select(selectedIndex);
+//                            }
+//                        });
+//                    }
                     else if(selectedOption.equals("List People")) {
                         grid.getChildren().clear();
                         ScrollPane users = null;
@@ -605,40 +605,35 @@ public final class Interface extends Application
                         grid.add(saveLabel, 0,0);
                         grid.add(save, 0, 1);
                         save.setOnAction((ActionEvent e) -> {
-                            try {
-                                workingUser.adminWriteOutDatabase("Person");
-                                flashColour(save, 3000, Color.AQUAMARINE);
-                            } catch (IOException e1) {
-                                e1.printStackTrace();
-                                flashColour(save, 3000, Color.RED);
-                            }
+                        workingUser.adminWriteOutDatabase("Person");
+                        flashColour(save, 3000, Color.AQUAMARINE);
 
                         });
                     }
-                    else if(selectedOption.equals("Lock People Out")) {
-                        grid.getChildren().clear();
-                        ListView<String> personList = new ListView<>();
-                        ObservableList<String> persons = FXCollections.observableArrayList();
-                        persons.setAll(workingUser.getUserNames());
-                        personList.setItems(persons);
-                        grid.add(personList,0,0);
-                        ChoiceBox canBuy = new ChoiceBox();
-                        canBuy.getItems().addAll("unlocked", "Locked");
-                        grid.add(canBuy, 1,0);
-                        personList.getSelectionModel().selectedItemProperty().addListener(
-                                (ObservableValue<? extends String> vo, String oldVal, String selectedProduct) -> {
-                                    if (workingUser.userCanBuyAdmin(personList.getSelectionModel().getSelectedItem())) {
-                                        canBuy.getSelectionModel().select(0);
-                                    } else canBuy.getSelectionModel().select(1);
-                                });
-                        canBuy.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number> () {
-                            @Override
-                            public void changed(ObservableValue ov, Number value, Number newValue) {
-                                workingUser.setUserCanBuy(personList.getSelectionModel().getSelectedItem(), canBuy.getSelectionModel().getSelectedIndex() == 0);
-                                flashColour(canBuy, 1500, Color.AQUAMARINE);
-                            }
-                        });
-                    }
+//                    else if(selectedOption.equals("Lock People Out")) {
+//                        grid.getChildren().clear();
+//                        ListView<String> personList = new ListView<>();
+//                        ObservableList<String> persons = FXCollections.observableArrayList();
+//                        persons.setAll(workingUser.getUserNames());
+//                        personList.setItems(persons);
+//                        grid.add(personList,0,0);
+//                        ChoiceBox canBuy = new ChoiceBox();
+//                        canBuy.getItems().addAll("unlocked", "Locked");
+//                        grid.add(canBuy, 1,0);
+//                        personList.getSelectionModel().selectedItemProperty().addListener(
+//                                (ObservableValue<? extends String> vo, String oldVal, String selectedProduct) -> {
+//                                    if (workingUser.userCanBuyAdmin(personList.getSelectionModel().getSelectedItem())) {
+//                                        canBuy.getSelectionModel().select(0);
+//                                    } else canBuy.getSelectionModel().select(1);
+//                                });
+//                        canBuy.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number> () {
+//                            @Override
+//                            public void changed(ObservableValue ov, Number value, Number newValue) {
+//                                workingUser.setUserCanBuy(personList.getSelectionModel().getSelectedItem(), canBuy.getSelectionModel().getSelectedIndex() == 0);
+//                                flashColour(canBuy, 1500, Color.AQUAMARINE);
+//                            }
+//                        });
+//                    }
                     else if( selectedOption.equals("Add Products")) {
                         grid.getChildren().clear();
                         Text nameLabel = new Text("Name:");
@@ -650,38 +645,22 @@ public final class Interface extends Application
                         grid.add(BarCodeLabel, 0, 1);
                         TextField BarCodeEntry = new TextField();
                         grid.add(BarCodeEntry, 1, 1);
-                        Text priceLabel = new Text("Price: $");
-                        grid.add(priceLabel, 0, 2);
-                        TextField priceEntry = new TextField();
-                        grid.add(priceEntry, 1, 2);
                         nameEntry.setOnAction((ActionEvent e) -> {
                             BarCodeEntry.requestFocus();
                         });
                         BarCodeEntry.setOnAction((ActionEvent e) -> {
-                            priceEntry.requestFocus();
-                        });
-                        priceEntry.setOnAction((ActionEvent e) -> {
                             long barCode = -1;
                             try {
                                 barCode = Long.parseLong(BarCodeEntry.getText());
                             } catch (NumberFormatException e1) {
                                 flashColour(BarCodeEntry, 1500, Color.RED);
                             }
-                            long price = -1;
-                            try {
-                                price = (long) (Double.parseDouble(priceEntry.getText()) * 100);
-                            }
-                            catch (NumberFormatException e1) {
-                                flashColour(priceEntry, 1500, Color.RED);
-                            }
-                            if(barCode != -1 && price != -1) {
-                                workingUser.addItemToDatabase(nameEntry.getText(), barCode, price);
+                            if (nameEntry.getText() != null && nameEntry.getText() != "" && BarCodeEntry.getText() != null && BarCodeEntry.getText() != "") {
+                                workingUser.addItemToDatabase(nameEntry.getText(), BarCodeEntry.getText());
                                 nameEntry.clear();
                                 BarCodeEntry.clear();
-                                priceEntry.clear();
                                 nameEntry.requestFocus();
                                 flashColour(nameEntry, 1500, Color.AQUAMARINE);
-                                flashColour(priceEntry, 1500, Color.AQUAMARINE);
                                 flashColour(BarCodeEntry, 1500, Color.AQUAMARINE);
                             }
                         });
@@ -709,82 +688,82 @@ public final class Interface extends Application
                         grid.add(remove, 1,0);
                         product.setAll(workingUser.getProductNames());
                     }
-                    else if( selectedOption.equals("Change a Product")) {
-                        grid.getChildren().clear();
-                        ListView<String> productList = new ListView<>();
-                        ObservableList<String> product = FXCollections.observableArrayList();
-                        product.setAll(workingUser.getProductNames());
-                        productList.setItems(product);
-                        grid.add(productList,0,0, 1, 4);
-                        Text nameLabel = new Text("Name:");
-                        grid.add(nameLabel, 1,0);
-                        TextField nameEntry = new TextField();
-                        nameEntry.requestFocus();
-                        grid.add(nameEntry, 2, 0);
-                        Text BarCodeLabel = new Text("Barcode:");
-                        grid.add(BarCodeLabel, 1,1);
-                        TextField barCodeEntry = new TextField();
-                        grid.add(barCodeEntry, 2,1);
-                        Text priceLabel = new Text("Price: $");
-                        grid.add(priceLabel, 1,2);
-                        TextField priceEntry = new TextField();
-                        grid.add(priceEntry, 2,2);
-                        productList.getSelectionModel().selectedItemProperty().addListener(
-                                (ObservableValue<? extends String> vo, String oldVal, String selectedProduct) -> {
-                                    nameEntry.setText(selectedProduct);
-                                    String BC = String.valueOf(workingUser.getProductBarCode(productList.getSelectionModel().getSelectedItem()));
-                                    barCodeEntry.setText(BC);
-                                    String price = Double.toString(workingUser.getProductPrice(productList.getSelectionModel().getSelectedItem())/100);
-                                    priceEntry.setText(price);
-                                });
-                        nameEntry.setOnAction((ActionEvent e) -> {
-                            barCodeEntry.requestFocus();
-                        });
-                        barCodeEntry.setOnAction((ActionEvent e) -> {
-                            priceEntry.requestFocus();
-                        });
-                        priceEntry.setOnAction((ActionEvent e) -> {
-                            long barCode = -1;
-                            try {
-                                barCode = Long.parseLong(barCodeEntry.getText());
-                            }
-                            catch (NumberFormatException e1) {
-                                flashColour(barCodeEntry, 1500, Color.RED);
-                            }
-                            long price = -1;
-                            try {
-                                price = (long) (Double.parseDouble(priceEntry.getText()) * 100);
-                            }
-                            catch (NumberFormatException e1) {
-                                flashColour(priceEntry, 1500, Color.RED);
-                            }
-                            if(barCode != -1 && price != -1) {
-                                workingUser.changeDatabaseProduct(nameEntry.getText(), workingUser.getProductName(productList.getSelectionModel().getSelectedItem()), price,
-                                        barCode, workingUser.getProductBarCode(productList.getSelectionModel().getSelectedItem()));
-                                nameEntry.clear();
-                                barCodeEntry.clear();
-                                priceEntry.clear();
-                                nameEntry.requestFocus();
-                                flashColour(nameEntry, 1500, Color.AQUAMARINE);
-                                flashColour(barCodeEntry, 1500, Color.AQUAMARINE);
-                                flashColour(priceEntry, 1500, Color.AQUAMARINE);
-
-
-                                //Now need to update the form
-                                String selectedProduct = productList.getSelectionModel().getSelectedItem();
-
-                                nameEntry.setText(selectedProduct);
-                                String BC = String.valueOf(workingUser.getProductBarCode(productList.getSelectionModel().getSelectedItem()));
-                                barCodeEntry.setText(BC);
-                                String price2 = Double.toString(workingUser.getProductPrice(productList.getSelectionModel()
-                                        .getSelectedItem()) / 100);
-                                priceEntry.setText(price2);
-                                product.setAll(workingUser.getProductNames());
-                                productList.setItems(product);
-                            }
-                        });
-
-                    }
+//                    else if( selectedOption.equals("Change a Product")) {
+//                        grid.getChildren().clear();
+//                        ListView<String> productList = new ListView<>();
+//                        ObservableList<String> product = FXCollections.observableArrayList();
+//                        product.setAll(workingUser.getProductNames());
+//                        productList.setItems(product);
+//                        grid.add(productList,0,0, 1, 4);
+//                        Text nameLabel = new Text("Name:");
+//                        grid.add(nameLabel, 1,0);
+//                        TextField nameEntry = new TextField();
+//                        nameEntry.requestFocus();
+//                        grid.add(nameEntry, 2, 0);
+//                        Text BarCodeLabel = new Text("Barcode:");
+//                        grid.add(BarCodeLabel, 1,1);
+//                        TextField barCodeEntry = new TextField();
+//                        grid.add(barCodeEntry, 2,1);
+//                        Text priceLabel = new Text("Price: $");
+//                        grid.add(priceLabel, 1,2);
+//                        TextField priceEntry = new TextField();
+//                        grid.add(priceEntry, 2,2);
+//                        productList.getSelectionModel().selectedItemProperty().addListener(
+//                                (ObservableValue<? extends String> vo, String oldVal, String selectedProduct) -> {
+//                                    nameEntry.setText(selectedProduct);
+//                                    String BC = String.valueOf(workingUser.getProductBarCode(productList.getSelectionModel().getSelectedItem()));
+//                                    barCodeEntry.setText(BC);
+//                                    String price = Double.toString(workingUser.getProductPrice(productList.getSelectionModel().getSelectedItem())/100);
+//                                    priceEntry.setText(price);
+//                                });
+//                        nameEntry.setOnAction((ActionEvent e) -> {
+//                            barCodeEntry.requestFocus();
+//                        });
+//                        barCodeEntry.setOnAction((ActionEvent e) -> {
+//                            priceEntry.requestFocus();
+//                        });
+//                        priceEntry.setOnAction((ActionEvent e) -> {
+//                            long barCode = -1;
+//                            try {
+//                                barCode = Long.parseLong(barCodeEntry.getText());
+//                            }
+//                            catch (NumberFormatException e1) {
+//                                flashColour(barCodeEntry, 1500, Color.RED);
+//                            }
+//                            long price = -1;
+//                            try {
+//                                price = (long) (Double.parseDouble(priceEntry.getText()) * 100);
+//                            }
+//                            catch (NumberFormatException e1) {
+//                                flashColour(priceEntry, 1500, Color.RED);
+//                            }
+//                            if(barCode != -1 && price != -1) {
+//                                workingUser.changeDatabaseProduct(nameEntry.getText(), workingUser.getProductName(productList.getSelectionModel().getSelectedItem()), price,
+//                                        barCode, workingUser.getProductBarCode(productList.getSelectionModel().getSelectedItem()));
+//                                nameEntry.clear();
+//                                barCodeEntry.clear();
+//                                priceEntry.clear();
+//                                nameEntry.requestFocus();
+//                                flashColour(nameEntry, 1500, Color.AQUAMARINE);
+//                                flashColour(barCodeEntry, 1500, Color.AQUAMARINE);
+//                                flashColour(priceEntry, 1500, Color.AQUAMARINE);
+//
+//
+//                                //Now need to update the form
+//                                String selectedProduct = productList.getSelectionModel().getSelectedItem();
+//
+//                                nameEntry.setText(selectedProduct);
+//                                String BC = String.valueOf(workingUser.getProductBarCode(productList.getSelectionModel().getSelectedItem()));
+//                                barCodeEntry.setText(BC);
+//                                String price2 = Double.toString(workingUser.getProductPrice(productList.getSelectionModel()
+//                                        .getSelectedItem()) / 100);
+//                                priceEntry.setText(price2);
+//                                product.setAll(workingUser.getProductNames());
+//                                productList.setItems(product);
+//                            }
+//                        });
+//
+//                    }
                     else if( selectedOption.equals("Enter Stock Counts")) {
                         grid.getChildren().clear();
                         ListView<String> productList = new ListView<>();
@@ -830,27 +809,8 @@ public final class Interface extends Application
                         grid.add(saveLabel, 0,0);
                         grid.add(save, 0,1);
                         save.setOnAction((ActionEvent e) -> {
-                            try {
-                                workingUser.adminWriteOutDatabase("Product");
-                                flashColour(save, 3000, Color.AQUAMARINE);
-                            } catch (IOException e1) {
-                                Log.print(e1);
-                                flashColour(save, 3000, Color.RED);
-                            }
-                        });
-                    }
-                    else if(selectedOption.equals("Reset Bills")) {
-                        grid.getChildren().clear();
-                        Button save = new Button("Reset Bills");
-                        Text saveLabel = new Text("Are you sure you would like to reset the bills? \nThis cannot be undone.");
-                        saveLabel.setTextAlignment(TextAlignment.CENTER);
-                        grid.add(saveLabel, 0, 0, 2, 1);
-                        grid.add(save, 1, 1);
-                        save.setOnAction((ActionEvent e) -> {
-                            workingUser.resetBills();
-                            flashColour(save, 1500, Color.AQUAMARINE);
-                            save.setDisable(true);
-                            save.setText("Bills Reset");
+                        workingUser.adminWriteOutDatabase("Product");
+                        flashColour(save, 3000, Color.AQUAMARINE);
                         });
                     }
                     else if(selectedOption.equals("Change Password")) {
@@ -862,12 +822,12 @@ public final class Interface extends Application
                         PasswordField newPW = new PasswordField();
                         PasswordField newPW2 = new PasswordField();
                         grid.add(oldLabel, 0,0);
-                        grid.add(oldPW, 1,0);
+                        grid.add(oldPW, 1, 0);
                         Text error = new Text();
                         oldPW.setOnAction((ActionEvent e) -> {
-                            if (!workingUser.passwordsEqual(oldPW.getText())) {
+                            if (!workingUser.passwordsEqual(workingUser.getUserID(), oldPW.getText())) {
                                 error.setText("Password incorrect");
-                                oldPW.setText("");
+                                oldPW.clear();
                                 grid.getChildren().remove(error);
                                 grid.add(error, 2, 0);
                                 flashColour(oldPW, 1500, Color.RED);
@@ -885,7 +845,7 @@ public final class Interface extends Application
                         });
                         newPW2.setOnAction((ActionEvent e) -> {
                             if(newPW.getText() != null && !newPW.getText().equals("") && newPW.getText().equals(newPW2.getText())) {
-                                workingUser.setAdminPassword(WorkingUser.getSecurePassword(newPW.getText()));
+                                workingUser.setPassword(workingUser.getUserID(), WorkingUser.getSecurePassword(newPW.getText()));
                                 Text changed = new Text("Success");
                                 grid.add(changed, 1,3);
                                 flashColour(newPW, 1500, Color.AQUAMARINE);
@@ -913,7 +873,7 @@ public final class Interface extends Application
                         grid.add(saveBtn,1,5);
                         grid.add(fileLabel,0,0);
                         grid.add(filePath,0,1);
-                        grid.add(saveDirBtn,1,1);
+                        grid.add(saveDirBtn, 1, 1);
 
                         saveDirBtn.setOnAction((ActionEvent e) -> {
                             File returnVal = fc.showDialog(adminStage);
@@ -955,7 +915,7 @@ public final class Interface extends Application
                     else if(selectedOption.equals("Close The Program")) {
                         grid.getChildren().clear();
                         Button save = new Button("Close The Program");
-                        grid.add(save, 1,1);
+                        grid.add(save, 1, 1);
                         save.setOnAction((ActionEvent e) -> {
                             flashColour(save,1500, Color.AQUAMARINE);
                             System.exit(0);

@@ -18,9 +18,7 @@ public interface Database {
 
     void writeDatabaseCSV(String path);
 
-    Person readEntry(String barcode); // todo: generalise this.
 
-    void readEntries();
 
 
 }

@@ -125,7 +125,7 @@ class WorkingUser {
 //        return generatedPassword;
 //    }
 
-    private static String[] getSecurePassword(String password) //throws NoSuchAlgorithmException, InvalidKeySpecException
+    public static String[] getSecurePassword(String password) //throws NoSuchAlgorithmException, InvalidKeySpecException
     {
         int iterations = 1000;
         char[] chars = password.toCharArray();
@@ -282,6 +282,9 @@ class WorkingUser {
                 return "User not found";
         }
         return (userID == null && userName != null) ? "Error" : userName;
+    }
+    public final String getUserID() {
+        return userID;
     }
 
     /**

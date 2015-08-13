@@ -335,7 +335,8 @@ class ItemDatabase
 		db.addLog(ID, persID, cd.isControlled(ID));
 	}
 	public void logItemsOut(LinkedList<String> IDs, String persID) {
-		for(String ID : IDs) {
+		for (String ID : IDs) {
 			logItemOut(ID, persID);
+		}
 	}
 }

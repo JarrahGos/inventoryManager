@@ -881,6 +881,4 @@ public class SQLInterface {
         return false;
     }
 
-    }
-
 }
