@@ -119,7 +119,7 @@ public final class Interface extends Application
         Text userLabel = new Text("Error");
 
 		// create password textField
-		TextField pass = new TextField();
+		PasswordField pass = new TextField();
 		grid.add(pass, 2,0);
 		
 
@@ -133,7 +133,7 @@ public final class Interface extends Application
 
         // create button to enter data from input
         Button enterBarCode = new Button("OK"); // button linked to action on input text field.
-        grid.add(enterBarCode, 2,0, 2,1); // add to the direct right of the input text field
+        grid.add(enterBarCode, 3,0, 2,1); // add to the direct right of the input text field
 
         //create product error text
         Text productError = new Text();
@@ -166,7 +166,7 @@ public final class Interface extends Application
         //        });
 
         grid.add(itemList, 0, 1, 7, 7);
-        Button adminMode = new Button();
+        Button adminMode = new Button("Enter Admin Mode");
 
 //		bind(itemList, priceList);
         //listen on enter product barcode button
@@ -207,6 +207,7 @@ public final class Interface extends Application
                     thread.start();
                     thread.interrupt();
                     flashColour(input, 1500, Color.AQUAMARINE);
+					flashColour(pass, 1500, Color.AQUARARINE);
 					input.requestFocus();
                     userLabel.setText(workingUser.userName(userError)); // find the name of those who dare log on.
                     inputLabel.setText("Enter Barcode"); // change the label to suit the next action.
@@ -223,11 +224,13 @@ public final class Interface extends Application
                 }
                 else {
                     input.clear(); // there was an error with the PMKeyS, get ready for another.
+					pass.clear();
 					input.requestFocus();
                     userLabel.setText(workingUser.userName(userError)); // tell the user there was a problem. Maybe this could be done better.
                     grid.getChildren().remove(userLabel); // Remove a userlabel, as above.
                     grid.add(userLabel, 3,0); // add it again, as above.
                     flashColour(input, 1500, Color.RED);
+					flashColour(pass, 1500, Color.RED);
                 }
             }
             else {
@@ -266,6 +269,7 @@ public final class Interface extends Application
                         grid.add(userLabel, 3,0);
                         input.clear();
                         flashColour(input, 1500, Color.AQUAMARINE);
+						flashColour(pass, 1500, Color.AQUAMARINE);
                         input.requestFocus();
 						if(privelage > PersonDatabase.USER) {
 							grid.add(adminMode, 0,8); // add the button to the bottum left of the screen.
@@ -280,8 +284,10 @@ public final class Interface extends Application
                         grid.getChildren().remove(userLabel);
                         grid.add(userLabel, 3,0);
                         input.clear();
+						pass.clear();
                         input.requestFocus();
                         flashColour(input, 1500, Color.RED);
+						flashColour(pass, 1500, Color.RED);
                     }
                 }
                 else {
@@ -307,7 +313,6 @@ public final class Interface extends Application
 
 
         // create and listen on admin button
-        adminMode = new Button("Enter Admin Mode"); // button which will bring up the admin mode.
         adminMode.setOnAction((ActionEvent e) -> {
 			//TODO: Should this log out the user?
             workingUser.logOut(); // set user number to -1 and delete any checkout made.
@@ -322,10 +327,6 @@ public final class Interface extends Application
             input.requestFocus();
             enterAdminMode(primaryStage); // method which will work the admin mode features.
         });
-
-        if(privelage > PersonDatabase.USER) {
-			grid.add(adminMode, 0,8); // add the button to the bottum left of the screen.
-		}
 
         Button removeProduct = new Button("Remove"); // button which will bring up the admin mode.
         removeProduct.setOnAction((ActionEvent e) -> {
@@ -361,6 +362,7 @@ public final class Interface extends Application
 //                priceList.setItems(prices);
                 //checkoutOut.setDividerPositions(0.8f);
                 input.requestFocus();
+				grid.add(pass, 2, 0);
 				grid.getChildren().remove(adminMode);
                 flashColour(purchase, 1500, Color.AQUAMARINE);
             }
@@ -373,18 +375,21 @@ public final class Interface extends Application
 
         Button cancel = new Button("Cancel");
         cancel.setOnAction((ActionEvent e) -> {
-            privelage = PersonDatabase.USER;
-            workingUser.logOut(); // set user number to -1 and delete any checkout made.
-            grid.getChildren().remove(userLabel); // make it look like no user is logged in
-            inputLabel.setText("Enter your PMKeyS"); // set the input label to something appropriate.
-            items.setAll(workingUser.getCheckOutNames());
-            itemList.setItems(items);
+			if(workingUser.userLoggedIn()) {
+	            privelage = PersonDatabase.USER;
+		        workingUser.logOut(); // set user number to -1 and delete any checkout made.
+        	    grid.getChildren().remove(userLabel); // make it look like no user is logged in
+            	inputLabel.setText("Enter your PMKeyS"); // set the input label to something appropriate.
+            	items.setAll(workingUser.getCheckOutNames());
+            	itemList.setItems(items);
 //            prices.setAll(workingUser.getCheckOutPrices());
 //            priceList.setItems(prices);
-            input.requestFocus();
-			grid.getChildren().remove(adminMode);
+            	input.requestFocus();
+				grid.addd(pass, 2, 0);
+				grid.getChildren().remove(adminMode);
             //total.setText(String.valueOf(workingUser.getPrice())); // set the total price to 0.00.
             //checkoutOut.setDividerPositions(0.8f);
+		}
         });
         grid.add(cancel, 4,0, 2,1); // add the button to the right of the user name.
         Platform.setImplicitExit(false);
@@ -427,7 +432,7 @@ public final class Interface extends Application
     {
         lastStage.hide();
         Stage adminStage = new Stage();
-        adminStage.setTitle("TOC19");
+        adminStage.setTitle("Inventory Admin");
         SplitPane split = new SplitPane();
         VBox rightPane = new VBox();
         GridPane grid = new GridPane();
@@ -437,13 +442,20 @@ public final class Interface extends Application
         grid.setPadding(new Insets(15, 15, 15, 15));
         ListView<String> optionList = new ListView<>();
         ObservableList<String> items = FXCollections.observableArrayList();
-        final String[] PersonSettingsList = {"Add Person", "Remove Person", "Change a Person", "List People", "Lock People Out", "Save Person Database"};
-        final String[] ProductSettingsList = {"Add Products", "Remove Products", "Change a Product","Enter Stock Counts", "List Products", "Save Product Database"};
-        final String[] AdminSettingsList = {"Reset Bills", "Change Password", "Save Databases To USB", "Close The Program"};
-        items.setAll(PersonSettingsList);
+        final String[] PersonSettingsList = {"Change a Person", "List People", "Save Person Database"};
+        final String[] ProductSettingsList = {"Add Items", "Remove Items", "Change an Item","Enter Stock Counts", "List Items", "Save Item Database"};
+        final String[] AdminSettingsList = {"Change Password", "Save Databases To USB", "Close The Program"};
+		final String[] LogSettingsList = {"Item Logs", "Password Logs"}
+		items.setAll(PersonSettingsList);
         optionList.setItems(items);
 
         grid.add(optionList, 0,0, 1, 7);
+		Button logs = new Button("Logs");
+		logs.setOnAction((ActionEvent e) -> {
+			items.setAll(LogSettingsList);
+			optionList.setItems(items);
+			optionList.getSelectionModel.Select(0);
+		});
         Button people = new Button("People");
         people.setOnAction((ActionEvent e) -> {
             items.setAll(PersonSettingsList);
@@ -466,7 +478,7 @@ public final class Interface extends Application
         logout.setOnAction((ActionEvent e) -> {
             adminStage.close();
         });
-        ToolBar buttonBar = new ToolBar(people, products, admin, logout);
+        ToolBar buttonBar = new ToolBar(people, products, logs, admin, logout);
         rightPane.getChildren().addAll(buttonBar, grid);
         split.getItems().addAll(optionList, rightPane);
         split.setDividerPositions(0.2f);
@@ -634,7 +646,7 @@ public final class Interface extends Application
 //                            }
 //                        });
 //                    }
-                    else if( selectedOption.equals("Add Products")) {
+                    else if( selectedOption.equals("Add Items")) {
                         grid.getChildren().clear();
                         Text nameLabel = new Text("Name:");
                         grid.add(nameLabel, 0, 0);
@@ -666,14 +678,26 @@ public final class Interface extends Application
                         });
 
                     }
-                    else if(selectedOption.equals("Remove Products")) {
+                    else if(selectedOption.equals("Remove Items")) {
                         grid.getChildren().clear();
+						ChoiceBox itemType = new ChoiceBox();
+						itemType.getItems().addAll("General", "Controlled"); //TODO: restrict controlled to root.
+						grid.add(itemType, 0, 0);
+						//TODO: Move this below the initialisation of the list
+						canBuy.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number> () {
+							@Override
+							public void changed(ObservableValue ov, Number value, Number newValue) {
+								product.setAll(workingUser.getProductNames(itemType.getSelectionModel().GetSelectedItem();
+								productList.setItems(product);
+								flashColour(canBuy, 1500, Color.AQUAMARINE);
+							 }
+						});
                         Button remove = new Button("Remove");
                         ListView<String> productList = new ListView<>();
                         ObservableList<String> product = FXCollections.observableArrayList();
-                        product.setAll(workingUser.getProductNames());
+                        product.setAll(workingUser.getProductNames("General"));
                         productList.setItems(product);
-                        grid.add(productList,0,0);
+                        grid.add(productList,0,1);
                         remove.setOnAction((ActionEvent e) -> {
                             String index = productList.getSelectionModel().getSelectedItem();
                             try {
@@ -768,7 +792,7 @@ public final class Interface extends Application
                         grid.getChildren().clear();
                         ListView<String> productList = new ListView<>();
                         ObservableList<String> product = FXCollections.observableArrayList();
-                        product.setAll(workingUser.getProductNames());
+                        product.setAll(workingUser.getProductNames("General"));
                         productList.setItems(product);
                         grid.add(productList,0,0, 1, 4);
                         Text numberLabel = new Text("Number:");
