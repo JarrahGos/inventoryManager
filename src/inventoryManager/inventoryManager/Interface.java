@@ -48,7 +48,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -119,7 +118,7 @@ public final class Interface extends Application
         Text userLabel = new Text("Error");
 
 		// create password textField
-		PasswordField pass = new TextField();
+		PasswordField pass = new PasswordField();
 		grid.add(pass, 2,0);
 		
 
@@ -207,7 +206,7 @@ public final class Interface extends Application
                     thread.start();
                     thread.interrupt();
                     flashColour(input, 1500, Color.AQUAMARINE);
-					flashColour(pass, 1500, Color.AQUARARINE);
+					flashColour(pass, 1500, Color.AQUAMARINE);
 					input.requestFocus();
                     userLabel.setText(workingUser.userName(userError)); // find the name of those who dare log on.
                     inputLabel.setText("Enter Barcode"); // change the label to suit the next action.
@@ -385,7 +384,7 @@ public final class Interface extends Application
 //            prices.setAll(workingUser.getCheckOutPrices());
 //            priceList.setItems(prices);
             	input.requestFocus();
-				grid.addd(pass, 2, 0);
+				grid.add(pass, 2, 0);
 				grid.getChildren().remove(adminMode);
             //total.setText(String.valueOf(workingUser.getPrice())); // set the total price to 0.00.
             //checkoutOut.setDividerPositions(0.8f);
@@ -445,17 +444,17 @@ public final class Interface extends Application
         final String[] PersonSettingsList = {"Change a Person", "List People", "Save Person Database"};
         final String[] ProductSettingsList = {"Add Items", "Remove Items", "Change an Item","Enter Stock Counts", "List Items", "Save Item Database"};
         final String[] AdminSettingsList = {"Change Password", "Save Databases To USB", "Close The Program"};
-		final String[] LogSettingsList = {"Item Logs", "Password Logs"}
+		final String[] LogSettingsList = {"Item Logs", "Password Logs"};
 		items.setAll(PersonSettingsList);
         optionList.setItems(items);
 
-        grid.add(optionList, 0,0, 1, 7);
+        grid.add(optionList, 0, 0, 1, 7);
 		Button logs = new Button("Logs");
 		logs.setOnAction((ActionEvent e) -> {
-			items.setAll(LogSettingsList);
-			optionList.setItems(items);
-			optionList.getSelectionModel.Select(0);
-		});
+            items.setAll(LogSettingsList);
+            optionList.setItems(items);
+            optionList.getSelectionModel().select(0);
+        });
         Button people = new Button("People");
         people.setOnAction((ActionEvent e) -> {
             items.setAll(PersonSettingsList);
@@ -683,21 +682,21 @@ public final class Interface extends Application
 						ChoiceBox itemType = new ChoiceBox();
 						itemType.getItems().addAll("General", "Controlled"); //TODO: restrict controlled to root.
 						grid.add(itemType, 0, 0);
-						//TODO: Move this below the initialisation of the list
-						canBuy.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number> () {
-							@Override
-							public void changed(ObservableValue ov, Number value, Number newValue) {
-								product.setAll(workingUser.getProductNames(itemType.getSelectionModel().GetSelectedItem();
-								productList.setItems(product);
-								flashColour(canBuy, 1500, Color.AQUAMARINE);
-							 }
-						});
+						
                         Button remove = new Button("Remove");
                         ListView<String> productList = new ListView<>();
                         ObservableList<String> product = FXCollections.observableArrayList();
                         product.setAll(workingUser.getProductNames("General"));
                         productList.setItems(product);
-                        grid.add(productList,0,1);
+                        grid.add(productList, 0, 1);
+                        itemType.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
+                            @Override
+                            public void changed(ObservableValue ov, Number value, Number newValue) {
+                                product.setAll(workingUser.getProductNames((String) itemType.getSelectionModel().getSelectedItem()));
+                                productList.setItems(product);
+                                flashColour(itemType, 1500, Color.AQUAMARINE);
+                            }
+                        });
                         remove.setOnAction((ActionEvent e) -> {
                             String index = productList.getSelectionModel().getSelectedItem();
                             try {

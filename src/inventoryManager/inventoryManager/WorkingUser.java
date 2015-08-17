@@ -100,7 +100,13 @@ class WorkingUser {
      * Get a list of the names of all products in the database
      * @return A string array of the product names
      */
-    public final ArrayList<String> getProductNames() {
+    public final ArrayList<String> getProductNames(String type) {
+        if(type == "general") {
+            return gd.getItemNames();
+        }
+        else if (type == "controlled") {
+            return cd.getItemNames();
+        }
         return itemDatabase.getItemNames();
     }
 
@@ -345,7 +351,7 @@ class WorkingUser {
      * @param barcode The new barcode of the product
      * @param oldBarcode The old barcode of the product
      */
-    public final void changeDatabaseProduct(String name, String oldName, long price, long barcode, long oldBarcode) {
+    public final void changeDatabaseProduct(String name, String oldName, String barcode, String oldBarcode) {
         itemDatabase.changeItem(oldName, barcode, oldBarcode);
     }
 
@@ -439,9 +445,6 @@ class WorkingUser {
         checkOuts.delItem(index);
     }
 
-    public final String getProductBarCode(int index) {
-        return itemDatabase.getBarCode(index);
-    }
 
     /**
      * Get the barcode of a product given it's name
@@ -449,8 +452,7 @@ class WorkingUser {
      * @return The barcode of the product with the name specified.
      */
     public final String getProductBarCode(String name) {
-        Product getting = itemDatabase.readDatabaseProduct(name);
-        return getting.getBarCode();
+        return itemDatabase.getBarcode(name);
     }
 
     /**

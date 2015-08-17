@@ -339,4 +339,7 @@ class ItemDatabase
 			logItemOut(ID, persID);
 		}
 	}
+	public final String getBarcode(String name) {
+		return db.getID("item", name);
+	}
 }
