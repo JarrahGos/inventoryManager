@@ -39,8 +39,6 @@ class WorkingUser {
 
     /** The database which stores all products used by the system. */
     private final ItemDatabase itemDatabase;
-	private final GeneralDatabase gd;
-	private final ControlledDatabase cd;
     /** The database which stores all people who can use the system */
     private final PersonDatabase personDatabase;
     /** the checkout used to store what a person is purchasing at a given time */
@@ -54,8 +52,6 @@ class WorkingUser {
      */
     public WorkingUser() {
         itemDatabase = new ItemDatabase();
-		gd = new GeneralDatabase();
-		cd = new ControlledDatabase();
         personDatabase = new PersonDatabase();
         checkOuts = new CheckOut();
         userID = null;
@@ -67,7 +63,7 @@ class WorkingUser {
      * @param input The PMKeyS that you wish to search for as a string
      * @return 0 if the user found, 1 if the user dose not exist, 2 if the user cannot buy.
      */
-    public final int getPMKeyS(String ID, String pass) {
+    public final int getbarcode(String ID, String pass) {
         //if ((input != null && !input.equals("")) && (!input.matches("[0-9]+"))) {
         //    input = input.substring(1);
         //}
@@ -102,10 +98,10 @@ class WorkingUser {
      */
     public final ArrayList<String> getProductNames(String type) {
         if(type == "general") {
-            return gd.getItemNames();
+            return itemDatabase.getItemNames();
         }
         else if (type == "controlled") {
-            return cd.getItemNames();
+            return itemDatabase.getItemNames();
         }
         return itemDatabase.getItemNames();
     }
@@ -364,7 +360,7 @@ class WorkingUser {
      * @param oldPmkeys The old PMKeyS of the person
      */
     public final void changeDatabasePerson(String selectedIndex, String name, long pmkeys, long oldPmkeys) {
-        personDatabase.changeDatabasePerson(selectedIndex, name, pmkeys, oldPmkeys);
+//        personDatabase.changeDatabasePerson(selectedIndex, name, pmkeys, oldPmkeys);
     }
 
     /**
@@ -378,13 +374,13 @@ class WorkingUser {
                 personDatabase.writeDatabaseCSV("adminPersonDatabase.csv");
                 break;
             case ("Item"): //TODO: change all instances of this in interface from product to item.
-                itemDatabase.adminWriteOutDatabase("adminItemDatabase.csv");
+                itemDatabase.adminWriteOutDatabase(type, "adminItemDatabase.csv");
                 break;
 			case ("general"):
-				gd.adminWriteOutDatabase("adminGeneralDatabase.csv");
+				itemDatabase.adminWriteOutDatabase(type, "adminGeneralDatabase.csv");
 				break;
 			case ("controlled"): 
-				cd.adminWriteOutDatabase("adminControlledDatabase.csv");
+				itemDatabase.adminWriteOutDatabase(type, "adminControlledDatabase.csv");
 				break;
             default:
                 personDatabase.writeDatabaseCSV("adminItemDatabase.csv");
@@ -396,16 +392,8 @@ class WorkingUser {
             case ("Person"):
                 personDatabase.writeDatabaseCSV(path);
                 break;
-            case ("Item"): //TODO: change all instances of this in interface from product to item.
-                itemDatabase.adminWriteOutDatabase(path);
-                break;
-            case ("general"):
-                gd.adminWriteOutDatabase(path);
-                break;
-            case ("controlled"):
-                cd.adminWriteOutDatabase(path);
             default:
-                personDatabase.writeDatabaseCSV(path);
+                itemDatabase.adminWriteOutDatabase(type, path);
         }
     }
 
@@ -432,7 +420,7 @@ class WorkingUser {
     }
     public final void removeItem(String ID, String rootID, String rootPassWd) {
         if(passwordsEqual(rootID, rootPassWd)) {
-            cd.delItem(ID);
+            itemDatabase.delItem(ID);
         }
     }
 
@@ -461,7 +449,7 @@ class WorkingUser {
      * @return The name of the product with the given barcode
      */
     public final String getProductName(String barcode) {
-        return itemDatabase.getName(barcode);
+        return itemDatabase.getItemName(barcode);
     }
 
 
@@ -471,7 +459,7 @@ class WorkingUser {
      * @return The number of the specified product in stock
      */
     public final int getProductNumber(String ID) {
-        return gd.getNumber(ID);
+        return itemDatabase.getNumber(ID);
     }
 
     /**
@@ -480,7 +468,7 @@ class WorkingUser {
      * @param numberOfProducts The new stock count.
      */
     public final void setNumberOfProducts(String ID, int numberOfProducts) {
-        gd.setNumber(ID, numberOfProducts);
+        itemDatabase.setNumber(ID, numberOfProducts);
     }
 
     /**

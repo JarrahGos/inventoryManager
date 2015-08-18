@@ -33,8 +33,6 @@ class ItemDatabase
      */
 	private String databaseLocation;
 	private SQLInterface db = new SQLInterface();
-	private ControlledDatabase cd = new ControlledDatabase();
-	private GeneralDatabase gd = new GeneralDatabase();
 
     /**
      * Constructor for ItemDatabase.
@@ -43,8 +41,7 @@ class ItemDatabase
 	public ItemDatabase()
 	{
 		try {
-            Settings config = new Settings();
-			databaseLocation = config.productSettings();
+			databaseLocation = Settings.productSettings();
 		} catch (FileNotFoundException e) {
 			Log.print(e);
 		}
@@ -100,7 +97,7 @@ class ItemDatabase
      * @param barcode The barcode of the item you wish to delete
 	 */
 	public void delItem(String barcode) {
-		if(!cd.isControlled(barcode)) {
+		if(!this.isControlled(barcode)) {
 			db.deleteEntry("general", barcode);
 		}
 	}
@@ -183,8 +180,8 @@ class ItemDatabase
      * @param path The path to the directory you wish to output to
      * @return An integer of 1 if the file was not found and 0 if it worked.
      */
-	public void adminWriteOutDatabase(String path)  {
-		db.export("item", path);
+	public void adminWriteOutDatabase(String type, String path)  {
+		db.export(type, path);
 	}
 
 
@@ -325,14 +322,14 @@ class ItemDatabase
      * A list of the names of all products in the database
      * @return A String array of the names of all products in the database.
      */
-	public ArrayList<String> getItemNames() {
-		return db.getName("item");
+	public ArrayList<String> getItemNames(String type) {
+		return db.getName(type);
 	}
 	public String getItemName(String ID) {
 		return db.getName("item", ID);
 	}
 	public void logItemOut(String ID, String persID) {
-		db.addLog(ID, persID, cd.isControlled(ID));
+		db.addLog(ID, persID, this.isControlled(ID));
 	}
 	public void logItemsOut(LinkedList<String> IDs, String persID) {
 		for (String ID : IDs) {
@@ -342,4 +339,51 @@ class ItemDatabase
 	public final String getBarcode(String name) {
 		return db.getID("item", name);
 	}
+
+
+	public void addEntry(String barcode, String name, String setName, String state, String tagPos, String type) {
+		db.addEntry(barcode, name, setName, state, tagPos, type);
+	}
+	public final boolean isControlled(String ID) {
+		return db.isItemControlled(ID);
+	}
+	public void delItem(String ID, boolean controlled) {
+		if(controlled) {
+			db.deleteEntry("controlled", ID);
+		}
+	}
+
+
+
+
+    public void addEntry(String barcode, String name, String setName, String description, long quantity) {
+        db.addEntry(barcode, name, setName, description, quantity);
+    }
+
+    /**
+     * Get the number of a given product left in stock
+     * @param barcode the name of the product you wish to check
+     * @return The number as an int of the product left in stock
+     */
+    public final int getNumber(String barcode)
+    {
+        return db.getQuantity(barcode);
+    }
+
+    /**
+     * Set the number of a specified item you have in stock
+     * @param barcode The name of the item you wish to set
+     * @param number The number of that item you now have.
+     */
+    public final void setNumber(String barcode, int number)
+    {
+        db.setQuantity(barcode, number);
+    }
+    /**
+     * A list of the names of all products in the database
+     * @return A String array of the names of all products in the database.
+     */
+    public final ArrayList<String> getItemNames() {
+        return db.getName("general");
+    }
 }

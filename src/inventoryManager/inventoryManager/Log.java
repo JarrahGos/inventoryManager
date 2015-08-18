@@ -10,8 +10,6 @@ import java.io.IOException;
  */
 
 public class Log {
-	/** The settings object which will give the Log Location */
-    private static Settings settings = new Settings();
 	/** The location to store the log in */
     private static String logLocation = "./";
 	/** The file writer which will append to the log */
@@ -27,7 +25,7 @@ public class Log {
 	 */
     private Log() {
         try {
-            logLocation = settings.logSettings();
+            logLocation = Settings.logSettings();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }

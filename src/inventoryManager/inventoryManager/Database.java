@@ -6,7 +6,7 @@ import java.util.ArrayList;
  * Created by jarrah on 3/08/15.
  */
 public interface Database {
-    String getDatabase();
+    ArrayList<String> getDatabase();
 
     void deleteEntry(String barcode);
 
