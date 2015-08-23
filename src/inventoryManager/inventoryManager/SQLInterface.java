@@ -25,7 +25,6 @@ package inventoryManager;
  * Description: This program will allow for the input and retreval of the person database and will set the limits of the database.
  */
 
-//TODO: Consider moving this to the SQLite DBMS. This will mean that the DB will be bundled with the software rather than the installed system.
 
 import java.io.FileNotFoundException;
 import java.sql.*;
@@ -34,42 +33,41 @@ import java.util.ArrayList;
 
 
 public class SQLInterface {
-    private String URL = "jdbc:mariadb//localhost:3306/toc"; // these will be initialised from the file.
+    private String URL = "jdbc:sqlite:/home/jarrah/ideaProjects/inv.db"; // these will be initialised from the file.
     private String user = "jarrah"; // when sure it works, remove these.
     private String password = "password";
     private Connection db;
-    private Settings config = new Settings();
 
     public SQLInterface()
     {
         try {
-            Class.forName("org.mariadb.jdbc.Driver").newInstance();
+            Class.forName("org.sqlite.JDBC").newInstance();
         }
         catch (ClassNotFoundException e) {
-            System.out.println("could not find driver class\n" + e.toString());
+//            Log.print("could not find driver class\n" + e.toString());
         }
         catch (InstantiationException | IllegalAccessException e)
         {
-            System.out.println("could not create instance\n" + e.toString());
+//            Log.print("could not create instance\n" + e.toString());
         }
         String[] settings = new String[0];
         try {
-            settings = config.SQLInterfaceSettings();
+            settings = Settings.SQLInterfaceSettings();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        URL = settings[0];
-        user = settings[1];
-        password = settings[2];
+//        URL = settings[0];
+//        user = settings[1];
+//        password = settings[2];
         try {
-            db = DriverManager.getConnection(URL, user, password);
-            System.out.println("\n\n\n\n\n\n\n DB Connected \n\n\n\n\n\n\n\n\n\n");
+            db = DriverManager.getConnection(URL);
+//            System.out.println("\n\n\n\n\n\n\n DB Connected \n\n\n\n\n\n\n\n\n\n");
         }
         catch (java.sql.SQLException e){
-            System.out.println("error connecting to DB, check the settings\n" + e.toString());
-            System.out.println(URL + "\n" + user + "\n" + password);
+//            Log.print("error connecting to DB, check the settings\n" + e.toString());
+//            Log.print(URL + "\n" + user + "\n" + password);
         }
-        System.out.println(db == null ? "null" : db.toString());
+//        System.out.println(db == null ? "null" : db.toString());
     }
 
     public void deleteEntry(String type, String barcode) {

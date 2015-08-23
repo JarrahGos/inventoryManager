@@ -1,14 +1,17 @@
 package inventoryManager;
+
 import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
-import sun.rmi.runtime.Log;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.PBEParameterSpec;
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.util.Properties;
@@ -38,21 +41,30 @@ import java.util.Properties;
  * Description: This program will allow for the input and retreval of the person database and will set the limits of the database.
  */
 
-class Settings {
+final class Settings {
 	/**
 	 * The properties object which is used to interact with the properties file
 	 */
-	private final Properties properties = new Properties();
+	private static final Properties properties = new Properties();
 	/**
 	 * the path to the properties file which contains the settings
 	 */
-	private final String propFileName = Compatibility.getFilePath("inventoryManager.properties");
+//	private final String propFileName = Compatibility.getFilePath("inventoryManager.properties");
+	private static final String propFileName = "inventoryManager.properties";
 	/**
 	 * an input stream which is used to access the properties file
 	 */
-	private InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream(propFileName);
+	private static FileInputStream inputStream;
 
-    private static final char[] PASSWORD = "saoenuthrac,.".toCharArray();
+    static {
+        try {
+            inputStream = new FileInputStream(propFileName);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static final char[] PASSWORD = "12345678".toCharArray();
     private static final byte[] SALT = {
             (byte) 0xde, (byte) 0xa3, (byte) 0x10, (byte) 0x15,
             (byte) 0xde, (byte) 0xa3, (byte) 0x10, (byte) 0x15,
@@ -60,7 +72,7 @@ class Settings {
 	/**
 	 * Create an instance of the settings class from which to read settings from.
 	 */
-	public Settings() {
+	private Settings() {
 		if (inputStream != null) return;
 
 		try {
@@ -81,7 +93,7 @@ class Settings {
 	 * @return The location in which the database is stored. This is checked for compatibility against the running OS
 	 * @throws FileNotFoundException if the settings file is not in the location it should be.
 	 */
-	public final String personSettings() throws FileNotFoundException {
+	public static final String personSettings() throws FileNotFoundException {
 		if (inputStream != null) {
 			try {
 				properties.load(inputStream);
@@ -105,7 +117,7 @@ class Settings {
 	 * @return The location in which the database is stored. This is checked for compatibility against the running OS
 	 * @throws FileNotFoundException If the settings file is not in the location it should be.
 	 */
-	public final String productSettings() throws FileNotFoundException {
+	public static final String productSettings() throws FileNotFoundException {
 		if (inputStream != null) {
 			try {
 				properties.load(inputStream);
@@ -129,7 +141,7 @@ class Settings {
 	 * @return A string array with the horizontal size, vertical size and textsize.
 	 * @throws FileNotFoundException If the settings file is not in the location it should be.
 	 */
-	public final String[] interfaceSettings() throws FileNotFoundException {
+	public static final String[] interfaceSettings() throws FileNotFoundException {
 		if (inputStream != null) {
 			try {
 				properties.load(inputStream);
@@ -152,7 +164,7 @@ class Settings {
 	 * @return A string with the location of the log. This is checked for compatibility against the running OS
 	 * @throws FileNotFoundException If the settings file is not in the location it should be.
 	 */
-	public final String logSettings() throws FileNotFoundException {
+	public static final String logSettings() throws FileNotFoundException {
 		if (inputStream != null) {
 			try {
 				properties.load(inputStream);
@@ -169,7 +181,7 @@ class Settings {
 		output = Compatibility.getFilePath(output);
 		return output;
 	}
-    public final String[] SQLInterfaceSettings() throws FileNotFoundException
+    public static final String[] SQLInterfaceSettings() throws FileNotFoundException
     {
         if (inputStream != null) {
             try {
@@ -209,11 +221,12 @@ class Settings {
     }
 
     private static String decrypt(String property) throws GeneralSecurityException, IOException {
-        SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("PBEWithMD5AndDES");
-        SecretKey key = keyFactory.generateSecret(new PBEKeySpec(PASSWORD));
-        Cipher pbeCipher = Cipher.getInstance("PBEWithMD5AndDES");
-        pbeCipher.init(Cipher.DECRYPT_MODE, key, new PBEParameterSpec(SALT, 20));
-        return new String(pbeCipher.doFinal(base64Decode(property)), "UTF-8");
+		return property;
+//        SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("PBEWithMD5AndDES");
+//        SecretKey key = keyFactory.generateSecret(new PBEKeySpec(PASSWORD));
+//        Cipher pbeCipher = Cipher.getInstance("PBEWithMD5AndDES");
+//        pbeCipher.init(Cipher.DECRYPT_MODE, key, new PBEParameterSpec(SALT, 20));
+//        return new String(pbeCipher.doFinal(base64Decode(property)), "UTF-8");
     }
 
     private static byte[] base64Decode(String property) throws IOException {

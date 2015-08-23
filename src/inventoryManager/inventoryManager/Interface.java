@@ -80,11 +80,11 @@ public final class Interface extends Application
      */
     public Interface() throws IOException
     {
-        Settings config = new Settings();
         workingUser = new WorkingUser();
-        String[] settings = config.interfaceSettings();
-        horizontalSize = Integer.parseInt(settings[0]);
-        verticalSize = Integer.parseInt(settings[1]);
+        System.out.println(workingUser.toString());
+        String[] settings = Settings.interfaceSettings();
+//        horizontalSize = Integer.parseInt(settings[0]);
+//        verticalSize = Integer.parseInt(settings[1]);
         textSize = Integer.parseInt(settings[2]);
         //initalize the variables created above
 
@@ -100,7 +100,7 @@ public final class Interface extends Application
         // create the layout
         primaryStage.setTitle("Inventory Management System"); // set the window title.
         GridPane grid = new GridPane(); // create the layout manager
-//	    grid.setGridLinesVisible(true); // used for debugging object placement
+	    grid.setGridLinesVisible(true); // used for debugging object placement
         grid.setAlignment(Pos.CENTER);
         grid.setHgap(10);
         grid.setVgap(10);
@@ -119,7 +119,7 @@ public final class Interface extends Application
         Text userLabel = new Text("Error");
 
 		// create password textField
-		PasswordField pass = new TextField();
+		PasswordField pass = new PasswordField();
 		grid.add(pass, 2,0);
 		
 
@@ -133,7 +133,7 @@ public final class Interface extends Application
 
         // create button to enter data from input
         Button enterBarCode = new Button("OK"); // button linked to action on input text field.
-        grid.add(enterBarCode, 3,0, 2,1); // add to the direct right of the input text field
+        grid.add(enterBarCode, 4,0, 1,1); // add to the direct right of the input text field
 
         //create product error text
         Text productError = new Text();
@@ -146,8 +146,12 @@ public final class Interface extends Application
         //checkoutOut.setPrefHeight(500);
         ListView<String> itemList = new ListView<>();
 		itemList.setPrefHeight(500);
+        System.out.println(FXCollections.observableArrayList().hashCode());
         ObservableList<String> items = FXCollections.observableArrayList();
-        items.setAll(workingUser.getCheckOutNames());
+        System.out.println(items.hashCode());
+        if(workingUser.userLoggedIn()) {
+            items.setAll(workingUser.getCheckOutNames());
+        }
         itemList.setItems(items);
         //ListView<String> priceList = new ListView<>();
         //ObservableList<String> prices = FXCollections.observableArrayList();
@@ -165,7 +169,7 @@ public final class Interface extends Application
         //            itemList.scrollTo(priceList.getSelectionModel().getSelectedIndex());
         //        });
 
-        grid.add(itemList, 0, 1, 7, 7);
+        grid.add(itemList, 0, 1, 8, 7);
         Button adminMode = new Button("Enter Admin Mode");
 
 //		bind(itemList, priceList);
@@ -173,10 +177,11 @@ public final class Interface extends Application
     	enterBarCode.setOnAction((ActionEvent e) -> {
 			if(pass.getText() == null || pass.getText() == "") {
 				pass.requestFocus();
+                flashColour(pass, 1500, Color.RED);
 			}
-			else if (!workingUser.userLoggedIn()) { // treat the input as a PMKeyS
+			else if (!workingUser.userLoggedIn()) { // treat the input as a barcode
                 int userError;
-                userError = PMKeySEntered(input.getText(), pass.getText()); // take the text, do user logon stuff with it.
+                userError = barcodeEntered(input.getText(), pass.getText()); // take the text, do user logon stuff with it.
 
 
 
@@ -194,7 +199,7 @@ public final class Interface extends Application
                                 workingUser.logOut(); // set user number to -1 and delete any checkout made.
 
                                 grid.getChildren().remove(userLabel); // make it look like no user is logged in
-                                inputLabel.setText("Enter your PMKeyS"); // set the input label to something appropriate.
+                                inputLabel.setText("Enter your barcode"); // set the input label to something appropriate.
 //                                total.setText(String.valueOf("$" + workingUser.getPrice())); // set the total price to 0.00.
                             }
                             catch (InterruptedException e) {
@@ -207,7 +212,7 @@ public final class Interface extends Application
                     thread.start();
                     thread.interrupt();
                     flashColour(input, 1500, Color.AQUAMARINE);
-					flashColour(pass, 1500, Color.AQUARARINE);
+					flashColour(pass, 1500, Color.AQUAMARINE);
 					input.requestFocus();
                     userLabel.setText(workingUser.userName(userError)); // find the name of those who dare log on.
                     inputLabel.setText("Enter Barcode"); // change the label to suit the next action.
@@ -217,13 +222,13 @@ public final class Interface extends Application
 					if (privelage > PersonDatabase.USER) {
 						grid.add(adminMode, 0,8); // add the button to the bottum left of the screen.
 					}
-                    input.clear(); // clear the PMKeyS from the input ready for product bar codes.
+                    input.clear(); // clear the barcode from the input ready for product bar codes.
 					pass.clear();
 					grid.getChildren().remove(pass);
 
                 }
                 else {
-                    input.clear(); // there was an error with the PMKeyS, get ready for another.
+                    input.clear(); // there was an error with the barcode, get ready for another.
 					pass.clear();
 					input.requestFocus();
                     userLabel.setText(workingUser.userName(userError)); // tell the user there was a problem. Maybe this could be done better.
@@ -255,12 +260,18 @@ public final class Interface extends Application
             }
         });
         input.setOnKeyPressed((KeyEvent ke) -> { // the following allows the user to hit enter rather than OK. Works exactly the same as hitting OK.
+            if (ke.getCode().equals(KeyCode.ENTER)) {
+                pass.requestFocus();
+            }
+        });
+        pass.setOnKeyPressed((KeyEvent ke) -> {
             if (ke.getCode().equals(KeyCode.ENTER)) { //TODO: this is duplicate code, make a method call. 
                 if (pass.getText() == null || pass.getText() == "") {
 					pass.requestFocus();
+                    flashColour(pass, 1500, Color.RED);
 				}
 				else if(!workingUser.userLoggedIn()) {
-                    int userError = PMKeySEntered(input.getText(), pass.getText());
+                    int userError = barcodeEntered(input.getText(), pass.getText());
 
                     if(workingUser.userLoggedIn()) {
                         userLabel.setText(workingUser.userName(userError));
@@ -317,7 +328,7 @@ public final class Interface extends Application
 			//TODO: Should this log out the user?
             workingUser.logOut(); // set user number to -1 and delete any checkout made.
             grid.getChildren().remove(userLabel); // make it look like no user is logged in
-            inputLabel.setText("Enter your PMKeyS"); // set the input label to something appropriate.
+            inputLabel.setText("Enter your barcode"); // set the input label to something appropriate.
             items.setAll(workingUser.getCheckOutNames());
             itemList.setItems(items);
 //            prices.setAll(workingUser.getCheckOutPrices());
@@ -347,15 +358,15 @@ public final class Interface extends Application
         grid.add(removeProduct, 2,8); // add the button to the bottum left of the screen.
 
         // create and listen on purchase button
-        Button purchase = new Button("Purchase"); // button which will add the cost of the items to the users bill
+        Button purchase = new Button("Sign Out"); // button which will add the cost of the items to the users bill
         purchase.setOnAction((ActionEvent e) -> {
             if(workingUser.userLoggedIn()) {
                 privelage = PersonDatabase.USER;
                 workingUser.checkOutItems(); // add the cost to the bill.
                 grid.getChildren().remove(userLabel); // make it look like the user has been logged out.
-                inputLabel.setText("Enter your PMKeyS"); // Set the input label to something better for user login.
+                inputLabel.setText("Enter your ID"); // Set the input label to something better for user login.
 //                total.setText(String.valueOf(workingUser.getPrice())); //set total to the working users price, which after logout is 0.00
-                input.clear(); // clear the input ready for a PMKeyS
+                input.clear(); // clear the input ready for a barcode
                 items.setAll(workingUser.getCheckOutNames());
                 itemList.setItems(items);
 //                prices.setAll(workingUser.getCheckOutPrices());
@@ -379,19 +390,19 @@ public final class Interface extends Application
 	            privelage = PersonDatabase.USER;
 		        workingUser.logOut(); // set user number to -1 and delete any checkout made.
         	    grid.getChildren().remove(userLabel); // make it look like no user is logged in
-            	inputLabel.setText("Enter your PMKeyS"); // set the input label to something appropriate.
+            	inputLabel.setText("Enter your barcode"); // set the input label to something appropriate.
             	items.setAll(workingUser.getCheckOutNames());
             	itemList.setItems(items);
 //            prices.setAll(workingUser.getCheckOutPrices());
 //            priceList.setItems(prices);
             	input.requestFocus();
-				grid.addd(pass, 2, 0);
+				grid.add(pass, 2, 0);
 				grid.getChildren().remove(adminMode);
             //total.setText(String.valueOf(workingUser.getPrice())); // set the total price to 0.00.
             //checkoutOut.setDividerPositions(0.8f);
 		}
         });
-        grid.add(cancel, 4,0, 2,1); // add the button to the right of the user name.
+        grid.add(cancel, 5,0, 3,1); // add the button to the right of the user name.
         Platform.setImplicitExit(false);
         primaryStage.setOnCloseRequest((WindowEvent event) -> {
             event.consume();
@@ -404,13 +415,13 @@ public final class Interface extends Application
     }
 
     /**
-     * Log the user into working user given their PMKeyS
-     * @param input The users PMKeyS as a string
+     * Log the user into working user given their barcode
+     * @param input The users barcode as a string
      * @return The error from logging the user in.
      */
-    private int PMKeySEntered(String input, String pass)
+    private int barcodeEntered(String input, String pass)
     {
-        return workingUser.getPMKeyS(input, pass);
+        return workingUser.getbarcode(input, pass);
     }
 
     /**
@@ -449,13 +460,13 @@ public final class Interface extends Application
 		items.setAll(PersonSettingsList);
         optionList.setItems(items);
 
-        grid.add(optionList, 0,0, 1, 7);
+        grid.add(optionList, 0, 0, 1, 7);
 		Button logs = new Button("Logs");
 		logs.setOnAction((ActionEvent e) -> {
-			items.setAll(LogSettingsList);
-			optionList.setItems(items);
-			optionList.getSelectionModel.Select(0);
-		});
+            items.setAll(LogSettingsList);
+            optionList.setItems(items);
+            optionList.getSelectionModel().select(0);
+        });
         Button people = new Button("People");
         people.setOnAction((ActionEvent e) -> {
             items.setAll(PersonSettingsList);
@@ -493,31 +504,31 @@ public final class Interface extends Application
 //                        TextField nameEntry = new TextField();
 //                        nameEntry.requestFocus();
 //                        grid.add(nameEntry, 1, 0);
-//                        Text PMKeySLabel = new Text("PMKeyS:");
-//                        grid.add(PMKeySLabel, 0,1);
-//                        TextField PMKeySEntry = new TextField();
-//                        grid.add(PMKeySEntry, 1,1);
+//                        Text barcodeLabel = new Text("barcode:");
+//                        grid.add(barcodeLabel, 0,1);
+//                        TextField barcodeEntry = new TextField();
+//                        grid.add(barcodeEntry, 1,1);
 //                        nameEntry.setOnAction((ActionEvent e) -> {
-//                            PMKeySEntry.requestFocus();
+//                            barcodeEntry.requestFocus();
 //                        });
-//                        PMKeySEntry.setOnAction((ActionEvent e) -> {
-//                            long PMKeyS = 7000000;
+//                        barcodeEntry.setOnAction((ActionEvent e) -> {
+//                            long barcode = 7000000;
 //                            try {
-//                                PMKeyS = Long.parseLong(PMKeySEntry.getText());
+//                                barcode = Long.parseLong(barcodeEntry.getText());
 //                            }
 //                            catch (NumberFormatException e1) {
 //                                Log.print(e1);
 //                            }
-//                            if(PMKeyS != 7000000) {
-//                                workingUser.addPersonToDatabase(nameEntry.getText(), PMKeyS);
+//                            if(barcode != 7000000) {
+//                                workingUser.addPersonToDatabase(nameEntry.getText(), barcode);
 //                                nameEntry.clear();
-//                                PMKeySEntry.clear();
+//                                barcodeEntry.clear();
 //                                nameEntry.requestFocus();
 //                                flashColour(nameEntry, 1500, Color.AQUAMARINE);
-//                                flashColour(PMKeySEntry, 1500, Color.AQUAMARINE);
+//                                flashColour(barcodeEntry, 1500, Color.AQUAMARINE);
 //                            }
 //                            else {
-//                                flashColour(PMKeySEntry, 1500, Color.RED);
+//                                flashColour(barcodeEntry, 1500, Color.RED);
 //                            }
 //                        });
 //
@@ -559,39 +570,39 @@ public final class Interface extends Application
 //                        TextField nameEntry = new TextField();
 //                        nameEntry.requestFocus();
 //                        grid.add(nameEntry, 2, 0);
-//                        Text pmkeysLabel = new Text("PMKeyS:");
-//                        grid.add(pmkeysLabel, 1,1);
-//                        TextField pmkeys = new TextField();
-//                        grid.add(pmkeys, 2, 1);
+//                        Text barcodeLabel = new Text("barcode:");
+//                        grid.add(barcodeLabel, 1,1);
+//                        TextField barcode = new TextField();
+//                        grid.add(barcode, 2, 1);
 //                        personList.getSelectionModel().selectedItemProperty().addListener(
 //                                (ObservableValue<? extends String> vo, String oldVal, String selectedPerson) -> {
 //                                    if(selectedPerson != null) {
 //                                        nameEntry.setText(selectedPerson);
-//                                        String pmkeysVal = String.valueOf(workingUser.(selectedPerson).getBarCode());
-//                                        pmkeys.setText(pmkeysVal);
+//                                        String barcodeVal = String.valueOf(workingUser.(selectedPerson).getBarCode());
+//                                        barcode.setText(barcodeVal);
 //                                    }
 //                                });
 //                        nameEntry.setOnAction((ActionEvent e) -> {
-//                            pmkeys.requestFocus();
+//                            barcode.requestFocus();
 //                        });
 //
-//                        pmkeys.setOnAction((ActionEvent e) -> {
-//                            long pmkeysNew = -1;
+//                        barcode.setOnAction((ActionEvent e) -> {
+//                            long barcodeNew = -1;
 //                            try {
-//                                pmkeysNew = Long.parseLong(pmkeys.getText());
+//                                barcodeNew = Long.parseLong(barcode.getText());
 //                            }
 //                            catch (NumberFormatException e1) {
-//                                flashColour(pmkeys, 1500, Color.RED);
+//                                flashColour(barcode, 1500, Color.RED);
 //                            }
-//                            if (pmkeysNew != -1) {
+//                            if (barcodeNew != -1) {
 //                                Person oldPerson = workingUser.getUser(personList.getSelectionModel().getSelectedItem());
 //
-//                                workingUser.changeDatabasePerson(personList.getSelectionModel().getSelectedItem(), nameEntry.getText(), pmkeysNew, oldPerson.getBarCode());
+//                                workingUser.changeDatabasePerson(personList.getSelectionModel().getSelectedItem(), nameEntry.getText(), barcodeNew, oldPerson.getBarCode());
 //                                nameEntry.clear();
-//                                pmkeys.clear();
+//                                barcode.clear();
 //                                nameEntry.requestFocus();
 //                                flashColour(nameEntry, 1500, Color.AQUAMARINE);
-//                                flashColour(pmkeys, 1500, Color.AQUAMARINE);
+//                                flashColour(barcode, 1500, Color.AQUAMARINE);
 //                                //Now need to update the form
 //                                String selectedIndex = personList.getSelectionModel().getSelectedItem();
 //                                person.setAll(workingUser.getUserNames());
@@ -683,21 +694,21 @@ public final class Interface extends Application
 						ChoiceBox itemType = new ChoiceBox();
 						itemType.getItems().addAll("General", "Controlled"); //TODO: restrict controlled to root.
 						grid.add(itemType, 0, 0);
-						//TODO: Move this below the initialisation of the list
-						canBuy.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number> () {
-							@Override
-							public void changed(ObservableValue ov, Number value, Number newValue) {
-								product.setAll(workingUser.getProductNames(itemType.getSelectionModel().GetSelectedItem()));
-								productList.setItems(product);
-								flashColour(canBuy, 1500, Color.AQUAMARINE);
-							 }
-						});
+						
                         Button remove = new Button("Remove");
                         ListView<String> productList = new ListView<>();
                         ObservableList<String> product = FXCollections.observableArrayList();
                         product.setAll(workingUser.getProductNames("General"));
                         productList.setItems(product);
-                        grid.add(productList,0,1);
+                        grid.add(productList, 0, 1);
+                        itemType.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
+                            @Override
+                            public void changed(ObservableValue ov, Number value, Number newValue) {
+                                product.setAll(workingUser.getProductNames((String) itemType.getSelectionModel().getSelectedItem()));
+                                productList.setItems(product);
+                                flashColour(itemType, 1500, Color.AQUAMARINE);
+                            }
+                        });
                         remove.setOnAction((ActionEvent e) -> {
                             String index = productList.getSelectionModel().getSelectedItem();
                             try {
@@ -707,10 +718,10 @@ public final class Interface extends Application
                                 e1.printStackTrace();
                                 flashColour(remove, 1500, Color.RED);
                             }
-                            product.setAll(workingUser.getProductNames());
+                            product.setAll(workingUser.getProductNames("Item"));
                         });
                         grid.add(remove, 1,0);
-                        product.setAll(workingUser.getProductNames());
+                        product.setAll(workingUser.getProductNames("Item"));
                     }
 //                    else if( selectedOption.equals("Change a Product")) {
 //                        grid.getChildren().clear();

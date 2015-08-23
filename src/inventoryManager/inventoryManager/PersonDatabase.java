@@ -21,7 +21,7 @@ package inventoryManager;
  * @author Jarrah Gosbell
  */
 
-import java.io.*;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
 final class PersonDatabase implements  Database{
@@ -39,9 +39,7 @@ final class PersonDatabase implements  Database{
      */
 	public PersonDatabase() {
 		try {
-            Settings config = new Settings();
-			databaseLocation = config.personSettings();
-			admin = readEntry(7000000);
+			databaseLocation = Settings.personSettings();
 		} catch (FileNotFoundException e) {
 			Log.print(e);
 		}
@@ -59,9 +57,7 @@ final class PersonDatabase implements  Database{
      */
 	public final void setEntry(String ID, String name, boolean admin, boolean root, String passwd, String salt) // take the persons data and pass it to the persons constructor
 	{
-
-				Person newPerson;
-		if (!entryExists(name, ID)) { // check whether the person already exists
+		if (!entryExists(ID)) { // check whether the person already exists
 			db.addEntry(ID, name, admin, root, passwd, salt); // pass off the work to the constructor: "make it so."
 		}
 	}
@@ -124,6 +120,9 @@ final class PersonDatabase implements  Database{
 	public final boolean entryExists(String barcode) {
 		return db.entryExists("person", barcode); // if you are running this, no person was found and therefore it is logical to conclude none exist.
 		// similar to Kiri-Kin-Tha's first law of metaphysics.
+	}
+	public final boolean entryExists(String type, String barcode) {
+		return db.entryExists(type, barcode);
 	}
 
     /**
@@ -239,12 +238,12 @@ final class PersonDatabase implements  Database{
 		return db.getPassword(ID);
 	}
 	//TODO: this needs to be written for SQL
-    public void changeDatabasePerson(String selectedIndex, String name, long pmkeys, long oldPmkeys) 
-	{
-		Person oldPerson = readEntry(oldPmkeys);
-		Person newPerson = new Person(name, pmkeys, (long)oldPerson.totalCostRunning()*100, (long)oldPerson.totalCostWeek() *100,oldPerson.canBuy());
-
-		deleteEntry(selectedIndex);
-		writeDatabaseEntry(newPerson);
-	}
+//    public void changeDatabasePerson(String selectedIndex, String name, long pmkeys, long oldPmkeys)
+//	{
+//		Person oldPerson = readEntry(oldPmkeys);
+//		Person newPerson = new Person(name, pmkeys, (long)oldPerson.totalCostRunning()*100, (long)oldPerson.totalCostWeek() *100,oldPerson.canBuy());
+//
+//		deleteEntry(selectedIndex);
+//		writeDatabaseEntry(newPerson);
+//	}
 }
