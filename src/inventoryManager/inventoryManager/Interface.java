@@ -123,14 +123,6 @@ public final class Interface extends Application
 		grid.add(pass, 2,0);
 		
 
-        // create label and text field for totalOutput
-        //Text totalLabel = new Text("\t\t\tTotal:");
-        //totalLabel.setTextAlignment(TextAlignment.RIGHT);
-        //grid.add(totalLabel, 2,8); // place at the bottum right, before total and purchase.
-        //TextField total = new TextField(String.valueOf("$" + workingUser.getPrice())); // create a textfield with the price of the currant checkout.
-        //total.setEditable(false); // stop the user thinking they can change the total price.
-        //grid.add(total, 3,8); // add to the right of total label.
-
         // create button to enter data from input
         Button enterBarCode = new Button("OK"); // button linked to action on input text field.
         grid.add(enterBarCode, 4,0, 1,1); // add to the direct right of the input text field
@@ -142,38 +134,17 @@ public final class Interface extends Application
 
         // create the lists for the checkout.
 
-        //SplitPane checkoutOut = new SplitPane();
-        //checkoutOut.setPrefHeight(500);
         ListView<String> itemList = new ListView<>();
 		itemList.setPrefHeight(500);
-        System.out.println(FXCollections.observableArrayList().hashCode());
         ObservableList<String> items = FXCollections.observableArrayList();
-        System.out.println(items.hashCode());
         if(workingUser.userLoggedIn()) {
             items.setAll(workingUser.getCheckOutNames());
         }
         itemList.setItems(items);
-        //ListView<String> priceList = new ListView<>();
-        //ObservableList<String> prices = FXCollections.observableArrayList();
-        //prices.setAll(workingUser.getCheckOutPrices());
-        //priceList.setItems(prices);
-        //checkoutOut.getItems().addAll(itemList);
-        //checkoutOut.setDividerPositions(0.8f);
-        //itemList.setSelectionModel(priceList.getSelectionModel());
-//        itemList.getSelectionModel().selectedItemProperty().addListener(
-//                (ObservableValue<? extends String> ov, String old_val, String selectedOption) -> {
-//                    priceList.scrollTo(itemList.getSelectionModel().getSelectedIndex());
-//                });
-        //priceList.getSelectionModel().selectedItemProperty().addListener(
-        //        (ObservableValue<? extends String> ov, String old_val, String selectedOption) -> {
-        //            itemList.scrollTo(priceList.getSelectionModel().getSelectedIndex());
-        //        });
-
+        
         grid.add(itemList, 0, 1, 8, 7);
         Button adminMode = new Button("Enter Admin Mode");
 
-//		bind(itemList, priceList);
-        //listen on enter product barcode button
     	enterBarCode.setOnAction((ActionEvent e) -> {
 			if(pass.getText() == null || pass.getText() == "") {
 				pass.requestFocus();
@@ -244,9 +215,6 @@ public final class Interface extends Application
                     productError.setText("");
                     items.setAll(workingUser.getCheckOutNames());
                     itemList.setItems(items);
-//                    prices.setAll(workingUser.getCheckOutPrices());
-//                    priceList.setItems(prices);
-//                    total.setText(String.valueOf("$" + workingUser.getPrice()));
                     input.clear();
                     input.requestFocus();
                     flashColour(input, 500, Color.AQUAMARINE);
@@ -287,7 +255,6 @@ public final class Interface extends Application
 						}
 						pass.clear();
 						grid.getChildren().remove(pass);
-                        //checkoutOut.setDividerPositions(0.8f);
                     }
                     else {
                         input.clear();
@@ -306,9 +273,6 @@ public final class Interface extends Application
                     if (correct) {
                         items.setAll(workingUser.getCheckOutNames());
                         itemList.setItems(items);
-//                        prices.setAll(workingUser.getCheckOutPrices());
-//                        priceList.setItems(prices);
-//                        total.setText(String.valueOf("$" + workingUser.getPrice()));
                         input.clear();
                         input.requestFocus();
                         flashColour(input, 500, Color.AQUAMARINE);
@@ -331,10 +295,6 @@ public final class Interface extends Application
             inputLabel.setText("Enter your barcode"); // set the input label to something appropriate.
             items.setAll(workingUser.getCheckOutNames());
             itemList.setItems(items);
-//            prices.setAll(workingUser.getCheckOutPrices());
-//            priceList.setItems(prices);
-//            total.setText(String.valueOf(workingUser.getPrice())); // set the total price to 0.00.
-            //checkoutOut.setDividerPositions(0.8f);
             input.requestFocus();
             enterAdminMode(primaryStage); // method which will work the admin mode features.
         });
@@ -344,11 +304,8 @@ public final class Interface extends Application
             int index = itemList.getSelectionModel().getSelectedIndex();
             if(index >= 0) {
                 workingUser.deleteProduct(index);
-//                prices.setAll(workingUser.getCheckOutPrices());
-//                priceList.setItems(prices);
                 items.setAll(workingUser.getCheckOutNames());
                 itemList.setItems(items); //TODO: add select top.
-//                total.setText(String.valueOf("$" + workingUser.getPrice()));
                 itemList.scrollTo(index);
                 input.requestFocus();
                 flashColour(removeProduct, 1500, Color.AQUAMARINE);
@@ -365,13 +322,9 @@ public final class Interface extends Application
                 workingUser.checkOutItems(); // add the cost to the bill.
                 grid.getChildren().remove(userLabel); // make it look like the user has been logged out.
                 inputLabel.setText("Enter your ID"); // Set the input label to something better for user login.
-//                total.setText(String.valueOf(workingUser.getPrice())); //set total to the working users price, which after logout is 0.00
                 input.clear(); // clear the input ready for a barcode
                 items.setAll(workingUser.getCheckOutNames());
                 itemList.setItems(items);
-//                prices.setAll(workingUser.getCheckOutPrices());
-//                priceList.setItems(prices);
-                //checkoutOut.setDividerPositions(0.8f);
                 input.requestFocus();
 				grid.add(pass, 2, 0);
 				grid.getChildren().remove(adminMode);
@@ -393,14 +346,10 @@ public final class Interface extends Application
             	inputLabel.setText("Enter your barcode"); // set the input label to something appropriate.
             	items.setAll(workingUser.getCheckOutNames());
             	itemList.setItems(items);
-//            prices.setAll(workingUser.getCheckOutPrices());
-//            priceList.setItems(prices);
             	input.requestFocus();
 				grid.add(pass, 2, 0);
 				grid.getChildren().remove(adminMode);
-            //total.setText(String.valueOf(workingUser.getPrice())); // set the total price to 0.00.
-            //checkoutOut.setDividerPositions(0.8f);
-		}
+    		}
         });
         grid.add(cancel, 5,0, 3,1); // add the button to the right of the user name.
         Platform.setImplicitExit(false);
@@ -987,7 +936,79 @@ public final class Interface extends Application
         time.getKeyFrames().addAll(frames);
 
         time.playFromStart();
-    }
+    public void changePassword()
+	{
+		Stage adminStage = new Stage();
+		adminStage.setTitle("Inventory Admin");
+		GridPane grid = new GridPane();
+		grid.setAlignment(Pos.CENTER);
+		grid.setHgap(10);
+		grid.setVgap(10);
+		grid.setPadding(new Insets(15, 15, 15, 15));
+
+		Text ID = new Text("Enter your ID:");
+		Text first = new Text("New Password:");
+		Text second = new Text("Retype New Password:");
+		TextField IDInput = new TextField();
+		PasswordField firstInput = new PasswordField();
+		PasswordField SecondInput = new PasswordField();
+		grid.add(ID, 0,0);
+		grid.add(IDInput, 1,0);
+		grid.add(first, 0,1);
+		grid.add(firstInput, 1,1);
+		grid.add(second, 0,2);
+		grid.add(secondInput, 1,2);
+		bool success = false;
+		Text admin = new Text("Enter admin Details");
+		TextField adminID = new TextField();
+		PasswordField adminPass = new PasswordField();
+		grid.add(admin, 0, 4);
+		grid.add(adminID, 1, 4);
+		grid.add(adminPass, 2, 4);
+
+		IDInput.setOnKeyPressed((KeyEvent ke) -> {
+			if(ke.getCode().equals(KeyCode.ENTER)) {
+				firstInput.requestFocus();
+			}
+		});
+		firstInput.setOnKeyPressed((KeyEvent ke) -> { // the following allows the user to hit enter rather than OK. Works         exactly the same as hitting OK.
+			 if (ke.getCode().equals(KeyCode.ENTER)) {
+			 	secondInput.requestFocus();
+			 }
+		});
+		secondInput.setOnKeyPressed((KeyEvent ke) -> {
+			if(ke.getCode().equals(KeyCode.ENTER)) {
+				if(firstInput.getText().equals(secondInput.getText())) {
+					adminID.requestFocus();
+				}
+				else {
+					flashColour(FirstInput, 1500, Color.RED);
+					flashColour(SecondInput, 1500, Color.RED);
+				}
+			}
+		});
+		adminID.setOnKeyPressed((KeyEvent ke) -> {
+			if(ke.getCode().equals(KeyCode.ENTER)) {
+				adminPass.requestFocus();
+			}
+		});
+		adminPass.setOnKeyPressed((KeyEvent ke) -> {
+			if(ke.getCode().equals(KeyCode.ENTER)) { //TODO: the below should return something
+				if(firstInput.getText().equals(secondInput.getText())) {
+					bool success = workingUser.changeUserPass(adminID.getText(), adminPass.getText(), ID.getText(), firstInput.getText()); 
+				}
+			}
+			if(success) {
+				flashColour(IDInput, 1500, Color.AQUAMARINE);
+				flashColour(firstInput, 1500, Color.AQUAMARINE);
+				flashColour(SecondInput, 1500, Color.AQUAMARINE);
+				flashColour(adminId, 1500, Color.AQUAMIRINE);
+				flashColour(adminPass, 1500, Color.AQUAMIRINE);
+			}
+			else //TODO: This should show the error
+		});
+
+	}
 
     /**
      * Bind the scrollbars of two listviews
