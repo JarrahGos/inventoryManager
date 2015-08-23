@@ -445,7 +445,7 @@ public final class Interface extends Application
         final String[] PersonSettingsList = {"Change a Person", "List People", "Save Person Database"};
         final String[] ProductSettingsList = {"Add Items", "Remove Items", "Change an Item","Enter Stock Counts", "List Items", "Save Item Database"};
         final String[] AdminSettingsList = {"Change Password", "Save Databases To USB", "Close The Program"};
-		final String[] LogSettingsList = {"Item Logs", "Password Logs"}
+		final String[] LogSettingsList = {"Item Logs", "Password Logs"};
 		items.setAll(PersonSettingsList);
         optionList.setItems(items);
 
@@ -687,7 +687,7 @@ public final class Interface extends Application
 						canBuy.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number> () {
 							@Override
 							public void changed(ObservableValue ov, Number value, Number newValue) {
-								product.setAll(workingUser.getProductNames(itemType.getSelectionModel().GetSelectedItem();
+								product.setAll(workingUser.getProductNames(itemType.getSelectionModel().GetSelectedItem()));
 								productList.setItems(product);
 								flashColour(canBuy, 1500, Color.AQUAMARINE);
 							 }
