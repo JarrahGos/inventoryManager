@@ -571,17 +571,65 @@ public final class Interface extends Application
                         grid.add(users, 0, 0);
                     }
                     else if(selectedOption.equals("Save Person Database")) {
-                        grid.getChildren().clear();
-                        Button save = new Button("Save Person Database");
-                        Text saveLabel = new Text("Save database to adminPersonDatabase.txt?");
-                        grid.add(saveLabel, 0,0);
-                        grid.add(save, 0, 1);
-                        save.setOnAction((ActionEvent e) -> {
-                        workingUser.adminWriteOutDatabase("Person");
-                        flashColour(save, 3000, Color.AQUAMARINE);
+                    	DirectoryChooser fc = new DirectoryChooser();
 
+
+                        grid.getChildren().clear();
+                        Text fileLabel = new Text("Save Directory");
+                        TextField filePath = new TextField("");
+                        filePath.setEditable(true);
+                        Button saveDirBtn = new Button("Choose Save Directory");
+                        Button saveBtn = new Button("Save Database to Selected Directory");
+
+                        grid.add(saveBtn,1,5);
+                        grid.add(fileLabel,0,0);
+                        grid.add(filePath,0,1);
+                        grid.add(saveDirBtn, 1, 1);
+
+                        saveDirBtn.setOnAction((ActionEvent e) -> {
+                            File returnVal = fc.showDialog(adminStage);
+
+                            if (returnVal != null) {
+                                filePath.setText(returnVal.getPath());
+                                flashColour(saveDirBtn, 1500, Color.AQUAMARINE);
+                            }else{
+                                flashColour(saveDirBtn, 1500, Color.RED);
+                            }
                         });
+
+                        saveBtn.setOnAction((ActionEvent e) -> {
+                            try {
+                                workingUser.adminWriteOutDatabase("Person"); //adminPersonDatabase.csv
+
+                                File adminPersonFile = new File(Compatibility.getFilePath("adminPersonDatabase.csv"));
+                                if(filePath.getText() != "" || filePath.getText() != null) {
+                                    File destPers = new File(filePath.getText() + "/adminPersonDatabase.csv");
+                                    Files.copy(adminPersonFile.toPath(), destPers.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                                    flashColour(saveBtn, 3000, Color.AQUAMARINE);
+                                }
+                                else {
+                                    flashColour(saveBtn, 3000, Color.RED);
+                                    flashColour(filePath, 3000, Color.RED);
+                                }
+
+                            } catch (IOException e1) {
+                                Log.print(e1);
+                                flashColour(saveBtn, 3000, Color.RED);
+                            }
+                        });
+
                     }
+                    //    grid.getChildren().clear();
+                    //    Button save = new Button("Save Person Database");
+                    //    Text saveLabel = new Text("Save database to adminPersonDatabase.txt?");
+                    //    grid.add(saveLabel, 0,0);
+                    //    grid.add(save, 0, 1);
+                    //    save.setOnAction((ActionEvent e) -> {
+                    //    workingUser.adminWriteOutDatabase("Person");
+                    //    flashColour(save, 3000, Color.AQUAMARINE);
+
+                    //    });
+                    //}
 //                    else if(selectedOption.equals("Lock People Out")) {
 //                        grid.getChildren().clear();
 //                        ListView<String> personList = new ListView<>();
@@ -787,16 +835,62 @@ public final class Interface extends Application
                         grid.add(productList, 0, 0);
                     }
                     else if(selectedOption.equals("Save Product Database")) {
+                    	DirectoryChooser fc = new DirectoryChooser();
+
+
                         grid.getChildren().clear();
-                        Button save = new Button("Save Product Database");
-                        Text saveLabel = new Text("Save database to adminProductDatabase.txt?");
-                        grid.add(saveLabel, 0,0);
-                        grid.add(save, 0,1);
-                        save.setOnAction((ActionEvent e) -> {
-                        workingUser.adminWriteOutDatabase("Product");
-                        flashColour(save, 3000, Color.AQUAMARINE);
+                        Text fileLabel = new Text("Save Directory");
+                        TextField filePath = new TextField("");
+                        filePath.setEditable(true);
+                        Button saveDirBtn = new Button("Choose Save Directory");
+                        Button saveBtn = new Button("Save Database to Selected Directory");
+
+                        grid.add(saveBtn,1,5);
+                        grid.add(fileLabel,0,0);
+                        grid.add(filePath,0,1);
+                        grid.add(saveDirBtn, 1, 1);
+
+                        saveDirBtn.setOnAction((ActionEvent e) -> {
+                            File returnVal = fc.showDialog(adminStage);
+
+                            if (returnVal != null) {
+                                filePath.setText(returnVal.getPath());
+                                flashColour(saveDirBtn, 1500, Color.AQUAMARINE);
+                            }else{
+                                flashColour(saveDirBtn, 1500, Color.RED);
+                            }
                         });
+
+                        saveBtn.setOnAction((ActionEvent e) -> {
+                                workingUser.adminWriteOutDatabase("Product"); //adminProductDatabase.csv
+                                File adminProductFile = new File(Compatibility.getFilePath("adminProductDatabase.csv"));
+                                if(filePath.getText() != "" || filePath.getText() != null) {
+                                    File destProd = new File(filePath.getText() + "/adminProductDatabase.csv");
+                                    Files.copy(adminProductFile.toPath(), destProd.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                                    flashColour(saveBtn, 3000, Color.AQUAMARINE);
+                                }
+                                else {
+                                    flashColour(saveBtn, 3000, Color.RED);
+                                    flashColour(filePath, 3000, Color.RED);
+                                }
+
+                            } catch (IOException e1) {
+                                Log.print(e1);
+                                flashColour(saveBtn, 3000, Color.RED);
+                            }
+                        });
+
                     }
+//                        grid.getChildren().clear();
+//                        Button save = new Button("Save Product Database");
+//                        Text saveLabel = new Text("Save database to adminProductDatabase.txt?");
+//                        grid.add(saveLabel, 0,0);
+//                        grid.add(save, 0,1);
+//                        save.setOnAction((ActionEvent e) -> {
+//                        workingUser.adminWriteOutDatabase("Product");
+//                        flashColour(save, 3000, Color.AQUAMARINE);
+//                        });
+//                    }
                     else if(selectedOption.equals("Change Password")) {
                         grid.getChildren().clear();
                         Text oldLabel = new Text("Enter old password");
@@ -936,10 +1030,11 @@ public final class Interface extends Application
         time.getKeyFrames().addAll(frames);
 
         time.playFromStart();
+	}
     public void changePassword()
 	{
-		Stage adminStage = new Stage();
-		adminStage.setTitle("Inventory Admin");
+		Stage PassStage = new Stage();
+		PassStage.setTitle("Inventory Admin");
 		GridPane grid = new GridPane();
 		grid.setAlignment(Pos.CENTER);
 		grid.setHgap(10);
@@ -994,7 +1089,7 @@ public final class Interface extends Application
 		});
 		adminPass.setOnKeyPressed((KeyEvent ke) -> {
 			if(ke.getCode().equals(KeyCode.ENTER)) { //TODO: the below should return something
-				if(firstInput.getText().equals(secondInput.getText())) {
+				if(firstInput.getText().equals(secondInput.getText()) && IDInput != adminID) {
 					bool success = workingUser.changeUserPass(adminID.getText(), adminPass.getText(), ID.getText(), firstInput.getText()); 
 				}
 			}
@@ -1005,9 +1100,18 @@ public final class Interface extends Application
 				flashColour(adminId, 1500, Color.AQUAMIRINE);
 				flashColour(adminPass, 1500, Color.AQUAMIRINE);
 			}
-			else //TODO: This should show the error
+			else { //TODO: This should show the error
+				flashColour(IDInput, 1500, Color.RED);
+				flashColour(firstInput, 1500, Color.RED);
+				flashColour(SecondInput, 1500, Color.RED);
+				flashColour(adminId, 1500, Color.RED);
+				flashColour(adminPass, 1500, Color.RED);
+			}
 		});
-
+	 	Scene PassScene = new Scene(grid, horizontalSize, verticalSize);
+     	PassStage.setScene(PassScene);
+     	PassStage.show();
+     	PassStage.toFront();
 	}
 
     /**
