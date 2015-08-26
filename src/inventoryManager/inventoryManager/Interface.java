@@ -48,7 +48,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -866,18 +865,17 @@ public final class Interface extends Application
                                 File adminProductFile = new File(Compatibility.getFilePath("adminProductDatabase.csv"));
                                 if(filePath.getText() != "" || filePath.getText() != null) {
                                     File destProd = new File(filePath.getText() + "/adminProductDatabase.csv");
-                                    Files.copy(adminProductFile.toPath(), destProd.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                                    try {
+                                        Files.copy(adminProductFile.toPath(), destProd.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                                    } catch (IOException e1) {
+                                        Log.print(e1);
+                                    }
                                     flashColour(saveBtn, 3000, Color.AQUAMARINE);
                                 }
                                 else {
                                     flashColour(saveBtn, 3000, Color.RED);
                                     flashColour(filePath, 3000, Color.RED);
                                 }
-
-                            } catch (IOException e1) {
-                                Log.print(e1);
-                                flashColour(saveBtn, 3000, Color.RED);
-                            }
                         });
 
                     }
@@ -1046,14 +1044,14 @@ public final class Interface extends Application
 		Text second = new Text("Retype New Password:");
 		TextField IDInput = new TextField();
 		PasswordField firstInput = new PasswordField();
-		PasswordField SecondInput = new PasswordField();
+		PasswordField secondInput = new PasswordField();
 		grid.add(ID, 0,0);
 		grid.add(IDInput, 1,0);
 		grid.add(first, 0,1);
 		grid.add(firstInput, 1,1);
 		grid.add(second, 0,2);
 		grid.add(secondInput, 1,2);
-		bool success = false;
+		boolean success = false;
 		Text admin = new Text("Enter admin Details");
 		TextField adminID = new TextField();
 		PasswordField adminPass = new PasswordField();
@@ -1077,8 +1075,8 @@ public final class Interface extends Application
 					adminID.requestFocus();
 				}
 				else {
-					flashColour(FirstInput, 1500, Color.RED);
-					flashColour(SecondInput, 1500, Color.RED);
+					flashColour(firstInput, 1500, Color.RED);
+					flashColour(secondInput, 1500, Color.RED);
 				}
 			}
 		});
@@ -1088,23 +1086,24 @@ public final class Interface extends Application
 			}
 		});
 		adminPass.setOnKeyPressed((KeyEvent ke) -> {
+            boolean successful = false;
 			if(ke.getCode().equals(KeyCode.ENTER)) { //TODO: the below should return something
 				if(firstInput.getText().equals(secondInput.getText()) && IDInput != adminID) {
-					bool success = workingUser.changeUserPass(adminID.getText(), adminPass.getText(), ID.getText(), firstInput.getText()); 
+					successful = workingUser.changeUserPass(adminID.getText(), adminPass.getText(), ID.getText(), firstInput.getText());
 				}
 			}
-			if(success) {
+			if(successful) {
 				flashColour(IDInput, 1500, Color.AQUAMARINE);
 				flashColour(firstInput, 1500, Color.AQUAMARINE);
-				flashColour(SecondInput, 1500, Color.AQUAMARINE);
-				flashColour(adminId, 1500, Color.AQUAMIRINE);
-				flashColour(adminPass, 1500, Color.AQUAMIRINE);
+				flashColour(secondInput, 1500, Color.AQUAMARINE);
+				flashColour(adminID, 1500, Color.AQUAMARINE);
+				flashColour(adminPass, 1500, Color.AQUAMARINE);
 			}
 			else { //TODO: This should show the error
 				flashColour(IDInput, 1500, Color.RED);
 				flashColour(firstInput, 1500, Color.RED);
-				flashColour(SecondInput, 1500, Color.RED);
-				flashColour(adminId, 1500, Color.RED);
+				flashColour(secondInput, 1500, Color.RED);
+				flashColour(adminID, 1500, Color.RED);
 				flashColour(adminPass, 1500, Color.RED);
 			}
 		});

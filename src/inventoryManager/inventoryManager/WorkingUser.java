@@ -202,7 +202,19 @@ class WorkingUser {
     public final void setPassword(String barcode, String[] PW) {
         personDatabase.setPassword(barcode, PW[0], PW[1]);
     }
-
+    public final void setUserPass(String barcode, String uPass, String adBarcode, String adPass) { //TODO: add this shit to other classes
+        if(isUserAdmin(adBarcode) && loginCorrect(adBarcode, adPass)) {
+            personDatabase.setUserPass(barcode, uPass);
+            loggingDatabase.appendPasswordLog(String barcode, String adBarcode);
+        }
+    }
+    public final boolean isUserAdmin(String barcode) {
+        return personDatabase.isAdmin(barcode);
+    }
+    public final boolean loginCorrect(String barcode, String pass) {
+        String test = getSecurePassword(pass, personDatabase.getSalt());
+        return test.equals(personDatabase.getPassword(barcode));
+    }
     final boolean isLong(String s) {
         if (s == null) return false;
         try {
