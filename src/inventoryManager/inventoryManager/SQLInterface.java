@@ -139,7 +139,7 @@ public class SQLInterface {
         } catch (SQLException e) {
             Log.print(e);
         }
-        if(setName != null && setName != "") {
+        if(setName != null && !setName.isEmpty()) {
             statement = "SELECT ID FROM sets where name = \"?\"";
             ResultSet rs = null;
             try {
@@ -168,7 +168,7 @@ public class SQLInterface {
         } catch (SQLException e) {
             Log.print(e);
         }
-        if(type != null && type != "") {
+        if(type != null && !type.isEmpty()) {
             statement = "SELECT ID FROM type where name = \"?\"";
             ResultSet rs = null;
             try {
@@ -203,7 +203,7 @@ public class SQLInterface {
                 Log.print(e);
             }
         }
-        if(setName != null && setName != "") {
+        if(setName != null && !setName.isEmpty()) {
             statement = "SELECT ID FROM sets where name = \"?\"";
             ResultSet rs = null;
             try {
@@ -878,5 +878,36 @@ public class SQLInterface {
         }
         return false;
     }
-
+    public boolean isAdmin(String ID) {
+        String statement = "SELECT admin FROM people WHERE ID = \"?\"";
+        ResultSet rs = null;
+        try {
+            PreparedStatement ps = db.prepareStatement(statement);
+            ps.setString(1, ID);
+            rs = ps.executeQuery();
+            if (rs != null) {
+                rs.next();
+                return rs.getBoolean(1);
+            }
+        } catch (SQLException e) {
+            Log.print(e);
+        }
+        return false;
+    }
+    public boolean isRoot(String ID) {
+        String statement = "SELECT root FROM people WHERE ID = \"?\"";
+        ResultSet rs = null;
+        try {
+            PreparedStatement ps = db.prepareStatement(statement);
+            ps.setString(1, ID);
+            rs = ps.executeQuery();
+            if (rs != null) {
+                rs.next();
+                return rs.getBoolean(1);
+            }
+        } catch (SQLException e) {
+            Log.print(e);
+        }
+        return false;
+    }
 }

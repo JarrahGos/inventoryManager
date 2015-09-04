@@ -23,13 +23,13 @@ package inventoryManager;
   * systems and will handle all external file access.
  */
 
-public class Compatibility {
+class Compatibility {
 
 	/**
 	 * Get whether the host os is windows based
 	 * @return Whether the system is based on Windows
 	 */
-	public static boolean isWindows(){
+	private static boolean isWindows(){
 		return (System.getProperty("os.name").startsWith("Windows"));
 	}
 

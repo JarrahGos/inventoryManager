@@ -97,10 +97,10 @@ class WorkingUser {
      * @return A string array of the product names
      */
     public final ArrayList<String> getProductNames(String type) {
-        if(type == "general") {
+        if(type.equals("general")) {
             return itemDatabase.getItemNames();
         }
-        else if (type == "controlled") {
+        else if (type.equals("controlled")) {
             return itemDatabase.getItemNames();
         }
         return itemDatabase.getItemNames();
@@ -144,9 +144,7 @@ class WorkingUser {
         try {
             skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
             hash = skf.generateSecret(spec).getEncoded();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (InvalidKeySpecException e) {
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
             e.printStackTrace();
         }
         String[] ret = {hash.toString(), salt.toString()};
@@ -164,9 +162,7 @@ class WorkingUser {
         try {
             skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
             hash = skf.generateSecret(spec).getEncoded();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (InvalidKeySpecException e) {
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
             e.printStackTrace();
         }
 
@@ -199,21 +195,24 @@ class WorkingUser {
      * Takes the given (prehashed) password and set it as the admin password
      * @param PW The prehashed password to be set
      */
-    public final void setPassword(String barcode, String[] PW) {
-        personDatabase.setPassword(barcode, PW[0], PW[1]);
-    }
-    public final void setUserPass(String barcode, String uPass, String adBarcode, String adPass) { //TODO: add this shit to other classes
+    public final boolean setPassword(String barcode, String PW, String adBarcode, String adPass) {
         if(isUserAdmin(adBarcode) && loginCorrect(adBarcode, adPass)) {
-            personDatabase.setUserPass(barcode, uPass);
-            loggingDatabase.appendPasswordLog(String barcode, String adBarcode);
+            String[] pass = getSecurePassword(PW);
+            personDatabase.setPassword(barcode, pass[0], pass[1]);
+//            LoggingDatabase.appendPasswordLog(String barcode, String adBarcode);
+            return true;
         }
+        return false;
     }
     public final boolean isUserAdmin(String barcode) {
         return personDatabase.isAdmin(barcode);
     }
+    public final boolean isUserRoot(String barcode) {
+        return personDatabase.isRoot(barcode);
+    }
     public final boolean loginCorrect(String barcode, String pass) {
-        String test = getSecurePassword(pass, personDatabase.getSalt());
-        return test.equals(personDatabase.getPassword(barcode));
+        String[] test = getSecurePassword(pass, personDatabase.getPassword(barcode)[1]);
+        return test[0].equals(personDatabase.getPassword(barcode));
     }
     final boolean isLong(String s) {
         if (s == null) return false;
@@ -318,7 +317,7 @@ class WorkingUser {
             checkOuts.addProduct(tempBarCode, adding); //otherwise, add the product as normal.
             return true;
         }
-        else if(userID == tempBarCode) {
+        else if(userID.equals(tempBarCode)) {
             adding = "Checking yourself out are you? You can't do that.";
             checkOuts.addProduct("-1", adding);
             return true;

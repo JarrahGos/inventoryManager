@@ -237,6 +237,12 @@ final class PersonDatabase implements  Database{
 	public final String[] getPassword(String ID) {
 		return db.getPassword(ID);
 	}
+	public final boolean isAdmin(String barcode) {
+		return db.isAdmin(barcode);
+	}
+	public final boolean isRoot(String barcode) {
+		return db.isRoot(barcode);
+	}
 	//TODO: this needs to be written for SQL
 //    public void changeDatabasePerson(String selectedIndex, String name, long pmkeys, long oldPmkeys)
 //	{

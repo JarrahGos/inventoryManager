@@ -28,7 +28,6 @@ import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -145,7 +144,7 @@ public final class Interface extends Application
         Button adminMode = new Button("Enter Admin Mode");
 
     	enterBarCode.setOnAction((ActionEvent e) -> {
-			if(pass.getText() == null || pass.getText() == "") {
+			if(pass.getText() == null || pass.getText().isEmpty()) {
 				pass.requestFocus();
                 flashColour(pass, 1500, Color.RED);
 			}
@@ -233,7 +232,7 @@ public final class Interface extends Application
         });
         pass.setOnKeyPressed((KeyEvent ke) -> {
             if (ke.getCode().equals(KeyCode.ENTER)) { //TODO: this is duplicate code, make a method call. 
-                if (pass.getText() == null || pass.getText() == "") {
+                if (pass.getText() == null || pass.getText().isEmpty()) {
 					pass.requestFocus();
                     flashColour(pass, 1500, Color.RED);
 				}
@@ -434,9 +433,7 @@ public final class Interface extends Application
             optionList.getSelectionModel().select(0);
         });
         Button logout = new Button("Logout");
-        logout.setOnAction((ActionEvent e) -> {
-            adminStage.close();
-        });
+        logout.setOnAction((ActionEvent e) -> adminStage.close());
         ToolBar buttonBar = new ToolBar(people, products, logs, admin, logout);
         rightPane.getChildren().addAll(buttonBar, grid);
         split.getItems().addAll(optionList, rightPane);
@@ -601,7 +598,7 @@ public final class Interface extends Application
                                 workingUser.adminWriteOutDatabase("Person"); //adminPersonDatabase.csv
 
                                 File adminPersonFile = new File(Compatibility.getFilePath("adminPersonDatabase.csv"));
-                                if(filePath.getText() != "" || filePath.getText() != null) {
+                                if(filePath.getText() != null || !filePath.getText().isEmpty()) {
                                     File destPers = new File(filePath.getText() + "/adminPersonDatabase.csv");
                                     Files.copy(adminPersonFile.toPath(), destPers.toPath(), StandardCopyOption.REPLACE_EXISTING);
                                     flashColour(saveBtn, 3000, Color.AQUAMARINE);
@@ -664,9 +661,7 @@ public final class Interface extends Application
                         grid.add(BarCodeLabel, 0, 1);
                         TextField BarCodeEntry = new TextField();
                         grid.add(BarCodeEntry, 1, 1);
-                        nameEntry.setOnAction((ActionEvent e) -> {
-                            BarCodeEntry.requestFocus();
-                        });
+                        nameEntry.setOnAction((ActionEvent e) -> BarCodeEntry.requestFocus());
                         BarCodeEntry.setOnAction((ActionEvent e) -> {
                             long barCode = -1;
                             try {
@@ -674,7 +669,7 @@ public final class Interface extends Application
                             } catch (NumberFormatException e1) {
                                 flashColour(BarCodeEntry, 1500, Color.RED);
                             }
-                            if (nameEntry.getText() != null && nameEntry.getText() != "" && BarCodeEntry.getText() != null && BarCodeEntry.getText() != "") {
+                            if (nameEntry.getText() != null && !nameEntry.getText().isEmpty() && BarCodeEntry.getText() != null && !BarCodeEntry.getText().isEmpty() ) {
                                 workingUser.addItemToDatabase(nameEntry.getText(), BarCodeEntry.getText());
                                 nameEntry.clear();
                                 BarCodeEntry.clear();
@@ -697,13 +692,10 @@ public final class Interface extends Application
                         product.setAll(workingUser.getProductNames("General"));
                         productList.setItems(product);
                         grid.add(productList, 0, 1);
-                        itemType.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
-                            @Override
-                            public void changed(ObservableValue ov, Number value, Number newValue) {
-                                product.setAll(workingUser.getProductNames((String) itemType.getSelectionModel().getSelectedItem()));
-                                productList.setItems(product);
-                                flashColour(itemType, 1500, Color.AQUAMARINE);
-                            }
+                        itemType.getSelectionModel().selectedIndexProperty().addListener((ov1, value, newValue) -> {
+                            product.setAll(workingUser.getProductNames((String) itemType.getSelectionModel().getSelectedItem()));
+                            productList.setItems(product);
+                            flashColour(itemType, 1500, Color.AQUAMARINE);
                         });
                         remove.setOnAction((ActionEvent e) -> {
                             String index = productList.getSelectionModel().getSelectedItem();
@@ -863,7 +855,7 @@ public final class Interface extends Application
                         saveBtn.setOnAction((ActionEvent e) -> {
                                 workingUser.adminWriteOutDatabase("Product"); //adminProductDatabase.csv
                                 File adminProductFile = new File(Compatibility.getFilePath("adminProductDatabase.csv"));
-                                if(filePath.getText() != "" || filePath.getText() != null) {
+                                if(filePath.getText() != null || !filePath.getText().isEmpty()) {
                                     File destProd = new File(filePath.getText() + "/adminProductDatabase.csv");
                                     try {
                                         Files.copy(adminProductFile.toPath(), destProd.toPath(), StandardCopyOption.REPLACE_EXISTING);
@@ -916,12 +908,11 @@ public final class Interface extends Application
                                 grid.getChildren().remove(error);
                             }
                         });
-                        newPW.setOnAction((ActionEvent e) -> {
-                            newPW2.requestFocus();
-                        });
+                        newPW.setOnAction((ActionEvent e) -> newPW2.requestFocus());
                         newPW2.setOnAction((ActionEvent e) -> {
                             if(newPW.getText() != null && !newPW.getText().equals("") && newPW.getText().equals(newPW2.getText())) {
-                                workingUser.setPassword(workingUser.getUserID(), WorkingUser.getSecurePassword(newPW.getText()));
+                                //TODO: salting could be an issue here
+                                workingUser.setPassword(workingUser.getUserID(), newPW.getText(), workingUser.getUserID(), WorkingUser.getSecurePassword(newPW.getText())[0]);
                                 Text changed = new Text("Success");
                                 grid.add(changed, 1,3);
                                 flashColour(newPW, 1500, Color.AQUAMARINE);
@@ -969,7 +960,7 @@ public final class Interface extends Application
 
                                 File adminPersonFile = new File(Compatibility.getFilePath("adminPersonDatabase.csv"));
                                 File adminProductFile = new File(Compatibility.getFilePath("adminProductDatabase.csv"));
-                                if(filePath.getText() != "" || filePath.getText() != null) {
+                                if( filePath.getText() != null || filePath.getText().isEmpty()) {
                                     File destPers = new File(filePath.getText() + "/adminPersonDatabase.csv");
                                     File destProd = new File(filePath.getText() + "/adminProductDatabase.csv");
                                     Files.copy(adminPersonFile.toPath(), destPers.toPath(), StandardCopyOption.REPLACE_EXISTING);
@@ -1011,7 +1002,7 @@ public final class Interface extends Application
      * @param duration the duration in ms for the node to be flashed
      * @param colour The colour (from Color) that you wish to flash.
      */
-    public static void flashColour(Node node, int duration, Color colour){
+    private static void flashColour(Node node, int duration, Color colour){
 
         InnerShadow shadow = new InnerShadow();
         shadow.setRadius(25d);
@@ -1089,7 +1080,7 @@ public final class Interface extends Application
             boolean successful = false;
 			if(ke.getCode().equals(KeyCode.ENTER)) { //TODO: the below should return something
 				if(firstInput.getText().equals(secondInput.getText()) && IDInput != adminID) {
-					successful = workingUser.changeUserPass(adminID.getText(), adminPass.getText(), ID.getText(), firstInput.getText());
+					successful = workingUser.setPassword(ID.getText(), firstInput.getText(), adminID.getText(), adminPass.getText());
 				}
 			}
 			if(successful) {
@@ -1137,19 +1128,13 @@ public final class Interface extends Application
         final ScrollBar fbar1 = bar1;
         final ScrollBar fbar2 = bar2;
         if (fbar1 != null) {
-            fbar1.valueProperty().addListener(new ChangeListener<Number>() {
-                @Override
-                public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                    fbar2.setValue(newValue.doubleValue());
-                }
+            fbar1.valueProperty().addListener((observable, oldValue, newValue) -> {
+                fbar2.setValue(newValue.doubleValue());
             });
         }
         if (fbar2 != null) {
-            fbar2.valueProperty().addListener(new ChangeListener<Number>() {
-                @Override
-                public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                    fbar1.setValue(newValue.doubleValue());
-                }
+            fbar2.valueProperty().addListener((observable, oldValue, newValue) -> {
+                fbar1.setValue(newValue.doubleValue());
             });
         }
     }

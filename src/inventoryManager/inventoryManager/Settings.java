@@ -93,7 +93,7 @@ final class Settings {
 	 * @return The location in which the database is stored. This is checked for compatibility against the running OS
 	 * @throws FileNotFoundException if the settings file is not in the location it should be.
 	 */
-	public static final String personSettings() throws FileNotFoundException {
+	public static String personSettings() throws FileNotFoundException {
 		if (inputStream != null) {
 			try {
 				properties.load(inputStream);
@@ -117,7 +117,7 @@ final class Settings {
 	 * @return The location in which the database is stored. This is checked for compatibility against the running OS
 	 * @throws FileNotFoundException If the settings file is not in the location it should be.
 	 */
-	public static final String productSettings() throws FileNotFoundException {
+	public static  String productSettings() throws FileNotFoundException {
 		if (inputStream != null) {
 			try {
 				properties.load(inputStream);
@@ -141,7 +141,7 @@ final class Settings {
 	 * @return A string array with the horizontal size, vertical size and textsize.
 	 * @throws FileNotFoundException If the settings file is not in the location it should be.
 	 */
-	public static final String[] interfaceSettings() throws FileNotFoundException {
+	public static String[] interfaceSettings() throws FileNotFoundException {
 		if (inputStream != null) {
 			try {
 				properties.load(inputStream);
@@ -164,7 +164,7 @@ final class Settings {
 	 * @return A string with the location of the log. This is checked for compatibility against the running OS
 	 * @throws FileNotFoundException If the settings file is not in the location it should be.
 	 */
-	public static final String logSettings() throws FileNotFoundException {
+	public static String logSettings() throws FileNotFoundException {
 		if (inputStream != null) {
 			try {
 				properties.load(inputStream);
@@ -181,7 +181,7 @@ final class Settings {
 		output = Compatibility.getFilePath(output);
 		return output;
 	}
-    public static final String[] SQLInterfaceSettings() throws FileNotFoundException
+    public static String[] SQLInterfaceSettings() throws FileNotFoundException
     {
         if (inputStream != null) {
             try {
@@ -200,12 +200,10 @@ final class Settings {
         output[1] = properties.getProperty("user");
         try {
             output[2] = decrypt(properties.getProperty("password"));
-        } catch (GeneralSecurityException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (GeneralSecurityException | IOException e) {
             e.printStackTrace();
         }
-        return output;
+		return output;
     }
     private static String encrypt(String property) throws GeneralSecurityException, UnsupportedEncodingException {
         SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("PBEWithMD5AndDES");
