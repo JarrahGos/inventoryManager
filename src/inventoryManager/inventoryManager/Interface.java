@@ -129,6 +129,9 @@ public final class Interface extends Application
         Text productError = new Text();
         grid.add(productError, 1,8);
 
+		
+
+
 
         // create the lists for the checkout.
 
@@ -370,6 +373,14 @@ public final class Interface extends Application
     		}
         });
         grid.add(cancel, 5,0, 3,1); // add the button to the right of the user name.
+
+		// Reset password button
+		Button resetButton = new Button("Reset Password");
+		resetButton.setOnAction((ActionEvent e) -> {
+			changePassword(workingUser.userID());
+		});
+		grid.add(resetButton, 3, 8);
+
         Platform.setImplicitExit(false);
         primaryStage.setOnCloseRequest((WindowEvent event) -> {
             event.consume();
@@ -1040,10 +1051,10 @@ public final class Interface extends Application
 
         time.playFromStart();
 	}
-    public void changePassword()
+    public void changePassword(String userID)
 	{
 		Stage PassStage = new Stage();
-		PassStage.setTitle("Inventory Admin");
+		PassStage.setTitle("Change Your Password");
 		GridPane grid = new GridPane();
 		grid.setAlignment(Pos.CENTER);
 		grid.setHgap(10);
@@ -1054,6 +1065,7 @@ public final class Interface extends Application
 		Text first = new Text("New Password:");
 		Text second = new Text("Retype New Password:");
 		TextField IDInput = new TextField();
+		IDInput.setText(userId);
 		PasswordField firstInput = new PasswordField();
 		PasswordField secondInput = new PasswordField();
 		grid.add(ID, 0,0);
@@ -1075,7 +1087,7 @@ public final class Interface extends Application
 				firstInput.requestFocus();
 			}
 		});
-		firstInput.setOnKeyPressed((KeyEvent ke) -> { // the following allows the user to hit enter rather than OK. Works         exactly the same as hitting OK.
+		firstInput.setOnKeyPressed((KeyEvent ke) -> { 
 			 if (ke.getCode().equals(KeyCode.ENTER)) {
 			 	secondInput.requestFocus();
 			 }
@@ -1098,7 +1110,7 @@ public final class Interface extends Application
 		});
 		adminPass.setOnKeyPressed((KeyEvent ke) -> {
             boolean successful = false;
-			if(ke.getCode().equals(KeyCode.ENTER)) { //TODO: the below should return something
+			if(ke.getCode().equals(KeyCode.ENTER)) { 
 				if(firstInput.getText().equals(secondInput.getText()) && IDInput != adminID) {
 					successful = workingUser.setPassword(ID.getText(), firstInput.getText(), adminID.getText(), adminPass.getText());
 				}
@@ -1111,6 +1123,7 @@ public final class Interface extends Application
 				flashColour(adminPass, 1500, Color.AQUAMARINE);
 			}
 			else { //TODO: This should show the error
+				// Success is an int, 0 = success, 1 = user not found, 2 = admin not found/password issue
 				flashColour(IDInput, 1500, Color.RED);
 				flashColour(firstInput, 1500, Color.RED);
 				flashColour(secondInput, 1500, Color.RED);
@@ -1118,7 +1131,7 @@ public final class Interface extends Application
 				flashColour(adminPass, 1500, Color.RED);
 			}
 		});
-	 	Scene PassScene = new Scene(grid, horizontalSize, verticalSize);
+	 	Scene PassScene = new Scene(grid, 500, 500);
      	PassStage.setScene(PassScene);
      	PassStage.show();
      	PassStage.toFront();
@@ -1166,6 +1179,12 @@ public final class Interface extends Application
      */
     public static void main(String[] args)
     {
+		try {
+			Interface();
+		}
+		catch (IOException e) {
+			Log.print(e);
+		}
         for(int i = args.length-1; i > 0; i--) {
             if(args[i].equals("-w") && i!= args.length-1) {
                 horizontalSize = Integer.parseInt(args[i+1]);
