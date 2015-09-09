@@ -7,6 +7,7 @@ import javafx.scene.control.TextArea;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
@@ -72,7 +73,7 @@ class WorkingUser {
             userID = null;
             return 1;
         } else {
-			if(passwordsEqual(ID, ID)) {
+			if(passwordsEqual(ID, pass)) {
 	            userName = personDatabase.getEntryName(ID);
 				userID = ID;
 			}
@@ -147,14 +148,26 @@ class WorkingUser {
         } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
             e.printStackTrace();
         }
-        String[] ret = {hash.toString(), salt.toString()};
+        String[] ret = new String[0];
+        try {
+            ret = new String[]{(new String(hash, "UTF-16")), (new String(salt, "UTF-16"))};
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
         return ret;
     }
     private static String[] getSecurePassword(String password, String NaCl) //throws NoSuchAlgorithmException, InvalidKeySpecException
     {
         int iterations = 1000;
         char[] chars = password.toCharArray();
+        System.out.println("-----------------------------------------");
+        System.out.println(NaCl);
         byte[] salt = NaCl.getBytes();
+        try {
+            System.out.println(new String(salt, "UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
 
         PBEKeySpec spec = new PBEKeySpec(chars, salt, iterations, 64 * 8);
         SecretKeyFactory skf = null;
@@ -166,7 +179,12 @@ class WorkingUser {
             e.printStackTrace();
         }
 
-        String[] ret = {hash.toString(), salt.toString()};
+        String[] ret = new String[0];
+        try {
+            ret = new String[]{(new String(hash, "UTF-16")), (new String(salt, "UTF-16"))};
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
         return ret;
     }
 
@@ -186,8 +204,10 @@ class WorkingUser {
     public final boolean passwordsEqual(String barcode, String PW) {
         String[] old = personDatabase.getPassword(barcode);
         if(old == null) return false;
-        String[] testing = new String[0];
+        String[] testing;
         testing = getSecurePassword(PW, old[1]); //get secure password from new password and old salt
+        System.out.println(testing[0]);
+        System.out.println(testing[1]);
         return (testing[0].equals(old[0]));
     }
 

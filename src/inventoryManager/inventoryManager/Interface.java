@@ -98,7 +98,7 @@ public final class Interface extends Application
         // create the layout
         primaryStage.setTitle("Inventory Management System"); // set the window title.
         GridPane grid = new GridPane(); // create the layout manager
-	    grid.setGridLinesVisible(true); // used for debugging object placement
+//	    grid.setGridLinesVisible(true); // used for debugging object placement
         grid.setAlignment(Pos.CENTER);
         grid.setHgap(10);
         grid.setVgap(10);
@@ -313,7 +313,7 @@ public final class Interface extends Application
         grid.add(removeProduct, 2,8); // add the button to the bottum left of the screen.
 
         // create and listen on purchase button
-        Button purchase = new Button("Sign Out"); // button which will add the cost of the items to the users bill
+        Button purchase = new Button("Sign items out"); // button which will add the cost of the items to the users bill
         purchase.setOnAction((ActionEvent e) -> {
             if(workingUser.userLoggedIn()) {
                 privelage = PersonDatabase.USER;

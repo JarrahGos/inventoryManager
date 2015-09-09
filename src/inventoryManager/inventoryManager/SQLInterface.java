@@ -33,7 +33,7 @@ import java.util.ArrayList;
 
 
 public class SQLInterface {
-    private String URL = "jdbc:sqlite:/home/jarrah/ideaProjects/inv.db"; // these will be initialised from the file.
+    private String URL = "jdbc:sqlite:/home/jarrah/ideaProjects/inventoryManager/inv.db"; // these will be initialised from the file.
     private String user = "jarrah"; // when sure it works, remove these.
     private String password = "password";
     private Connection db;
@@ -61,6 +61,7 @@ public class SQLInterface {
 //        password = settings[2];
         try {
             db = DriverManager.getConnection(URL);
+            System.out.println(db);
 //            System.out.println("\n\n\n\n\n\n\n DB Connected \n\n\n\n\n\n\n\n\n\n");
         }
         catch (java.sql.SQLException e){
@@ -74,12 +75,12 @@ public class SQLInterface {
         String statement = "";
         switch (type) {
             case "person":
-                statement = "DELETE * FROM people WHERE barcode = ?";
+                statement = "DELETE * FROM person WHERE barcode = ?";
                 break;
             case "GeneralItem":
                 statement = "DELETE * FROM generalItems WHERE barcode = ?";
                 break;
-            case "controlledItem": statement = "DELETE * FROM controlledItems WHERE barcode = \"?\""; // TODO: this will delete controlled but not item. Use the key and a delete on cascade.
+            case "controlledItem": statement = "DELETE * FROM controlledItems WHERE barcode = ?"; // TODO: this will delete controlled but not item. Use the key and a delete on cascade.
         }
         try {
             PreparedStatement ps = db.prepareStatement(statement);
@@ -140,7 +141,7 @@ public class SQLInterface {
             Log.print(e);
         }
         if(setName != null && !setName.isEmpty()) {
-            statement = "SELECT ID FROM sets where name = \"?\"";
+            statement = "SELECT ID FROM sets where name = ?";
             ResultSet rs = null;
             try {
                 PreparedStatement ps = db.prepareStatement(statement);
@@ -169,7 +170,7 @@ public class SQLInterface {
             Log.print(e);
         }
         if(type != null && !type.isEmpty()) {
-            statement = "SELECT ID FROM type where name = \"?\"";
+            statement = "SELECT ID FROM type where name = ?";
             ResultSet rs = null;
             try {
                 PreparedStatement ps = db.prepareStatement(statement);
@@ -177,11 +178,11 @@ public class SQLInterface {
                 rs = ps.executeQuery();
 
                 if (!rs.next()) {
-                    statement = "INSERT INTO controlledType (\"?\")";
+                    statement = "INSERT INTO controlledType (?)";
                     ps = db.prepareStatement(statement);
                     ps.setString(1, type);
                     ps.execute();
-                    statement = "SELECT ID FROM type where name = \"?\"";
+                    statement = "SELECT ID FROM type where name = ?";
                     ps = db.prepareStatement(statement);
                     ps.setString(1, type);
                     rs = ps.executeQuery();
@@ -204,7 +205,7 @@ public class SQLInterface {
             }
         }
         if(setName != null && !setName.isEmpty()) {
-            statement = "SELECT ID FROM sets where name = \"?\"";
+            statement = "SELECT ID FROM sets where name = ?";
             ResultSet rs = null;
             try {
                 PreparedStatement ps = db.prepareStatement(statement);
@@ -224,7 +225,7 @@ public class SQLInterface {
     }
     public void addEntry(String ID, String name) {
         String statement = "INSERT INTO items (ID, name) " +
-                "VALUES(\"?\", \"?\")";
+                "VALUES(?, ?)";
         try {
             PreparedStatement ps = db.prepareStatement(statement);
             ps.setString(1, ID);
@@ -237,7 +238,7 @@ public class SQLInterface {
     }
     public void addLog(String persID, String adminID) { // add to change password log.
         String statement = "INSERT INTO personLog (persID, date, authName) " +
-                "VALUES(\"?\", NOW(), (Select name FROM people where ID = \"?\")";
+                "VALUES(?, NOW(), (Select name FROM person where ID = ?)";
         try {
             PreparedStatement ps = db.prepareStatement(statement);
             ps.setString(1, persID);
@@ -252,7 +253,7 @@ public class SQLInterface {
     public void addLog(String itemID, String persID, boolean controlled) { // Sign an item out
         //TODO: Should this check the item as out in the controlled table?
         String statment = "INSERT INTO itemLog (ID, date, out, in, persID, controlled) " +
-                "VALUES(\"?\", NOW(), TRUE, \"FALSE\", \"?\", \"?\")";
+                "VALUES(?, NOW(), TRUE, \"FALSE\", ?, ?)";
         try {
             PreparedStatement ps = db.prepareStatement(statment);
             ps.setString(1, itemID);
@@ -266,7 +267,7 @@ public class SQLInterface {
     }
     public void returnItem(String itemID) { // Return an item
         String statement = "update itemLog SET in=TRUE, inDate=NOW()" +
-                "WHERE ID=\"?\"";
+                "WHERE ID=?";
         try {
             PreparedStatement ps = db.prepareStatement(statement);
             ps.setString(1, itemID);
@@ -278,7 +279,7 @@ public class SQLInterface {
     }
     public void returnItem(String itemID, String persID) { // Return a general item.
         String statement = "update itemLog SET in=TRUE, inDate=NOW()" +
-                "WHERE ID=\"?\" AND persID=\"?\"";
+                "WHERE ID=? AND persID=?";
         try {
             PreparedStatement ps = db.prepareStatement(statement);
             ps.setString(1, itemID);
@@ -346,25 +347,25 @@ public class SQLInterface {
         switch (type) {
             case "person":
                 statement = "SELECT * FROM personLog " +
-                        "WHERE ID = \"?\"";
+                        "WHERE ID = ?";
                 break;
             case "item":
                 statement = "Select * FROM itemLog " +
-                        "WHERE ID = \"?\"";
+                        "WHERE ID = ?";
                 break;
             case "controlled":
                 statement = "SELECT * FROM itemLog " +
                         "WHERE controlled=TRUE AND " +
-                        "ID = \"?\"";
+                        "ID = ?";
                 break;
             case "general":
                 statement = "SELECT * FROM itemLog " +
                         "WHERE controlled=FALSE AND " +
-                        "ID = \"?\"";
+                        "ID = ?";
                 break;
             default:
                 statement = "Select * FROM itemLog " +
-                        "WHERE ID = \"?\"";
+                        "WHERE ID = ?";
                 break;
         }
         try {
@@ -392,25 +393,25 @@ public class SQLInterface {
         switch (type) {
             case "person":
                 statement = "SELECT * FROM personLog " +
-                        "WHERE date > \"?\"";
+                        "WHERE date > ?";
                 break;
             case "item":
                 statement = "Select * FROM itemLog " +
-                        "WHERE date > \"?\"";
+                        "WHERE date > ?";
                 break;
             case "controlled":
                 statement = "SELECT * FROM itemLog " +
                         "WHERE controlled=TRUE AND " +
-                        "date > \"?\"";
+                        "date > ?";
                 break;
             case "general":
                 statement = "SELECT * FROM itemLog " +
                         "WHERE controlled=FALSE AND " +
-                        "date >  \"?\"";
+                        "date >  ?";
                 break;
             default:
                 statement = "Select * FROM itemLog " +
-                        "WHERE date > \"?\"";
+                        "WHERE date > ?";
                 break;
         }
         try {
@@ -437,7 +438,7 @@ public class SQLInterface {
         ResultSet rs = null;
         switch (type) {
             case "person":
-                statement = "SELECT * FROM people ";
+                statement = "SELECT * FROM person ";
                 break;
             case "item":
                 statement = "Select * FROM items i" +
@@ -488,7 +489,7 @@ public class SQLInterface {
         ResultSet rs = null;
         switch (type) {
             case "person":
-                statement = "SELECT * FROM people WHERE ID=\"?\"";
+                statement = "SELECT * FROM person WHERE ID=?";
                 break;
             case "item":
                 statement = "Select * FROM items i " +
@@ -496,31 +497,31 @@ public class SQLInterface {
                         " on i.ID = g.ID" +
                         "INNER JOIN controlled c " +
                         "on i.ID = c.ID" +
-                        " WHERE ID = \"?\"";
+                        " WHERE ID = ?";
                 break;
             case "controlled":
                 statement = "SELECT * FROM items i " +
                         "INNER JOIN controlled c " +
                         "on i.ID = c.ID" +
-                        " WHERE ID = \"?\"";
+                        " WHERE ID = ?";
                 break;
             case "general":
                 statement = "SELECT * FROM items i " +
                         "INNER JOIN general g " +
                         "ON i.ID = g.ID" +
-                        " WHERE ID = \"?\"";
+                        " WHERE ID = ?";
                 break;
             case "persGeneral":
                 statement = "SELECT * FROM items i " +
                         "INNER JOIN general g " +
                         "ON i.ID = g.ID" +
-                        " WHERE persID = \"?\"";
+                        " WHERE persID = ?";
                 break;
             case "persControlled":
                 statement = "SELECT * FROM items i " +
                         "INNER JOIN controlled c " +
                         "ON i.ID = c.ID" +
-                        " WHERE persID = \"?\"";
+                        " WHERE persID = ?";
                 break;
             default:
                 statement = "Select * FROM items i" +
@@ -528,7 +529,7 @@ public class SQLInterface {
                         " on i.ID = g.ID" +
                         "INNER JOIN controlled c " +
                         "on i.ID = c.ID" +
-                        " WHERE ID = \"?\"";
+                        " WHERE ID = ?";
                 break;
         }
         try {
@@ -555,7 +556,7 @@ public class SQLInterface {
         ResultSet rs = null;
         switch (type) {
             case "person":
-                statement = "SELECT * FROM people WHERE ID=\"?\"";
+                statement = "SELECT * FROM person WHERE ID=?";
                 break;
             case "item":
                 statement = "Select * FROM items i " +
@@ -563,19 +564,19 @@ public class SQLInterface {
                         " on i.ID = g.ID" +
                         "INNER JOIN controlled c " +
                         "on i.ID = c.ID" +
-                        " WHERE date > \"?\"";
+                        " WHERE date > ?";
                 break;
             case "controlled":
                 statement = "SELECT * FROM items i " +
                         "INNER JOIN controlled c " +
                         "on i.ID = c.ID" +
-                        " WHERE date > \"?\"";
+                        " WHERE date > ?";
                 break;
             case "general":
                 statement = "SELECT * FROM items i " +
                         "INNER JOIN general g " +
                         "ON i.ID = g.ID" +
-                        " WHERE date > \"?\"";
+                        " WHERE date > ?";
                 break;
             default:
                 statement = "Select * FROM items i" +
@@ -583,7 +584,7 @@ public class SQLInterface {
                         " on i.ID = g.ID" +
                         "INNER JOIN controlled c " +
                         "on i.ID = c.ID" +
-                        " WHERE date > \"?\"";
+                        " WHERE date > ?";
                 break;
         }
         try {
@@ -605,8 +606,8 @@ public class SQLInterface {
     }
     public void lowerQuantity(String ID, int sub) {
         String statement = "UPDATE general SET quantity = " +
-                "((Select quantity From general WHERE ID = \"?\") - \"?\")" +
-                " WHERE ID = \"?\"";
+                "((Select quantity From general WHERE ID = ?) - ?)" +
+                " WHERE ID = ?";
         try {
             PreparedStatement ps = db.prepareStatement(statement);
             ps.setString(1, ID);
@@ -623,21 +624,23 @@ public class SQLInterface {
         String out = "";
         switch (type) {
             case "person":
-                statement = "SELECT name FROM people WHERE ID=\"?\"";
+                statement = "SELECT name FROM person WHERE ID=?";
                 break;
             case "item":
                 statement = "Select name FROM items" +
-                        " WHERE name = \"?\"";
+                        " WHERE name = ?";
                 break;
             default:
-                statement = "SELECT name FROM people WHERE ID=\"?\"";
+                statement = "SELECT name FROM person WHERE ID=?";
                 break;
         }
         try {
             PreparedStatement ps = db.prepareStatement(statement);
             ps.setString(1, ID);
             rs = ps.executeQuery();
-            out = rs.getString(0);
+            if(rs.next()) {
+                out = rs.getString(1);
+            }
         } catch (SQLException e) {
             Log.print(e);
         }
@@ -649,13 +652,13 @@ public class SQLInterface {
         ArrayList<String> out = new ArrayList<>();
         switch (type) {
             case "person":
-                statement = "SELECT name FROM people";
+                statement = "SELECT name FROM person";
                 break;
             case "item":
                 statement = "Select name FROM items";
                 break;
             default:
-                statement = "SELECT name FROM people";
+                statement = "SELECT name FROM person";
                 break;
         }
         try {
@@ -675,43 +678,50 @@ public class SQLInterface {
         String out = "";
         switch (type) {
             case "person":
-                statement = "SELECT ID FROM people WHERE name=\"?\"";
+                statement = "SELECT ID FROM person WHERE name=?";
                 break;
             case "item":
                 statement = "Select ID FROM items" +
-                        " WHERE name = \"?\"";
+                        " WHERE name = ?";
                 break;
             default:
-                statement = "SELECT name FROM people WHERE name=\"?\"";
+                statement = "SELECT name FROM person WHERE name=?";
                 break;
         }
         try {
             PreparedStatement ps = db.prepareStatement(statement);
             ps.setString(1, name);
             rs = ps.executeQuery();
-            out = rs.getString(0);
+            if(rs.next()) {
+                out = rs.getString(0);
+            }
         } catch (SQLException e) {
             Log.print(e);
         }
         return out;
     }
     public String[] getPassword(String barcode) {
-        String statement = "SELECT password, salt FROM people WHERE ID = \"?\"";
+        String statement = "SELECT password, salt FROM person WHERE ID = ?";
         ResultSet rs;
         String[] out = new String[2];
         try {
             PreparedStatement ps = db.prepareStatement(statement);
             ps.setString(1, barcode);
             rs = ps.executeQuery();
-            out[0] = rs.getString("password");
-            out[1] = rs.getString("salt");
+            if(rs.next()) {
+                out[0] = rs.getString("password");
+                System.out.println(out[0]);
+                out[1] = rs.getString("salt");
+                System.out.println(out[1]);
+            }
+            else System.out.print("userNotFound");
         } catch (SQLException e) {
             Log.print(e);
         }
         return out;
     }
     public void setPassword(String ID, String password, String salt) {
-        String statement = "UPDATE people SET password = \"?\", salt = \"?\" WHERE ID = \"?\"";
+        String statement = "UPDATE people SET password = ?, salt = ? WHERE ID = ?";
         try {
             PreparedStatement ps = db.prepareStatement(statement);
             ps.setString(1, password);
@@ -725,23 +735,20 @@ public class SQLInterface {
 
     }
     public int getRole(String barcode) {
-        String statement = "SELECT admin FROM people WHERE ID = \"?\"";
+        String statement = "SELECT admin FROM person WHERE ID = ?";
         ResultSet rs;
-        boolean admin = false;
+        int admin = 0;
         try {
             PreparedStatement ps = db.prepareStatement(statement);
             ps.setString(1, barcode);
             rs = ps.executeQuery();
-            admin = rs.getBoolean(1);
-            if(admin) {
-                statement = "SELECT root FROM people WHERE ID = \"?\"";
-                ps = db.prepareStatement(statement);
-                ps.setString(1, barcode);
-                rs = ps.executeQuery();
-                admin = rs.getBoolean(1);
-                if (admin) return PersonDatabase.ROOT;
+            if(rs.next()) {
+                admin = rs.getInt(1);
+            }
+            if(admin == 1) {
                 return PersonDatabase.ADMIN;
             }
+            else if (admin == 2) return PersonDatabase.ROOT;
         } catch (SQLException e) {
             Log.print(e);
         }
@@ -752,20 +759,21 @@ public class SQLInterface {
         ResultSet rs;
         switch (type) {
             case "person":
-                statement = "SELECT name FROM people WHERE ID = \"?\"";
+                statement = "SELECT name FROM person WHERE ID = ?";
                 break;
             case "item":
-                statement = "Select name FROM items WHERE ID = \"?\"";
+                statement = "Select name FROM items WHERE ID = ?";
                 break;
             default:
-                statement = "SELECT name FROM people WHERE ID = \"?\"";
+                statement = "SELECT name FROM person WHERE ID = ?";
                 break;
         }
         try {
             PreparedStatement ps = db.prepareStatement(statement);
             ps.setString(1, ID);
             rs = ps.executeQuery();
-            if(rs.next()) {
+            System.out.println(rs);
+            if(!rs.equals(null)) {
                 return true;
             }
         } catch (SQLException e) {
@@ -780,7 +788,7 @@ public class SQLInterface {
                 statement = "SELECT * INTO OUTFILE \'?\' " +
                         "FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY \'\"\' " +
                         "LINES TERMINATED BY \'\n\' " +
-                        "FROM people";
+                        "FROM person";
                 break;
             case "item":
                 statement = "Select * INTO OUTFILE '?' \" +\n" +
@@ -824,14 +832,13 @@ public class SQLInterface {
         }
     }
     public int getQuantity(String ID) {
-        String statement = "SELECT quantity FROM general WHERE ID = \"?\"";
+        String statement = "SELECT quantity FROM general WHERE ID = ?";
         ResultSet rs = null;
         try {
             PreparedStatement ps = db.prepareStatement(statement);
             ps.setString(1, ID);
             rs = ps.executeQuery();
-            if (rs != null) {
-                rs.next();
+            if (rs.next()) {
                 return rs.getInt(1);
             }
         } catch (SQLException e) {
@@ -840,7 +847,7 @@ public class SQLInterface {
         return 0;
     }
     public void setQuantity(String ID, int quantity) {
-        String statement = "UPDATE general SET quantity=\"?\"  WHERE ID = \"?\"";
+        String statement = "UPDATE general SET quantity=?  WHERE ID = ?";
         try {
             PreparedStatement ps = db.prepareStatement(statement);
             ps.setInt(1, quantity);
@@ -851,8 +858,8 @@ public class SQLInterface {
         }
     }
     public void updateEntry(String ID, String name, String newID) {
-        String statement = "UPDATE item SET name = \"?\", set ID = \"?\" " +
-                "WHERE ID = \"?\"";
+        String statement = "UPDATE item SET name = ?, set ID = ? " +
+                "WHERE ID = ?";
         try {
             PreparedStatement ps = db.prepareStatement(statement);
             ps.setString(1, name);
@@ -864,7 +871,7 @@ public class SQLInterface {
         }
     }
     public boolean isItemControlled(String ID) {
-        String statement = "SELECT ID FROM controlled WHERE ID = \"?\"";
+        String statement = "SELECT ID FROM controlled WHERE ID = ?";
         ResultSet rs;
         try {
             PreparedStatement ps = db.prepareStatement(statement);
@@ -879,14 +886,13 @@ public class SQLInterface {
         return false;
     }
     public boolean isAdmin(String ID) {
-        String statement = "SELECT admin FROM people WHERE ID = \"?\"";
+        String statement = "SELECT admin FROM person WHERE ID = ?";
         ResultSet rs = null;
         try {
             PreparedStatement ps = db.prepareStatement(statement);
             ps.setString(1, ID);
             rs = ps.executeQuery();
-            if (rs != null) {
-                rs.next();
+            if (rs.next()) {
                 return rs.getBoolean(1);
             }
         } catch (SQLException e) {
@@ -895,14 +901,13 @@ public class SQLInterface {
         return false;
     }
     public boolean isRoot(String ID) {
-        String statement = "SELECT root FROM people WHERE ID = \"?\"";
+        String statement = "SELECT root FROM person WHERE ID = ?";
         ResultSet rs = null;
         try {
             PreparedStatement ps = db.prepareStatement(statement);
             ps.setString(1, ID);
             rs = ps.executeQuery();
-            if (rs != null) {
-                rs.next();
+            if (rs.next()) {
                 return rs.getBoolean(1);
             }
         } catch (SQLException e) {

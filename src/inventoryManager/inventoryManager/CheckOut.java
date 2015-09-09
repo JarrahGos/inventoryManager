@@ -46,6 +46,7 @@ final class CheckOut
 	public CheckOut()
 	{
 	    items = new LinkedList<>();
+        names = new LinkedList<>();
         quantities = new LinkedList<>();
 	    logicalSize = 0;
         first = 0;
@@ -84,7 +85,6 @@ final class CheckOut
      */
 	public final LinkedList<String> getCheckOutNames()
 	{
-
 		return names;
 	}
 
