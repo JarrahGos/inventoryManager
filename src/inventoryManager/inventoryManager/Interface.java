@@ -144,7 +144,7 @@ public final class Interface extends Application
         Button adminMode = new Button("Enter Admin Mode");
 
     	enterBarCode.setOnAction((ActionEvent e) -> {
-			if(pass.getText() == null || pass.getText().isEmpty()) {
+			if((pass.getText() == null || pass.getText().isEmpty()) && !workingUser.userLoggedIn()) {
 				pass.requestFocus();
                 flashColour(pass, 1500, Color.RED);
 			}
@@ -208,6 +208,7 @@ public final class Interface extends Application
                 }
             }
             else {
+                System.out.println(input.getText());
                 boolean correct = productEntered(input.getText());
                 if (correct) {
                     productError.setText("");
@@ -226,8 +227,27 @@ public final class Interface extends Application
             }
         });
         input.setOnKeyPressed((KeyEvent ke) -> { // the following allows the user to hit enter rather than OK. Works exactly the same as hitting OK.
-            if (ke.getCode().equals(KeyCode.ENTER)) {
+            if (ke.getCode().equals(KeyCode.ENTER) && !workingUser.userLoggedIn()) {
                 pass.requestFocus();
+            }
+            else if(ke.getCode().equals(KeyCode.ENTER)){
+                System.out.println(input.getText());
+                boolean correct = productEntered(input.getText());
+                System.out.println(correct);
+                if (correct) {
+                    productError.setText("");
+                    items.setAll(workingUser.getCheckOutNames());
+                    itemList.setItems(items);
+                    input.clear();
+                    input.requestFocus();
+                    flashColour(input, 500, Color.AQUAMARINE);
+                }
+                else{
+                    productError.setText("Could not read that product");
+                    input.clear();
+                    input.requestFocus();
+                    flashColour(input, 500, Color.RED);
+                }
             }
         });
         pass.setOnKeyPressed((KeyEvent ke) -> {

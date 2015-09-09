@@ -78,9 +78,9 @@ public class SQLInterface {
                 statement = "DELETE * FROM person WHERE barcode = ?";
                 break;
             case "GeneralItem":
-                statement = "DELETE * FROM generalItems WHERE barcode = ?";
+                statement = "DELETE * FROM general WHERE barcode = ?";
                 break;
-            case "controlledItem": statement = "DELETE * FROM controlledItems WHERE barcode = ?"; // TODO: this will delete controlled but not item. Use the key and a delete on cascade.
+            case "controlledItem": statement = "DELETE * FROM controlled WHERE barcode = ?"; // TODO: this will delete controlled but not item. Use the key and a delete on cascade.
         }
         try {
             PreparedStatement ps = db.prepareStatement(statement);
@@ -119,7 +119,7 @@ public class SQLInterface {
         }
     }
     public void addEntry(String ID, String name, String setName, String Description, Long Quantity) { // Add general Item
-        String statement = "INSERT INTO items (ID, name)" +
+        String statement = "INSERT INTO item (ID, name)" +
                 "VALUES(?, ?)";
         try {
             PreparedStatement ps = db.prepareStatement(statement);
@@ -159,7 +159,7 @@ public class SQLInterface {
         }
     }
     public void addEntry(String ID, String name, String setName, String state, String tagpos, String type) { // add Controlled Item
-        String statement = "INSERT INTO items (ID, name)" +
+        String statement = "INSERT INTO item (ID, name)" +
                 "VALUES(?, ?)"; // Sort SetID at the end. There may not be a set ID for every item.
         try {
             PreparedStatement ps = db.prepareStatement(statement);
@@ -224,7 +224,7 @@ public class SQLInterface {
         }
     }
     public void addEntry(String ID, String name) {
-        String statement = "INSERT INTO items (ID, name) " +
+        String statement = "INSERT INTO item (ID, name) " +
                 "VALUES(?, ?)";
         try {
             PreparedStatement ps = db.prepareStatement(statement);
@@ -298,7 +298,7 @@ public class SQLInterface {
     *     <li>Password reset</li>
     *     <li>Item signed out</li>
     * </ul>
-    * Thus, logs will be available for people (passwords), and items.
+    * Thus, logs will be available for people (passwords), and item.
     * Logs will be condensed by item type, date and ID.
      */
     public ArrayList<String> getLog(String type) {
@@ -441,24 +441,24 @@ public class SQLInterface {
                 statement = "SELECT * FROM person ";
                 break;
             case "item":
-                statement = "Select * FROM items i" +
+                statement = "Select * FROM item i" +
                         "INNER JOIN general g" +
                         " on i.ID = g.ID" +
                         "INNER JOIN controlled c " +
                         "on i.ID = c.ID";
                 break;
             case "controlled":
-                statement = "SELECT * FROM items i " +
+                statement = "SELECT * FROM item i " +
                         "INNER JOIN controlled c " +
                         "on i.ID = c.ID";
                 break;
             case "general":
-                statement = "SELECT * FROM items i " +
+                statement = "SELECT * FROM item i " +
                         "INNER JOIN general g " +
                         "ON i.ID = g.ID";
                 break;
             default:
-                statement = "Select * FROM items i" +
+                statement = "Select * FROM item i" +
                         "INNER JOIN general g" +
                         " on i.ID = g.ID" +
                         "INNER JOIN controlled c " +
@@ -492,7 +492,7 @@ public class SQLInterface {
                 statement = "SELECT * FROM person WHERE ID=?";
                 break;
             case "item":
-                statement = "Select * FROM items i " +
+                statement = "Select * FROM item i " +
                         "INNER JOIN general g" +
                         " on i.ID = g.ID" +
                         "INNER JOIN controlled c " +
@@ -500,31 +500,31 @@ public class SQLInterface {
                         " WHERE ID = ?";
                 break;
             case "controlled":
-                statement = "SELECT * FROM items i " +
+                statement = "SELECT * FROM item i " +
                         "INNER JOIN controlled c " +
                         "on i.ID = c.ID" +
                         " WHERE ID = ?";
                 break;
             case "general":
-                statement = "SELECT * FROM items i " +
+                statement = "SELECT * FROM item i " +
                         "INNER JOIN general g " +
                         "ON i.ID = g.ID" +
                         " WHERE ID = ?";
                 break;
             case "persGeneral":
-                statement = "SELECT * FROM items i " +
+                statement = "SELECT * FROM item i " +
                         "INNER JOIN general g " +
                         "ON i.ID = g.ID" +
                         " WHERE persID = ?";
                 break;
             case "persControlled":
-                statement = "SELECT * FROM items i " +
+                statement = "SELECT * FROM item i " +
                         "INNER JOIN controlled c " +
                         "ON i.ID = c.ID" +
                         " WHERE persID = ?";
                 break;
             default:
-                statement = "Select * FROM items i" +
+                statement = "Select * FROM item i" +
                         "INNER JOIN general g" +
                         " on i.ID = g.ID" +
                         "INNER JOIN controlled c " +
@@ -559,7 +559,7 @@ public class SQLInterface {
                 statement = "SELECT * FROM person WHERE ID=?";
                 break;
             case "item":
-                statement = "Select * FROM items i " +
+                statement = "Select * FROM item i " +
                         "INNER JOIN general g" +
                         " on i.ID = g.ID" +
                         "INNER JOIN controlled c " +
@@ -567,19 +567,19 @@ public class SQLInterface {
                         " WHERE date > ?";
                 break;
             case "controlled":
-                statement = "SELECT * FROM items i " +
+                statement = "SELECT * FROM item i " +
                         "INNER JOIN controlled c " +
                         "on i.ID = c.ID" +
                         " WHERE date > ?";
                 break;
             case "general":
-                statement = "SELECT * FROM items i " +
+                statement = "SELECT * FROM item i " +
                         "INNER JOIN general g " +
                         "ON i.ID = g.ID" +
                         " WHERE date > ?";
                 break;
             default:
-                statement = "Select * FROM items i" +
+                statement = "Select * FROM item i" +
                         "INNER JOIN general g" +
                         " on i.ID = g.ID" +
                         "INNER JOIN controlled c " +
@@ -627,8 +627,8 @@ public class SQLInterface {
                 statement = "SELECT name FROM person WHERE ID=?";
                 break;
             case "item":
-                statement = "Select name FROM items" +
-                        " WHERE name = ?";
+                statement = "Select name FROM item" +
+                        " WHERE ID = ?";
                 break;
             default:
                 statement = "SELECT name FROM person WHERE ID=?";
@@ -655,7 +655,7 @@ public class SQLInterface {
                 statement = "SELECT name FROM person";
                 break;
             case "item":
-                statement = "Select name FROM items";
+                statement = "Select name FROM item";
                 break;
             default:
                 statement = "SELECT name FROM person";
@@ -681,7 +681,7 @@ public class SQLInterface {
                 statement = "SELECT ID FROM person WHERE name=?";
                 break;
             case "item":
-                statement = "Select ID FROM items" +
+                statement = "Select ID FROM item" +
                         " WHERE name = ?";
                 break;
             default:
@@ -762,7 +762,7 @@ public class SQLInterface {
                 statement = "SELECT name FROM person WHERE ID = ?";
                 break;
             case "item":
-                statement = "Select name FROM items WHERE ID = ?";
+                statement = "Select name FROM item WHERE ID = ?";
                 break;
             default:
                 statement = "SELECT name FROM person WHERE ID = ?";
@@ -793,7 +793,7 @@ public class SQLInterface {
             case "item":
                 statement = "Select * INTO OUTFILE '?' \" +\n" +
                         "FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY \'\"\' " +
-                        "LINES TERMINATED BY \'\n\' FROM items i " +
+                        "LINES TERMINATED BY \'\n\' FROM item i " +
                         "INNER JOIN general g" +
                         " on i.ID = g.ID" +
                         "INNER JOIN controlled c " +
@@ -802,21 +802,21 @@ public class SQLInterface {
             case "controlled":
                 statement = "Select * INTO OUTFILE '?' \" +\n" +
                         "FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY \'\"\' " +
-                        "LINES TERMINATED BY \'\n\' FROM items i " +
+                        "LINES TERMINATED BY \'\n\' FROM item i " +
                         "INNER JOIN controlled c " +
                         "on i.ID = c.ID";
                 break;
             case "general":
                 statement = "Select * INTO OUTFILE '?' \" +\n" +
                         "FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY \'\"\' " +
-                        "LINES TERMINATED BY \'\n\' FROM items i " +
+                        "LINES TERMINATED BY \'\n\' FROM item i " +
                         "INNER JOIN general g " +
                         "on i.ID = g.ID";
                 break;
             default:
                 statement = "Select * INTO OUTFILE '?' \" +\n" +
                         "FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY \'\"\' " +
-                        "LINES TERMINATED BY \'\n\' FROM items i " +
+                        "LINES TERMINATED BY \'\n\' FROM item i " +
                         "INNER JOIN general g" +
                         " on i.ID = g.ID" +
                         "INNER JOIN controlled c " +

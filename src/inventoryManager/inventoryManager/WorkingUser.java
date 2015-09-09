@@ -327,13 +327,14 @@ class WorkingUser {
      */
     public final boolean addToCart(String input) {
         String tempBarCode = "-1";
-        if (input != null && !input.equals("") && isLong(input)) {
+        if (input != null && !input.equals("")) {
             tempBarCode = input; // disallows the user from entering nothing or clicking cancel.
         } else if ((input == null) || ("".equals(input))) {
             return false;
         }
         String adding = itemDatabase.getItemName(tempBarCode);
         if (adding != null) {
+            System.out.println(tempBarCode + "\n" + adding);
             checkOuts.addProduct(tempBarCode, adding); //otherwise, add the product as normal.
             return true;
         }
