@@ -129,6 +129,9 @@ public final class Interface extends Application
         Text productError = new Text();
         grid.add(productError, 1,8);
 
+        // Button to add a new user
+        Button addUser = new Button("Add User");
+
 		
 
 
@@ -147,25 +150,20 @@ public final class Interface extends Application
         Button adminMode = new Button("Enter Admin Mode");
 
     	enterBarCode.setOnAction((ActionEvent e) -> {
-			if((pass.getText() == null || pass.getText().isEmpty()) && !workingUser.userLoggedIn()) {
-				pass.requestFocus();
+            if ((pass.getText() == null || pass.getText().isEmpty()) && !workingUser.userLoggedIn()) {
+                pass.requestFocus();
                 flashColour(pass, 1500, Color.RED);
-			}
-			else if (!workingUser.userLoggedIn()) { // treat the input as a barcode
+            } else if (!workingUser.userLoggedIn()) { // treat the input as a barcode
                 int userError;
                 userError = barcodeEntered(input.getText(), pass.getText()); // take the text, do user logon stuff with it.
 
 
-
-
-                if(workingUser.userLoggedIn()) {
+                if (workingUser.userLoggedIn()) {
                     privelage = workingUser.getRole();
-                    Thread thread = new Thread(new Runnable()
-                    { //TODO: make this work.
+                    Thread thread = new Thread(new Runnable() { //TODO: make this work.
 
                         @Override
-                        public void run()
-                        {
+                        public void run() {
                             try {
                                 Thread.sleep(1); // after this time, log the user out.
                                 workingUser.logOut(); // set user number to -1 and delete any checkout made.
@@ -173,8 +171,7 @@ public final class Interface extends Application
                                 grid.getChildren().remove(userLabel); // make it look like no user is logged in
                                 inputLabel.setText("Enter your barcode"); // set the input label to something appropriate.
 //                                total.setText(String.valueOf("$" + workingUser.getPrice())); // set the total price to 0.00.
-                            }
-                            catch (InterruptedException e) {
+                            } catch (InterruptedException e) {
                                 // do nothing here.
                             }
                         }
@@ -184,33 +181,32 @@ public final class Interface extends Application
                     thread.start();
                     thread.interrupt();
                     flashColour(input, 1500, Color.AQUAMARINE);
-					flashColour(pass, 1500, Color.AQUAMARINE);
-					input.requestFocus();
+                    flashColour(pass, 1500, Color.AQUAMARINE);
+                    input.requestFocus();
                     userLabel.setText(workingUser.userName(userError)); // find the name of those who dare log on.
                     inputLabel.setText("Enter Barcode"); // change the label to suit the next action.
                     grid.getChildren().remove(userLabel); // remove any error labels which may have appeared.
-                    grid.add(userLabel, 3,0); // add the new user label
+                    grid.add(userLabel, 3, 0); // add the new user label
                     // the above two are done as we do not know whether a user label exists there. Adding two things to the same place causes an exception.
-					if (privelage > PersonDatabase.USER) {
-						grid.add(adminMode, 0,8); // add the button to the bottum left of the screen.
-					}
+                    if (privelage > PersonDatabase.USER) {
+                        grid.getChildren().remove(addUser);
+                        grid.add(adminMode, 0, 8); // add the button to the bottum left of the screen.
+                    }
                     input.clear(); // clear the barcode from the input ready for product bar codes.
-					pass.clear();
-					grid.getChildren().remove(pass);
+                    pass.clear();
+                    grid.getChildren().remove(pass);
 
-                }
-                else {
+                } else {
                     input.clear(); // there was an error with the barcode, get ready for another.
-					pass.clear();
-					input.requestFocus();
+                    pass.clear();
+                    input.requestFocus();
                     userLabel.setText(workingUser.userName(userError)); // tell the user there was a problem. Maybe this could be done better.
                     grid.getChildren().remove(userLabel); // Remove a userlabel, as above.
-                    grid.add(userLabel, 3,0); // add it again, as above.
+                    grid.add(userLabel, 3, 0); // add it again, as above.
                     flashColour(input, 1500, Color.RED);
-					flashColour(pass, 1500, Color.RED);
+                    flashColour(pass, 1500, Color.RED);
                 }
-            }
-            else {
+            } else {
                 System.out.println(input.getText());
                 boolean correct = productEntered(input.getText());
                 if (correct) {
@@ -220,8 +216,7 @@ public final class Interface extends Application
                     input.clear();
                     input.requestFocus();
                     flashColour(input, 500, Color.AQUAMARINE);
-                }
-                else{
+                } else {
                     productError.setText("Could not read that product");
                     input.clear();
                     input.requestFocus();
@@ -232,8 +227,7 @@ public final class Interface extends Application
         input.setOnKeyPressed((KeyEvent ke) -> { // the following allows the user to hit enter rather than OK. Works exactly the same as hitting OK.
             if (ke.getCode().equals(KeyCode.ENTER) && !workingUser.userLoggedIn()) {
                 pass.requestFocus();
-            }
-            else if(ke.getCode().equals(KeyCode.ENTER)){
+            } else if (ke.getCode().equals(KeyCode.ENTER)) {
                 System.out.println(input.getText());
                 boolean correct = productEntered(input.getText());
                 System.out.println(correct);
@@ -244,8 +238,7 @@ public final class Interface extends Application
                     input.clear();
                     input.requestFocus();
                     flashColour(input, 500, Color.AQUAMARINE);
-                }
-                else{
+                } else {
                     productError.setText("Could not read that product");
                     input.clear();
                     input.requestFocus();
@@ -256,40 +249,38 @@ public final class Interface extends Application
         pass.setOnKeyPressed((KeyEvent ke) -> {
             if (ke.getCode().equals(KeyCode.ENTER)) { //TODO: this is duplicate code, make a method call. 
                 if (pass.getText() == null || pass.getText().isEmpty()) {
-					pass.requestFocus();
+                    pass.requestFocus();
                     flashColour(pass, 1500, Color.RED);
-				}
-				else if(!workingUser.userLoggedIn()) {
+                } else if (!workingUser.userLoggedIn()) {
                     int userError = barcodeEntered(input.getText(), pass.getText());
 
-                    if(workingUser.userLoggedIn()) {
+                    if (workingUser.userLoggedIn()) {
                         userLabel.setText(workingUser.userName(userError));
                         inputLabel.setText("Enter Barcode");
                         grid.getChildren().remove(userLabel);
-                        grid.add(userLabel, 3,0);
+                        grid.add(userLabel, 3, 0);
                         input.clear();
                         flashColour(input, 1500, Color.AQUAMARINE);
-						flashColour(pass, 1500, Color.AQUAMARINE);
+                        flashColour(pass, 1500, Color.AQUAMARINE);
                         input.requestFocus();
-						if(privelage > PersonDatabase.USER) {
-							grid.add(adminMode, 0,8); // add the button to the bottum left of the screen.
-						}
-						pass.clear();
-						grid.getChildren().remove(pass);
-                    }
-                    else {
+                        if (privelage > PersonDatabase.USER) {
+                            grid.getChildren().remove(addUser);
+                            grid.add(adminMode, 0, 8); // add the button to the bottum left of the screen.
+                        }
+                        pass.clear();
+                        grid.getChildren().remove(pass);
+                    } else {
                         input.clear();
                         userLabel.setText(workingUser.userName(userError));
                         grid.getChildren().remove(userLabel);
-                        grid.add(userLabel, 3,0);
+                        grid.add(userLabel, 3, 0);
                         input.clear();
-						pass.clear();
+                        pass.clear();
                         input.requestFocus();
                         flashColour(input, 1500, Color.RED);
-						flashColour(pass, 1500, Color.RED);
+                        flashColour(pass, 1500, Color.RED);
                     }
-                }
-                else {
+                } else {
                     boolean correct = productEntered(input.getText());
                     if (correct) {
                         items.setAll(workingUser.getCheckOutNames());
@@ -297,8 +288,7 @@ public final class Interface extends Application
                         input.clear();
                         input.requestFocus();
                         flashColour(input, 500, Color.AQUAMARINE);
-                    }
-                    else{
+                    } else {
                         input.clear();
                         input.requestFocus();
                         flashColour(input, 500, Color.RED);
@@ -319,6 +309,11 @@ public final class Interface extends Application
             input.requestFocus();
             enterAdminMode(primaryStage); // method which will work the admin mode features.
         });
+
+        addUser.setOnAction((ActionEvent e) -> {
+            addUser(input.getText());
+        });
+        grid.add(addUser, 0, 8);
 
         Button removeProduct = new Button("Remove"); // button which will bring up the admin mode.
         removeProduct.setOnAction((ActionEvent e) -> {
@@ -377,7 +372,7 @@ public final class Interface extends Application
 		// Reset password button
 		Button resetButton = new Button("Reset Password");
 		resetButton.setOnAction((ActionEvent e) -> {
-			changePassword(workingUser.userID());
+			changePassword(workingUser.getUserID());
 		});
 		grid.add(resetButton, 3, 8);
 
@@ -945,7 +940,7 @@ public final class Interface extends Application
                                 //TODO: salting could be an issue here
                                 workingUser.setPassword(workingUser.getUserID(), newPW.getText(), workingUser.getUserID(), WorkingUser.getSecurePassword(newPW.getText())[0]);
                                 Text changed = new Text("Success");
-                                grid.add(changed, 1,3);
+                                grid.add(changed, 1, 3);
                                 flashColour(newPW, 1500, Color.AQUAMARINE);
                                 flashColour(newPW2, 1500, Color.AQUAMARINE);
                             }
@@ -1051,6 +1046,105 @@ public final class Interface extends Application
 
         time.playFromStart();
 	}
+    private static void flashColour(Node[] node, int duration, Color colour){
+
+        InnerShadow shadow = new InnerShadow();
+        shadow.setRadius(25d);
+        shadow.setColor(colour);
+        for(Node n : node) {
+            n.setEffect(shadow);
+        }
+
+        Timeline time = new Timeline();
+
+        time.setCycleCount(1);
+
+        List<KeyFrame> frames = new ArrayList<>();
+        frames.add(new KeyFrame(Duration.ZERO, new KeyValue(shadow.radiusProperty(),25)));
+        frames.add(new KeyFrame(new Duration(duration), new KeyValue(shadow.radiusProperty(),0)));
+        time.getKeyFrames().addAll(frames);
+
+        time.playFromStart();
+    }
+    public void addUser(String userID)
+    {
+        Stage AddStage = new Stage();
+        AddStage.setTitle("Change Your Password");
+        GridPane grid = new GridPane();
+        grid.setAlignment(Pos.CENTER);
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(15, 15, 15, 15));
+
+        Text ID = new Text("Enter your ID:");
+        grid.add(ID, 0,0);
+        Text name = new Text("Enter your name:");
+        grid.add(name, 0,1);
+        Text first = new Text("Enter your password:");
+        grid.add(first, 0,2);
+        Text second = new Text("Reenter your password:");
+        grid.add(second, 0,3);
+        Text error = new Text("Passwords do not match");
+
+        TextField IDInput = new TextField(userID);
+        grid.add(IDInput, 1,0);
+        TextField nameInput = new TextField();
+        grid.add(nameInput, 1, 1);
+        PasswordField firstInput = new PasswordField();
+        grid.add(firstInput, 1, 2);
+        PasswordField secondInput = new PasswordField();
+        grid.add(secondInput, 1, 3);
+
+        IDInput.setOnKeyPressed((KeyEvent ke) -> {
+            if (ke.getCode().equals(KeyCode.ENTER)) {
+                nameInput.requestFocus();
+            }
+        });
+        nameInput.setOnKeyPressed((KeyEvent ke) -> {
+            if (ke.getCode().equals(KeyCode.ENTER)) {
+                firstInput.requestFocus();
+            }
+        });
+        firstInput.setOnKeyPressed((KeyEvent ke) -> {
+            if (ke.getCode().equals(KeyCode.ENTER)) {
+                secondInput.requestFocus();
+            }
+        });
+        secondInput.setOnKeyPressed((KeyEvent ke) -> {
+            if (ke.getCode().equals(KeyCode.ENTER)) {
+                if (workingUser.PersonExists(IDInput.getText())) {
+                    if (secondInput.getText().equals(firstInput.getText())) {
+                        workingUser.addPersonToDatabase(nameInput.getText(), IDInput.getText(), firstInput.getText());
+                        flashColour(new Node[]{IDInput, nameInput, firstInput, secondInput}, 1500, Color.AQUAMARINE);
+                        try {
+                            wait(2); // TODO: this is fucked
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        AddStage.close();
+                    } else {
+                        flashColour(new Node[]{firstInput, secondInput}, 1500, Color.RED);
+                        grid.getChildren().remove(error);
+                        error.setText("Passwords do not match");
+                        grid.add(error, 2, 3);
+                    }
+                } else {
+                    flashColour(IDInput, 1500, Color.RED);
+                    grid.getChildren().remove(error);
+                    error.setText("ID already exists, contact the LOGO to change your password.");
+                    grid.add(error, 2, 0);
+                }
+            }
+        });
+
+
+
+
+        Scene PassScene = new Scene(grid, 500, 500);
+        AddStage.setScene(PassScene);
+        AddStage.show();
+        AddStage.toFront();
+    }
     public void changePassword(String userID)
 	{
 		Stage PassStage = new Stage();
@@ -1065,7 +1159,7 @@ public final class Interface extends Application
 		Text first = new Text("New Password:");
 		Text second = new Text("Retype New Password:");
 		TextField IDInput = new TextField();
-		IDInput.setText(userId);
+		IDInput.setText(userID);
 		PasswordField firstInput = new PasswordField();
 		PasswordField secondInput = new PasswordField();
 		grid.add(ID, 0,0);
@@ -1075,12 +1169,14 @@ public final class Interface extends Application
 		grid.add(second, 0,2);
 		grid.add(secondInput, 1,2);
 		boolean success = false;
-		Text admin = new Text("Enter admin Details");
+		Text admin = new Text("Enter admin ID");
+        Text admin2 = new Text("Enter admin password");
 		TextField adminID = new TextField();
 		PasswordField adminPass = new PasswordField();
 		grid.add(admin, 0, 4);
 		grid.add(adminID, 1, 4);
-		grid.add(adminPass, 2, 4);
+        grid.add(admin2, 0, 5);
+		grid.add(adminPass, 1, 5);
 
 		IDInput.setOnKeyPressed((KeyEvent ke) -> {
 			if(ke.getCode().equals(KeyCode.ENTER)) {
@@ -1121,7 +1217,13 @@ public final class Interface extends Application
 				flashColour(secondInput, 1500, Color.AQUAMARINE);
 				flashColour(adminID, 1500, Color.AQUAMARINE);
 				flashColour(adminPass, 1500, Color.AQUAMARINE);
-			}
+                try {
+                    wait(2);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                PassStage.close();
+            }
 			else { //TODO: This should show the error
 				// Success is an int, 0 = success, 1 = user not found, 2 = admin not found/password issue
 				flashColour(IDInput, 1500, Color.RED);
@@ -1179,12 +1281,12 @@ public final class Interface extends Application
      */
     public static void main(String[] args)
     {
-		try {
-			Interface();
-		}
-		catch (IOException e) {
-			Log.print(e);
-		}
+//		try {
+//			Interface i = new Interface();
+//		}
+//		catch (IOException e) {
+//			Log.print(e);
+//		}
         for(int i = args.length-1; i > 0; i--) {
             if(args[i].equals("-w") && i!= args.length-1) {
                 horizontalSize = Integer.parseInt(args[i+1]);

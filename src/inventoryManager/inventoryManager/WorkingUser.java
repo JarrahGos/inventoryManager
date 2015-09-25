@@ -516,4 +516,7 @@ class WorkingUser {
         return userID;
     }
 
+    public boolean PersonExists(String ID) {
+        return personDatabase.entryExists(ID);
+    }
 }
