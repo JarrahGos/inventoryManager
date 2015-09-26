@@ -1112,16 +1112,10 @@ public final class Interface extends Application
         });
         secondInput.setOnKeyPressed((KeyEvent ke) -> {
             if (ke.getCode().equals(KeyCode.ENTER)) {
-                if (workingUser.PersonExists(IDInput.getText())) {
+                if (!workingUser.PersonExists(IDInput.getText())) {
                     if (secondInput.getText().equals(firstInput.getText())) {
                         workingUser.addPersonToDatabase(nameInput.getText(), IDInput.getText(), firstInput.getText());
                         flashColour(new Node[]{IDInput, nameInput, firstInput, secondInput}, 1500, Color.AQUAMARINE);
-                        try {
-                            wait(2); // TODO: this is fucked
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        AddStage.close();
                     } else {
                         flashColour(new Node[]{firstInput, secondInput}, 1500, Color.RED);
                         grid.getChildren().remove(error);
@@ -1136,8 +1130,9 @@ public final class Interface extends Application
                 }
             }
         });
-
-
+        Button close = new Button("Close");
+        close.setOnAction((ActionEvent e) -> AddStage.close());
+        grid.add(close, 1,4);
 
 
         Scene PassScene = new Scene(grid, 500, 500);
@@ -1217,12 +1212,6 @@ public final class Interface extends Application
 				flashColour(secondInput, 1500, Color.AQUAMARINE);
 				flashColour(adminID, 1500, Color.AQUAMARINE);
 				flashColour(adminPass, 1500, Color.AQUAMARINE);
-                try {
-                    wait(2);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                PassStage.close();
             }
 			else { //TODO: This should show the error
 				// Success is an int, 0 = success, 1 = user not found, 2 = admin not found/password issue
@@ -1233,6 +1222,9 @@ public final class Interface extends Application
 				flashColour(adminPass, 1500, Color.RED);
 			}
 		});
+        Button close = new Button("Close");
+        close.setOnAction((ActionEvent e) -> PassStage.close());
+        grid.add(close, 1,6);
 	 	Scene PassScene = new Scene(grid, 500, 500);
      	PassStage.setScene(PassScene);
      	PassStage.show();

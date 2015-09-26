@@ -14,7 +14,7 @@ interface Database {
 
     ArrayList<String> getNamesOfEntries();
 
-    boolean entryExists(String name, String barcode);
+    boolean entryExists(String barcode);
 
     void writeDatabaseCSV(String path);
 

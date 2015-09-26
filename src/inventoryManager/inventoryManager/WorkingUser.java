@@ -203,7 +203,7 @@ class WorkingUser {
      */
     public final boolean passwordsEqual(String barcode, String PW) {
         String[] old = personDatabase.getPassword(barcode);
-        if(old == null) return false;
+        if(old[0] == null || old[1] == null) return false;
         String[] testing;
         testing = getSecurePassword(PW, old[1]); //get secure password from new password and old salt
         System.out.println(testing[0]);
@@ -225,10 +225,7 @@ class WorkingUser {
         return false;
     }
     public final boolean isUserAdmin(String barcode) {
-        return personDatabase.isAdmin(barcode);
-    }
-    public final boolean isUserRoot(String barcode) {
-        return personDatabase.isRoot(barcode);
+        return personDatabase.isAdmin(barcode) > 1;
     }
     public final boolean loginCorrect(String barcode, String pass) {
         String[] test = getSecurePassword(pass, personDatabase.getPassword(barcode)[1]);
@@ -246,17 +243,17 @@ class WorkingUser {
 
     /**
      * Create a scroll pane of one of the databases
-     * @param type A string of either "Product" or "Person" used to determine which database to print.
+     * @param type A string of either SQLInterface.TABITEM or SQLInterface.TABPERSON used to determine which database to print.
      * @return A scroll pane showing the database chosen in the parameter or the person database by default.
      * @throws IOException
      */
     public ScrollPane printDatabase(String type) throws IOException {
         TextArea textArea;
         switch (type) {
-            case ("Product"):
+            case (SQLInterface.TABITEM):
                 textArea = new TextArea(itemDatabase.getDatabase().toString());
                 break;
-            case ("Person"):
+            case (SQLInterface.TABPERSON):
                 textArea = new TextArea(personDatabase.getDatabase().toString());
                 break;
             default:
@@ -358,7 +355,7 @@ class WorkingUser {
      */
     public final void addPersonToDatabase(String name, String ID, String password) {
         String[] passwd = getSecurePassword(password);
-        personDatabase.setEntry(ID, name, false, false, passwd[0], passwd[1]);
+        personDatabase.setEntry(ID, name, PersonDatabase.USER, passwd[0], passwd[1]);
     }
 
     /**
@@ -397,12 +394,12 @@ class WorkingUser {
 
     /**
      * Write out the CSV version of the database for the admin.
-     * @param type "Person" for the person database or "Produt" for the product database
+     * @param type SQLInterface.TABPERSON for the person database or "Produt" for the product database
      * @throws IOException
      */
     public final void adminWriteOutDatabase(String type) {
         switch (type) {
-            case ("Person"):
+            case (SQLInterface.TABPERSON):
                 personDatabase.writeDatabaseCSV("adminPersonDatabase.csv");
                 break;
             case ("Item"): //TODO: change all instances of this in interface from product to item.
@@ -421,7 +418,7 @@ class WorkingUser {
     public final void adminWriteOutDatabase(String type, String path)
     {
         switch (type) {
-            case ("Person"):
+            case (SQLInterface.TABPERSON):
                 personDatabase.writeDatabaseCSV(path);
                 break;
             default:

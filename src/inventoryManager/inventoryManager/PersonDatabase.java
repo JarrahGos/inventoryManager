@@ -55,10 +55,11 @@ final class PersonDatabase implements  Database{
      * @param barCode The barcode of the person
      * @param canBuy Whether the person can buy or not
      */
-	public final void setEntry(String ID, String name, boolean admin, boolean root, String passwd, String salt) // take the persons data and pass it to the persons constructor
+	public final void setEntry(String ID, String name, int admin, String passwd, String salt) // take the persons data and pass it to the persons constructor
 	{
+		System.out.printf("This entry exists %s", entryExists(ID));
 		if (!entryExists(ID)) { // check whether the person already exists
-			db.addEntry(ID, name, admin, root, passwd, salt); // pass off the work to the constructor: "make it so."
+			db.addEntry(ID, name, admin, passwd, salt); // pass off the work to the constructor: "make it so."
 		}
 	}
 
@@ -71,7 +72,7 @@ final class PersonDatabase implements  Database{
      * @return A string containing the entire database
      */
 	public final ArrayList<String> getDatabase() {
-		ArrayList<String> output = db.getDatabase("person");
+		ArrayList<String> output = db.getDatabase(SQLInterface.TABPERSON);
 
 		return output; // send the calling program one large string containing the ingredients of all the persons in the database
 	}
@@ -83,7 +84,7 @@ final class PersonDatabase implements  Database{
      * @param barcode The barcode of the person you wish to delete
      */
     public final void deleteEntry(String barcode) {
-        db.deleteEntry("person", barcode);
+        db.deleteEntry(SQLInterface.TABPERSON, barcode);
     }
 
     /**
@@ -94,10 +95,10 @@ final class PersonDatabase implements  Database{
      * @return The name of the person with the specified barcode as a string or error if the person does not exist.
      */
 	public final String getEntryName(String barcode) {
-		return db.getName("person", barcode);
+		return db.getName(SQLInterface.TABPERSON, barcode);
 	}
 	public final String getEntryID(String name) {
-		return db.getID("person", name);
+		return db.getID(SQLInterface.TABPERSON, name);
 	}
 	public final int getRole(String barcode) { // 0 = user, 1 = admin, 2 = root
 		return db.getRole(barcode);
@@ -108,7 +109,7 @@ final class PersonDatabase implements  Database{
      * @return A String array of the names of those in the database
      */
 	public final ArrayList<String> getNamesOfEntries() {
-        return db.getName("person");
+        return db.getName(SQLInterface.TABPERSON);
 	}
 
 
@@ -118,7 +119,7 @@ final class PersonDatabase implements  Database{
      * @return A boolean value of whether the person exists or not
      */
 	public final boolean entryExists(String barcode) {
-		return db.entryExists("person", barcode); // if you are running this, no person was found and therefore it is logical to conclude none exist.
+		return db.entryExists(SQLInterface.TABPERSON, barcode); // if you are running this, no person was found and therefore it is logical to conclude none exist.
 		// similar to Kiri-Kin-Tha's first law of metaphysics.
 	}
 	public final boolean entryExists(String type, String barcode) {
@@ -164,7 +165,7 @@ final class PersonDatabase implements  Database{
      * @return An integer of 1 if the file was not found and 0 if it worked.
      */
 	public final void writeDatabaseCSV(String path)  { //TODO: Ensure this works as a CSV
-		db.export("person", path); // ensure that this path is the full absolute path rather than a relative one.
+		db.export(SQLInterface.TABPERSON, path); // ensure that this path is the full absolute path rather than a relative one.
 	}
 
 //    /**
@@ -237,11 +238,8 @@ final class PersonDatabase implements  Database{
 	public final String[] getPassword(String ID) {
 		return db.getPassword(ID);
 	}
-	public final boolean isAdmin(String barcode) {
+	public final int isAdmin(String barcode) {
 		return db.isAdmin(barcode);
-	}
-	public final boolean isRoot(String barcode) {
-		return db.isRoot(barcode);
 	}
 	//TODO: this needs to be written for SQL
 //    public void changeDatabasePerson(String selectedIndex, String name, long pmkeys, long oldPmkeys)

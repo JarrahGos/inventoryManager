@@ -85,7 +85,7 @@ class ItemDatabase
      * @return A string containing the entire database
      */
 	public final ArrayList<String> getDatabase() {
-		return db.getDatabase("item");
+		return db.getDatabase(SQLInterface.TABITEM);
 	}
 	
 
@@ -98,7 +98,7 @@ class ItemDatabase
 	 */
 	public void delItem(String barcode) {
 		if(!this.isControlled(barcode)) {
-			db.deleteEntry("general", barcode);
+			db.deleteEntry(SQLInterface.TABGENERAL, barcode);
 		}
 	}
 
@@ -110,7 +110,7 @@ class ItemDatabase
      */
 	final boolean itemExists(String barcode)
 	{
-		return db.entryExists("item", barcode);
+		return db.entryExists(SQLInterface.TABITEM, barcode);
 		// if you are running this, no product was found and therefore it is logical to conclude none exist.
 		// similar to Kiri-Kin-Tha's first law of metaphysics.
 	}
@@ -326,7 +326,7 @@ class ItemDatabase
 		return db.getName(type);
 	}
 	public String getItemName(String ID) {
-		return db.getName("item", ID);
+		return db.getName(SQLInterface.TABITEM, ID);
 	}
 	public void logItemOut(String ID, String persID) {
 		db.addLog(ID, persID, this.isControlled(ID));
@@ -337,7 +337,7 @@ class ItemDatabase
 		}
 	}
 	public final String getBarcode(String name) {
-		return db.getID("item", name);
+		return db.getID(SQLInterface.TABITEM, name);
 	}
 
 
@@ -349,7 +349,7 @@ class ItemDatabase
 	}
 	public void delItem(String ID, boolean controlled) {
 		if(controlled) {
-			db.deleteEntry("controlled", ID);
+			db.deleteEntry(SQLInterface.TABCONTROLLED, ID);
 		}
 	}
 
@@ -384,6 +384,6 @@ class ItemDatabase
      * @return A String array of the names of all products in the database.
      */
     public final ArrayList<String> getItemNames() {
-        return db.getName("general");
+        return db.getName(SQLInterface.TABGENERAL);
     }
 }

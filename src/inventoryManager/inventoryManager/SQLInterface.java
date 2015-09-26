@@ -38,6 +38,61 @@ public class SQLInterface {
     private String password = "password";
     private Connection db;
 
+    // Table names:
+    public static final String TABCONTROLLED    = "controlled";
+    public static final String TABCONTROLLEDTYPE= "controlledType";
+    public static final String TABGENERAL       = "general";
+    public static final String TABITEM          = "item";
+    public static final String TABITEMLOG       = "itemLog";
+    public static final String TABPERSON        = "person";
+    public static final String TABPERSONLOG     = "personLog";
+    public static final String TABSET           = "set";
+
+    // column names TABCONTROLLED
+    private final String COLCONTROLLEDID        = "ID";
+    private final String COLCONTROLLEDTAGNO     = "tagno";
+    private final String COLCONTROLLEDTYPE      = "type";
+
+    // column names TABCONTROLLEDTYPE
+    private final String COLCONTROLLEDTYPEID    = "ID";
+    private final String COLCONTROLLEDTYPENAME  = "name";
+
+    // Column names TABGENERAL
+    private final String COLGENERALID = "ID";
+    private final String COLGENERALDESCRIPTION  = "description";
+    private final String COLGENERALQUANTITY     = "quantity";
+    private final String COLGENERALLOCATION     = "location";
+
+    // Column names TABITEM
+    private final String COLITEMID              = "ID";
+    private final String COLITEMNAME            = "name";
+    private final String COLITEMSETID           = "setID";
+
+    // Column names TABITEMLOG
+    private final String COLITEMLOGID           = "ID";
+    private final String COLITEMLOGOUTDATE      = "outDate";
+    private final String COLITEMLOGOUT          = "out";
+    private final String COLITEMLOGINDATE       = "inDate";
+    private final String COLITEMLOGPERSID       = "persID";
+    private final String COLITEMLOGCONTROLLED   = "controlled";
+    private final String COLITEMLOGADMINNAME    = "adminName";
+
+    // Column names TABPERSON
+    private final String COLPERSONID            = "ID";
+    private final String COLPERSONNAME          = "name";
+    private final String COLPERSONADMIN         = "admin";
+    private final String COLPERSONPASSOWRD      = "password";
+    private final String COLPERSONSALT          = "salt";
+
+    // Column names TABPERSONLOG
+    private final String COLPERSONLOGPERSID     = "persID";
+    private final String COLPERSONLOGDATE       = "date";
+    private final String COLPERSONLOGAUTHNAME   = "authName";
+
+    // Column names TABSET
+    private final String COLSETID               = "ID";
+    private final String COLSETNAME             = "name";
+
     public SQLInterface()
     {
         try {
@@ -75,12 +130,12 @@ public class SQLInterface {
         String statement = "";
         switch (type) {
             case "person":
-                statement = "DELETE * FROM person WHERE barcode = ?";
+                statement = "DELETE * FROM " + TABPERSON + " WHERE " + COLPERSONID + " = ?";
                 break;
             case "GeneralItem":
-                statement = "DELETE * FROM general WHERE barcode = ?";
+                statement = "DELETE * FROM " + TABGENERAL + " WHERE " + COLGENERALID + " = ?";
                 break;
-            case "controlledItem": statement = "DELETE * FROM controlled WHERE barcode = ?"; // TODO: this will delete controlled but not item. Use the key and a delete on cascade.
+            case "controlledItem": statement = "DELETE * FROM " + TABCONTROLLED + " WHERE " + COLCONTROLLEDID + " = ?"; // TODO: this will delete controlled but not item. Use the key and a delete on cascade.
         }
         try {
             PreparedStatement ps = db.prepareStatement(statement);
@@ -90,15 +145,15 @@ public class SQLInterface {
             e.printStackTrace();
         }
     }
-    public void addEntry(String ID, String name, boolean admin, boolean root, String password, String salt) { // add a new person
-        String statement = "INSERT INTO people (ID, name, admin, root, password, salt)" +
-                "VALUES(?, ?, ?, ?, ?, ?)";
+    public void addEntry(String ID, String name, int admin, String password, String salt) { // add a new person
+        String statement = "INSERT INTO " + TABPERSON + " (" + COLPERSONID  + ", " + COLPERSONNAME + ", " + COLPERSONADMIN + ", " + COLPERSONPASSOWRD + ", " + COLPERSONSALT + ")" +
+                "VALUES(?, ?, ?, ?, ?)";
+        System.out.println(statement + ID + name + admin + password + salt);
         try {
             PreparedStatement ps = db.prepareStatement(statement);
             ps.setString(1, ID);
             ps.setString(2, name);
-            ps.setBoolean(3, admin);
-            ps.setBoolean(3, root);
+            ps.setInt(3, admin);
             ps.setString(4, password);
             ps.setString(5, salt);
             ps.execute();
@@ -108,7 +163,7 @@ public class SQLInterface {
     }
     public void addEntry(String name) // add new set
     {
-        String statement = "INSERT INTO sets (name) VALUES(?)";
+        String statement = "INSERT INTO " + TABSET + " (" + COLSETNAME + ") VALUES(?)";
         try {
             PreparedStatement ps = db.prepareStatement(statement);
             ps.setString(1, name);
@@ -118,8 +173,8 @@ public class SQLInterface {
             Log.print(e);
         }
     }
-    public void addEntry(String ID, String name, String setName, String Description, Long Quantity) { // Add general Item
-        String statement = "INSERT INTO item (ID, name)" +
+    public void addEntry(String ID, String name, String setName, String Description, Long Quantity) { // Add generalItem
+        String statement = "INSERT INTO " + TABITEM + " (" + COLITEMID + ", " + COLITEMNAME + ")" +
                 "VALUES(?, ?)";
         try {
             PreparedStatement ps = db.prepareStatement(statement);
@@ -129,7 +184,7 @@ public class SQLInterface {
         } catch (SQLException e) {
             Log.print(e);
         }
-        statement = "INSERT INTO general (ID, description, quantity)" +
+        statement = "INSERT INTO " + TABGENERAL + " (" + COLGENERALID + ", " + COLGENERALDESCRIPTION + ", " + COLGENERALQUANTITY + ")" +
                 "VALUES(?, ?, ?, ?, ?)";
         try {
             PreparedStatement ps = db.prepareStatement(statement);
@@ -141,7 +196,7 @@ public class SQLInterface {
             Log.print(e);
         }
         if(setName != null && !setName.isEmpty()) {
-            statement = "SELECT ID FROM sets where name = ?";
+            statement = "SELECT " + COLSETID + " FROM " + TABSET + " where " + COLSETNAME + " = ?";
             ResultSet rs = null;
             try {
                 PreparedStatement ps = db.prepareStatement(statement);
@@ -158,8 +213,8 @@ public class SQLInterface {
 
         }
     }
-    public void addEntry(String ID, String name, String setName, String state, String tagpos, String type) { // add Controlled Item
-        String statement = "INSERT INTO item (ID, name)" +
+    public void addEntry(String ID, String name, String setName, String state, String tagpos, String type) { // add Controlled " + TABITEM + "
+        String statement = "INSERT INTO " + TABITEM + " (" + COLITEMID + ", " + COLITEMNAME + ")" +
                 "VALUES(?, ?)"; // Sort SetID at the end. There may not be a set ID for every item.
         try {
             PreparedStatement ps = db.prepareStatement(statement);
@@ -170,7 +225,7 @@ public class SQLInterface {
             Log.print(e);
         }
         if(type != null && !type.isEmpty()) {
-            statement = "SELECT ID FROM type where name = ?";
+            statement = "SELECT " + COLCONTROLLEDTYPEID + " FROM " + TABCONTROLLEDTYPE + " where " + COLCONTROLLEDTYPENAME + " = ?";
             ResultSet rs = null;
             try {
                 PreparedStatement ps = db.prepareStatement(statement);
@@ -178,17 +233,17 @@ public class SQLInterface {
                 rs = ps.executeQuery();
 
                 if (!rs.next()) {
-                    statement = "INSERT INTO controlledType (?)";
+                    statement = "INSERT INTO " + TABCONTROLLEDTYPE + "(?)";
                     ps = db.prepareStatement(statement);
                     ps.setString(1, type);
                     ps.execute();
-                    statement = "SELECT ID FROM type where name = ?";
+                    statement = "SELECT " + COLCONTROLLEDTYPEID + " FROM " + TABCONTROLLEDTYPE + " where " + COLCONTROLLEDTYPENAME + " = ?";
                     ps = db.prepareStatement(statement);
                     ps.setString(1, type);
                     rs = ps.executeQuery();
                 }
 
-                statement = "INSERT INTO controlled (ID, tagpos, State)" +
+                statement = "INSERT INTO " + TABCONTROLLED + " (" + COLCONTROLLEDID + ", " + COLCONTROLLEDTAGNO + ", State)" + // TODO: DAFAQ is state
                         "VALUES(?, ?, ?, ?, ?)";
                 try {
                     ps = db.prepareStatement(statement);
@@ -205,7 +260,7 @@ public class SQLInterface {
             }
         }
         if(setName != null && !setName.isEmpty()) {
-            statement = "SELECT ID FROM sets where name = ?";
+            statement = "SELECT " + COLSETID + " FROM " + TABSET + "s where " + COLSETNAME + " = ?";
             ResultSet rs = null;
             try {
                 PreparedStatement ps = db.prepareStatement(statement);
@@ -224,7 +279,7 @@ public class SQLInterface {
         }
     }
     public void addEntry(String ID, String name) {
-        String statement = "INSERT INTO item (ID, name) " +
+        String statement = "INSERT INTO " + TABITEM + " (" + COLITEMID + ", " + COLITEMNAME + ") " +
                 "VALUES(?, ?)";
         try {
             PreparedStatement ps = db.prepareStatement(statement);
@@ -237,8 +292,8 @@ public class SQLInterface {
         }
     }
     public void addLog(String persID, String adminID) { // add to change password log.
-        String statement = "INSERT INTO personLog (persID, date, authName) " +
-                "VALUES(?, NOW(), (Select name FROM person where ID = ?)";
+        String statement = "INSERT INTO " + TABPERSONLOG + " (" + COLPERSONLOGPERSID + ", " + COLPERSONLOGDATE + ", " + COLPERSONLOGAUTHNAME + ") " +
+                "VALUES(?, NOW(), (Select " + COLPERSONNAME + " FROM " + TABPERSON + " where " + COLPERSONID + " = ?)";
         try {
             PreparedStatement ps = db.prepareStatement(statement);
             ps.setString(1, persID);
@@ -252,8 +307,8 @@ public class SQLInterface {
     }
     public void addLog(String itemID, String persID, boolean controlled) { // Sign an item out
         //TODO: Should this check the item as out in the controlled table?
-        String statment = "INSERT INTO itemLog (ID, date, out, in, persID, controlled) " +
-                "VALUES(?, NOW(), TRUE, \"FALSE\", ?, ?)";
+        String statment = "INSERT INTO " + TABITEMLOG + " (" + COLITEMLOGID + ", " + COLITEMLOGOUTDATE + ", " + COLITEMLOGOUT + ", " + COLITEMLOGINDATE + ", " + COLITEMLOGPERSID + ", " + COLITEMLOGCONTROLLED + ") " +
+                "VALUES(?, NOW(), TRUE, \"FALSE\", ?, ?)"; // TODO: inDate may be setting gibberish
         try {
             PreparedStatement ps = db.prepareStatement(statment);
             ps.setString(1, itemID);
@@ -266,7 +321,7 @@ public class SQLInterface {
         }
     }
     public void returnItem(String itemID) { // Return an item
-        String statement = "update itemLog SET in=TRUE, inDate=NOW()" +
+        String statement = "update " + TABITEMLOG + " SET in=TRUE, inDate=NOW()" +
                 "WHERE ID=?";
         try {
             PreparedStatement ps = db.prepareStatement(statement);
@@ -278,7 +333,7 @@ public class SQLInterface {
         }
     }
     public void returnItem(String itemID, String persID) { // Return a general item.
-        String statement = "update itemLog SET in=TRUE, inDate=NOW()" +
+        String statement = "update " + TABITEMLOG + " SET in=TRUE, inDate=NOW()" +
                 "WHERE ID=? AND persID=?";
         try {
             PreparedStatement ps = db.prepareStatement(statement);
@@ -306,21 +361,21 @@ public class SQLInterface {
         ResultSet rs = null;
         switch (type) {
             case "person":
-                statement = "SELECT * FROM personLog ";
+                statement = "SELECT * FROM " + TABPERSONLOG + " ";
                 break;
             case "item":
-                statement = "Select * FROM itemLog";
+                statement = "Select * FROM " + TABITEMLOG + "";
                 break;
             case "controlled":
-                statement = "SELECT * FROM itemLog " +
-                        "WHERE controlled=TRUE";
+                statement = "SELECT * FROM " + TABITEMLOG + " " +
+                        "WHERE " + COLITEMLOGCONTROLLED + "=TRUE";
                 break;
             case "general":
-                statement = "SELECT * FROM itemLog " +
-                        "WHERE controlled=FALSE";
+                statement = "SELECT * FROM " + TABITEMLOG + " " +
+                        "WHERE " + COLITEMLOGCONTROLLED + "=FALSE";
                 break;
             default:
-                statement = "Select * FROM itemLog";
+                statement = "Select * FROM " + TABITEMLOG + "";
                 break;
         }
         try {
@@ -346,26 +401,26 @@ public class SQLInterface {
         ResultSet rs = null;
         switch (type) {
             case "person":
-                statement = "SELECT * FROM personLog " +
-                        "WHERE ID = ?";
+                statement = "SELECT * FROM " + TABPERSONLOG + " " +
+                        "WHERE " + COLPERSONLOGPERSID + " = ?";
                 break;
             case "item":
-                statement = "Select * FROM itemLog " +
-                        "WHERE ID = ?";
+                statement = "Select * FROM " + TABITEMLOG + " " +
+                        "WHERE " + COLITEMLOGID + " = ?";
                 break;
             case "controlled":
-                statement = "SELECT * FROM itemLog " +
-                        "WHERE controlled=TRUE AND " +
-                        "ID = ?";
+                statement = "SELECT * FROM " + TABITEMLOG + " " +
+                        "WHERE " + COLITEMLOGCONTROLLED + "=TRUE AND " +
+                        COLITEMLOGID + " = ?";
                 break;
             case "general":
-                statement = "SELECT * FROM itemLog " +
-                        "WHERE controlled=FALSE AND " +
-                        "ID = ?";
+                statement = "SELECT * FROM " + TABITEMLOG + " " +
+                        "WHERE " + COLITEMLOGCONTROLLED + "=FALSE AND " +
+                        COLITEMLOGID + " = ?";
                 break;
             default:
-                statement = "Select * FROM itemLog " +
-                        "WHERE ID = ?";
+                statement = "Select * FROM " + TABITEMLOG + " " +
+                        "WHERE " + COLITEMLOGID + " = ?";
                 break;
         }
         try {
@@ -392,26 +447,26 @@ public class SQLInterface {
         ResultSet rs = null;
         switch (type) {
             case "person":
-                statement = "SELECT * FROM personLog " +
-                        "WHERE date > ?";
+                statement = "SELECT * FROM " + TABPERSONLOG + " " +
+                        "WHERE " + COLPERSONLOGDATE + " > ?";
                 break;
             case "item":
-                statement = "Select * FROM itemLog " +
-                        "WHERE date > ?";
+                statement = "Select * FROM " + TABITEMLOG + " " +
+                        "WHERE " + COLITEMLOGOUTDATE + " > ?";
                 break;
             case "controlled":
-                statement = "SELECT * FROM itemLog " +
-                        "WHERE controlled=TRUE AND " +
-                        "date > ?";
+                statement = "SELECT * FROM " + TABITEMLOG + " " +
+                        "WHERE " + COLITEMLOGCONTROLLED + "=TRUE AND " +
+                        COLITEMLOGOUTDATE + " > ?";
                 break;
             case "general":
-                statement = "SELECT * FROM itemLog " +
-                        "WHERE controlled=FALSE AND " +
-                        "date >  ?";
+                statement = "SELECT * FROM " + TABITEMLOG + " " +
+                        "WHERE " + COLITEMLOGCONTROLLED + "=FALSE AND " +
+                        COLITEMLOGOUTDATE + " >  ?";
                 break;
             default:
-                statement = "Select * FROM itemLog " +
-                        "WHERE date > ?";
+                statement = "Select * FROM " + TABITEMLOG + " " +
+                        "WHERE " + COLITEMLOGOUTDATE + " > ?";
                 break;
         }
         try {
@@ -438,30 +493,30 @@ public class SQLInterface {
         ResultSet rs = null;
         switch (type) {
             case "person":
-                statement = "SELECT * FROM person ";
+                statement = "SELECT * FROM " + TABPERSON + " ";
                 break;
             case "item":
-                statement = "Select * FROM item i" +
-                        "INNER JOIN general g" +
+                statement = "Select * FROM " + TABITEM + " i" +
+                        "INNER JOIN " + TABGENERAL + " g" +
                         " on i.ID = g.ID" +
-                        "INNER JOIN controlled c " +
+                        "INNER JOIN " + TABCONTROLLED + " c " +
                         "on i.ID = c.ID";
                 break;
             case "controlled":
-                statement = "SELECT * FROM item i " +
-                        "INNER JOIN controlled c " +
+                statement = "SELECT * FROM " + TABITEM + " i " +
+                        "INNER JOIN " + TABCONTROLLED + " c " +
                         "on i.ID = c.ID";
                 break;
             case "general":
-                statement = "SELECT * FROM item i " +
-                        "INNER JOIN general g " +
+                statement = "SELECT * FROM " + TABITEM + " i " +
+                        "INNER JOIN " + TABGENERAL + " g " +
                         "ON i.ID = g.ID";
                 break;
             default:
-                statement = "Select * FROM item i" +
-                        "INNER JOIN general g" +
+                statement = "Select * FROM " + TABITEM + " i" +
+                        "INNER JOIN " + TABGENERAL + " g" +
                         " on i.ID = g.ID" +
-                        "INNER JOIN controlled c " +
+                        "INNER JOIN " + TABCONTROLLED + " c " +
                         "on i.ID = c.ID";
                 break;
         }
@@ -489,45 +544,45 @@ public class SQLInterface {
         ResultSet rs = null;
         switch (type) {
             case "person":
-                statement = "SELECT * FROM person WHERE ID=?";
+                statement = "SELECT * FROM " + TABPERSON + " WHERE ID=?";
                 break;
             case "item":
-                statement = "Select * FROM item i " +
-                        "INNER JOIN general g" +
+                statement = "Select * FROM " + TABITEM + " i " +
+                        "INNER JOIN " + TABGENERAL + " g" +
                         " on i.ID = g.ID" +
-                        "INNER JOIN controlled c " +
+                        "INNER JOIN " + TABCONTROLLED + " c " +
                         "on i.ID = c.ID" +
                         " WHERE ID = ?";
                 break;
             case "controlled":
-                statement = "SELECT * FROM item i " +
-                        "INNER JOIN controlled c " +
+                statement = "SELECT * FROM " + TABITEM + " i " +
+                        "INNER JOIN " + TABCONTROLLED + " c " +
                         "on i.ID = c.ID" +
                         " WHERE ID = ?";
                 break;
             case "general":
-                statement = "SELECT * FROM item i " +
-                        "INNER JOIN general g " +
+                statement = "SELECT * FROM " + TABITEM + " i " +
+                        "INNER JOIN " + TABGENERAL + " g " +
                         "ON i.ID = g.ID" +
                         " WHERE ID = ?";
                 break;
             case "persGeneral":
-                statement = "SELECT * FROM item i " +
-                        "INNER JOIN general g " +
+                statement = "SELECT * FROM " + TABITEM + " i " +
+                        "INNER JOIN " + TABGENERAL + " g " +
                         "ON i.ID = g.ID" +
                         " WHERE persID = ?";
                 break;
             case "persControlled":
-                statement = "SELECT * FROM item i " +
-                        "INNER JOIN controlled c " +
+                statement = "SELECT * FROM " + TABITEM + " i " +
+                        "INNER JOIN " + TABCONTROLLED + " c " +
                         "ON i.ID = c.ID" +
                         " WHERE persID = ?";
                 break;
             default:
-                statement = "Select * FROM item i" +
-                        "INNER JOIN general g" +
+                statement = "Select * FROM " + TABITEM + " i" +
+                        "INNER JOIN " + TABGENERAL + " g" +
                         " on i.ID = g.ID" +
-                        "INNER JOIN controlled c " +
+                        "INNER JOIN " + TABCONTROLLED + " c " +
                         "on i.ID = c.ID" +
                         " WHERE ID = ?";
                 break;
@@ -556,33 +611,33 @@ public class SQLInterface {
         ResultSet rs = null;
         switch (type) {
             case "person":
-                statement = "SELECT * FROM person WHERE ID=?";
+                statement = "SELECT * FROM " + TABPERSON + " WHERE ID=?";
                 break;
             case "item":
-                statement = "Select * FROM item i " +
-                        "INNER JOIN general g" +
+                statement = "Select * FROM " + TABITEM + " i " +
+                        "INNER JOIN " + TABGENERAL + " g" +
                         " on i.ID = g.ID" +
-                        "INNER JOIN controlled c " +
+                        "INNER JOIN " + TABCONTROLLED + " c " +
                         "on i.ID = c.ID" +
                         " WHERE date > ?";
                 break;
             case "controlled":
-                statement = "SELECT * FROM item i " +
-                        "INNER JOIN controlled c " +
+                statement = "SELECT * FROM " + TABITEM + " i " +
+                        "INNER JOIN " + TABCONTROLLED + " c " +
                         "on i.ID = c.ID" +
                         " WHERE date > ?";
                 break;
             case "general":
-                statement = "SELECT * FROM item i " +
-                        "INNER JOIN general g " +
+                statement = "SELECT * FROM " + TABITEM + " i " +
+                        "INNER JOIN " + TABGENERAL + " g " +
                         "ON i.ID = g.ID" +
                         " WHERE date > ?";
                 break;
             default:
-                statement = "Select * FROM item i" +
-                        "INNER JOIN general g" +
+                statement = "Select * FROM " + TABITEM + " i" +
+                        "INNER JOIN " + TABGENERAL + " g" +
                         " on i.ID = g.ID" +
-                        "INNER JOIN controlled c " +
+                        "INNER JOIN " + TABCONTROLLED + " c " +
                         "on i.ID = c.ID" +
                         " WHERE date > ?";
                 break;
@@ -605,9 +660,9 @@ public class SQLInterface {
         return ret;
     }
     public void lowerQuantity(String ID, int sub) {
-        String statement = "UPDATE general SET quantity = " +
-                "((Select quantity From general WHERE ID = ?) - ?)" +
-                " WHERE ID = ?";
+        String statement = "UPDATE " + TABGENERAL + " SET " + COLGENERALQUANTITY+ " = " +
+                "((Select " + COLGENERALQUANTITY + " From " + TABGENERAL + " WHERE " + COLGENERALID + " = ?) - ?)" +
+                " WHERE " + COLGENERALID + " = ?";
         try {
             PreparedStatement ps = db.prepareStatement(statement);
             ps.setString(1, ID);
@@ -624,14 +679,14 @@ public class SQLInterface {
         String out = "";
         switch (type) {
             case "person":
-                statement = "SELECT name FROM person WHERE ID=?";
+                statement = "SELECT " + COLPERSONNAME + " FROM " + TABPERSON + " WHERE " + COLPERSONID + "=?";
                 break;
             case "item":
-                statement = "Select name FROM item" +
-                        " WHERE ID = ?";
+                statement = "Select " + COLITEMNAME + " FROM " + TABITEM + "" +
+                        " WHERE " + COLITEMID + " = ?";
                 break;
             default:
-                statement = "SELECT name FROM person WHERE ID=?";
+                statement = "SELECT " + COLPERSONNAME + " FROM " + TABPERSON + " WHERE " + COLPERSONID + "=?";
                 break;
         }
         try {
@@ -652,13 +707,13 @@ public class SQLInterface {
         ArrayList<String> out = new ArrayList<>();
         switch (type) {
             case "person":
-                statement = "SELECT name FROM person";
+                statement = "SELECT " + COLPERSONNAME + " FROM " + TABPERSON + "";
                 break;
             case "item":
-                statement = "Select name FROM item";
+                statement = "Select " + COLITEMNAME + " FROM " + TABITEM + "";
                 break;
             default:
-                statement = "SELECT name FROM person";
+                statement = "SELECT " + COLPERSONNAME + " FROM " + TABPERSON + "";
                 break;
         }
         try {
@@ -678,14 +733,14 @@ public class SQLInterface {
         String out = "";
         switch (type) {
             case "person":
-                statement = "SELECT ID FROM person WHERE name=?";
+                statement = "SELECT " + COLPERSONID + " FROM " + TABPERSON + " WHERE " + COLPERSONNAME + "=?";
                 break;
             case "item":
-                statement = "Select ID FROM item" +
-                        " WHERE name = ?";
+                statement = "Select " + COLITEMID + " FROM " + TABITEM + "" +
+                        " WHERE " + COLITEMNAME + " = ?";
                 break;
             default:
-                statement = "SELECT name FROM person WHERE name=?";
+                statement = "SELECT " + COLPERSONID + " FROM " + TABPERSON + " WHERE " + COLPERSONNAME + " = ?";
                 break;
         }
         try {
@@ -701,7 +756,7 @@ public class SQLInterface {
         return out;
     }
     public String[] getPassword(String barcode) {
-        String statement = "SELECT password, salt FROM person WHERE ID = ?";
+        String statement = "SELECT " + COLPERSONPASSOWRD + ", " + COLPERSONSALT + " FROM " + TABPERSON + " WHERE " + COLPERSONID + " = ?";
         ResultSet rs;
         String[] out = new String[2];
         try {
@@ -709,9 +764,9 @@ public class SQLInterface {
             ps.setString(1, barcode);
             rs = ps.executeQuery();
             if(rs.next()) {
-                out[0] = rs.getString("password");
+                out[0] = rs.getString(COLPERSONPASSOWRD);
                 System.out.println(out[0]);
-                out[1] = rs.getString("salt");
+                out[1] = rs.getString(COLPERSONSALT);
                 System.out.println(out[1]);
             }
             else System.out.print("userNotFound");
@@ -721,7 +776,7 @@ public class SQLInterface {
         return out;
     }
     public void setPassword(String ID, String password, String salt) {
-        String statement = "UPDATE people SET password = ?, salt = ? WHERE ID = ?";
+        String statement = "UPDATE " + TABPERSON + " SET " + COLPERSONPASSOWRD + " = ?, " + COLPERSONSALT + " = ? WHERE " + COLPERSONID + " = ?";
         try {
             PreparedStatement ps = db.prepareStatement(statement);
             ps.setString(1, password);
@@ -735,7 +790,7 @@ public class SQLInterface {
 
     }
     public int getRole(String barcode) {
-        String statement = "SELECT admin FROM person WHERE ID = ?";
+        String statement = "SELECT " + COLPERSONADMIN + " FROM " + TABPERSON + " WHERE " + COLPERSONID + " = ?";
         ResultSet rs;
         int admin = 0;
         try {
@@ -752,20 +807,20 @@ public class SQLInterface {
         } catch (SQLException e) {
             Log.print(e);
         }
-        return PersonDatabase.USER;
+        return PersonDatabase.USER; // TODO: replace this logic with returning what is in the database.
     }
     public boolean entryExists(String type, String ID) {
         String statement;
         ResultSet rs;
         switch (type) {
             case "person":
-                statement = "SELECT name FROM person WHERE ID = ?";
+                statement = "SELECT " + COLPERSONID + " FROM " + TABPERSON + " WHERE " + COLPERSONID + " = ?";
                 break;
             case "item":
-                statement = "Select name FROM item WHERE ID = ?";
+                statement = "Select " + COLITEMID + " FROM " + TABITEM + " WHERE " + COLITEMID + " = ?";
                 break;
             default:
-                statement = "SELECT name FROM person WHERE ID = ?";
+                statement = "SELECT " + COLPERSONID + " FROM " + TABPERSON + " WHERE " + COLPERSONID + " = ?";
                 break;
         }
         try {
@@ -773,8 +828,8 @@ public class SQLInterface {
             ps.setString(1, ID);
             rs = ps.executeQuery();
             System.out.println(rs);
-            if(!rs.equals(null)) {
-                return true;
+            if(rs.next()) {
+                return rs.getString(COLPERSONID).equals(ID);
             }
         } catch (SQLException e) {
             Log.print(e);
@@ -788,38 +843,38 @@ public class SQLInterface {
                 statement = "SELECT * INTO OUTFILE \'?\' " +
                         "FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY \'\"\' " +
                         "LINES TERMINATED BY \'\n\' " +
-                        "FROM person";
+                        "FROM " + TABPERSON + "";
                 break;
             case "item":
                 statement = "Select * INTO OUTFILE '?' \" +\n" +
                         "FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY \'\"\' " +
-                        "LINES TERMINATED BY \'\n\' FROM item i " +
-                        "INNER JOIN general g" +
+                        "LINES TERMINATED BY \'\n\' FROM " + TABITEM + " i " +
+                        "INNER JOIN " + TABGENERAL + " g" +
                         " on i.ID = g.ID" +
-                        "INNER JOIN controlled c " +
+                        "INNER JOIN " + TABCONTROLLED + " c " +
                         "on i.ID = c.ID";
                 break;
             case "controlled":
                 statement = "Select * INTO OUTFILE '?' \" +\n" +
                         "FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY \'\"\' " +
-                        "LINES TERMINATED BY \'\n\' FROM item i " +
-                        "INNER JOIN controlled c " +
+                        "LINES TERMINATED BY \'\n\' FROM " + TABITEM + " i " +
+                        "INNER JOIN " + TABCONTROLLED + " c " +
                         "on i.ID = c.ID";
                 break;
             case "general":
                 statement = "Select * INTO OUTFILE '?' \" +\n" +
                         "FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY \'\"\' " +
-                        "LINES TERMINATED BY \'\n\' FROM item i " +
-                        "INNER JOIN general g " +
+                        "LINES TERMINATED BY \'\n\' FROM " + TABITEM + " i " +
+                        "INNER JOIN " + TABGENERAL + " g " +
                         "on i.ID = g.ID";
                 break;
             default:
                 statement = "Select * INTO OUTFILE '?' \" +\n" +
                         "FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY \'\"\' " +
-                        "LINES TERMINATED BY \'\n\' FROM item i " +
-                        "INNER JOIN general g" +
+                        "LINES TERMINATED BY \'\n\' FROM " + TABITEM + " i " +
+                        "INNER JOIN " + TABGENERAL + " g" +
                         " on i.ID = g.ID" +
-                        "INNER JOIN controlled c " +
+                        "INNER JOIN " + TABCONTROLLED + " c " +
                         "on i.ID = c.ID";
                 break;
         }
@@ -832,7 +887,7 @@ public class SQLInterface {
         }
     }
     public int getQuantity(String ID) {
-        String statement = "SELECT quantity FROM general WHERE ID = ?";
+        String statement = "SELECT " + COLGENERALQUANTITY + " FROM " + TABGENERAL + " WHERE " + COLGENERALID + " = ?";
         ResultSet rs = null;
         try {
             PreparedStatement ps = db.prepareStatement(statement);
@@ -847,7 +902,7 @@ public class SQLInterface {
         return 0;
     }
     public void setQuantity(String ID, int quantity) {
-        String statement = "UPDATE general SET quantity=?  WHERE ID = ?";
+        String statement = "UPDATE " + TABGENERAL + " SET " + COLGENERALQUANTITY+ "=?  WHERE " + COLGENERALID + " = ?";
         try {
             PreparedStatement ps = db.prepareStatement(statement);
             ps.setInt(1, quantity);
@@ -858,8 +913,8 @@ public class SQLInterface {
         }
     }
     public void updateEntry(String ID, String name, String newID) {
-        String statement = "UPDATE item SET name = ?, set ID = ? " +
-                "WHERE ID = ?";
+        String statement = "UPDATE " + TABITEM + " SET " + COLITEMNAME + " = ?, set " + COLITEMID + " = ? " +
+                "WHERE " + COLITEMID + " = ?";
         try {
             PreparedStatement ps = db.prepareStatement(statement);
             ps.setString(1, name);
@@ -871,7 +926,7 @@ public class SQLInterface {
         }
     }
     public boolean isItemControlled(String ID) {
-        String statement = "SELECT ID FROM controlled WHERE ID = ?";
+        String statement = "SELECT " + COLCONTROLLEDID + " FROM " + TABCONTROLLED + " WHERE " + COLCONTROLLEDID + " = ?";
         ResultSet rs;
         try {
             PreparedStatement ps = db.prepareStatement(statement);
@@ -885,34 +940,19 @@ public class SQLInterface {
         }
         return false;
     }
-    public boolean isAdmin(String ID) {
-        String statement = "SELECT admin FROM person WHERE ID = ?";
+    public int isAdmin(String ID) {
+        String statement = "SELECT " + COLPERSONADMIN + " FROM " + TABPERSON + " WHERE " + COLPERSONID + " = ?";
         ResultSet rs = null;
         try {
             PreparedStatement ps = db.prepareStatement(statement);
             ps.setString(1, ID);
             rs = ps.executeQuery();
             if (rs.next()) {
-                return rs.getBoolean(1);
+                return rs.getInt(1);
             }
         } catch (SQLException e) {
             Log.print(e);
         }
-        return false;
-    }
-    public boolean isRoot(String ID) {
-        String statement = "SELECT root FROM person WHERE ID = ?";
-        ResultSet rs = null;
-        try {
-            PreparedStatement ps = db.prepareStatement(statement);
-            ps.setString(1, ID);
-            rs = ps.executeQuery();
-            if (rs.next()) {
-                return rs.getBoolean(1);
-            }
-        } catch (SQLException e) {
-            Log.print(e);
-        }
-        return false;
+        return PersonDatabase.USER;
     }
 }
