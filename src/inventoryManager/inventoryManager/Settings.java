@@ -181,6 +181,12 @@ final class Settings {
 		output = Compatibility.getFilePath(output);
 		return output;
 	}
+//TODO: does SQLite even have a user/pass combination
+	/**
+	 * Get the settings for the SQLite database which will be used by the program.
+	 * @return A string array with the URL, user and password of the database.
+	 * @throws FileNotFoundException If the settings file is not in the correct location or does not exist.
+	 */
     public static String[] SQLInterfaceSettings() throws FileNotFoundException
     {
         if (inputStream != null) {
@@ -205,6 +211,7 @@ final class Settings {
         }
 		return output;
     }
+	//TODO: the below is an idea, but not necessary. It would encrypt the settings file, but that file stores nothing of use anyway.
     private static String encrypt(String property) throws GeneralSecurityException, UnsupportedEncodingException {
         SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("PBEWithMD5AndDES");
         SecretKey key = keyFactory.generateSecret(new PBEKeySpec(PASSWORD));

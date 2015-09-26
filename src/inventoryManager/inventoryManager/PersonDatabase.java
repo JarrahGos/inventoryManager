@@ -97,6 +97,12 @@ final class PersonDatabase implements  Database{
 	public final String getEntryName(String barcode) {
 		return db.getName(SQLInterface.TABPERSON, barcode);
 	}
+
+	/**
+	 * Convert a name into the ID of the given person. Lets hope that there isn't any name duplication as that will be completly undefined.
+	 * @param name The name of the person to search for.
+	 * @return The ID of the first person found with that name.
+	 */
 	public final String getEntryID(String name) {
 		return db.getID(SQLInterface.TABPERSON, name);
 	}
@@ -121,9 +127,6 @@ final class PersonDatabase implements  Database{
 	public final boolean entryExists(String barcode) {
 		return db.entryExists(SQLInterface.TABPERSON, barcode); // if you are running this, no person was found and therefore it is logical to conclude none exist.
 		// similar to Kiri-Kin-Tha's first law of metaphysics.
-	}
-	public final boolean entryExists(String type, String barcode) {
-		return db.entryExists(type, barcode);
 	}
 
     /**
@@ -230,7 +233,9 @@ final class PersonDatabase implements  Database{
 
     /**
      * Changes the Admin password to the one specified
-     * @param extPassword The new password, prehashed.
+	 * @param barcode The barcode of the user to store the password and salt for.
+     * @param password The new password, prehashed.
+	 * @param salt The salt that the password was hashed with for storage.
      */
 	public final void setPassword(String barcode, String password, String salt) {
 		db.setPassword(barcode, password, salt);
@@ -238,6 +243,12 @@ final class PersonDatabase implements  Database{
 	public final String[] getPassword(String ID) {
 		return db.getPassword(ID);
 	}
+
+	/**
+	 * Determine whether the person should be given admin access to the program
+	 * @param barcode The barcode of the member to check permissions for.
+	 * @return An int to determine access. 0 for user, 2 for admin, 3 for root
+	 */
 	public final int isAdmin(String barcode) {
 		return db.isAdmin(barcode);
 	}

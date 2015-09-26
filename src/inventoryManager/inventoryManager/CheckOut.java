@@ -31,13 +31,14 @@ final class CheckOut
 	// create the necessary variables in the order of use
     /** A list of all items which are currently in the checkout */
 	private LinkedList<String> items;
+    /** A list of the names of the items in the checkout ready for printing in the interface. */
     private LinkedList<String> names;
     /** A list corresponding to items which contains integers, each denoting the number of it's respective product being bought */
 	private LinkedList<Integer> quantities;
     /** The size of the above two lists */
 	private int logicalSize;
 
-    private int first;
+    private int first; // TODO: this was for easter eggs. Consired removing.
     private ItemDatabase itemDB = new ItemDatabase();
 
     /**
