@@ -765,9 +765,9 @@ public class SQLInterface {
             rs = ps.executeQuery();
             if(rs.next()) {
                 out[0] = rs.getString(COLPERSONPASSOWRD);
-                System.out.println(out[0]);
+                System.out.println("Password: " + out[0]);
                 out[1] = rs.getString(COLPERSONSALT);
-                System.out.println(out[1]);
+                System.out.println("Salt: " + out[1]);
             }
             else System.out.print("userNotFound");
         } catch (SQLException e) {
@@ -827,7 +827,7 @@ public class SQLInterface {
             PreparedStatement ps = db.prepareStatement(statement);
             ps.setString(1, ID);
             rs = ps.executeQuery();
-            System.out.println(rs);
+            //System.out.println(rs);
             if(rs.next()) {
                 return rs.getString(COLPERSONID).equals(ID);
             }

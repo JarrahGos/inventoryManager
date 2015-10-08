@@ -937,8 +937,7 @@ public final class Interface extends Application
                         newPW.setOnAction((ActionEvent e) -> newPW2.requestFocus());
                         newPW2.setOnAction((ActionEvent e) -> {
                             if(newPW.getText() != null && !newPW.getText().equals("") && newPW.getText().equals(newPW2.getText())) {
-                                //TODO: salting could be an issue here
-                                workingUser.setPassword(workingUser.getUserID(), newPW.getText(), workingUser.getUserID(), WorkingUser.getSecurePassword(newPW.getText())[0]);
+                                workingUser.setPassword(workingUser.getUserID(), newPW.getText(), workingUser.getUserID(), oldPW.getText());
                                 Text changed = new Text("Success");
                                 grid.add(changed, 1, 3);
                                 flashColour(newPW, 1500, Color.AQUAMARINE);

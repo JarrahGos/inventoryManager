@@ -133,6 +133,7 @@ class WorkingUser {
      * Get a hashed password ready for storage
      * @param password The password to be hashed.
      * @return A string array with the hashed passwod in place 0 and the salt used in place 1.
+     * @deprecated Does not generate the correct hash when compared to getSecurePassword(String, String)
      */
     public static String[] getSecurePassword(String password) //throws NoSuchAlgorithmException, InvalidKeySpecException
     {
@@ -156,7 +157,7 @@ class WorkingUser {
         }
         String[] ret = new String[0];
         try {
-            ret = new String[]{(new String(hash, "UTF-16")), (new String(salt, "UTF-16"))};
+            ret = new String[]{(new String(hash, "UTF-8")), (new String(salt, "UTF-8"))};
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
@@ -176,25 +177,21 @@ class WorkingUser {
         System.out.println("-----------------------------------------");
         System.out.println(NaCl);
         byte[] salt = NaCl.getBytes();
-        try {
-            System.out.println(new String(salt, "UTF-8"));
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+
 
         PBEKeySpec spec = new PBEKeySpec(chars, salt, iterations, 64 * 8);
         SecretKeyFactory skf = null;
         byte[] hash = null;
         try {
             skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-            hash = skf.generateSecret(spec).getEncoded();
+            hash = skf.generateSecret(spec).getEncoded(); // TODO: this changes the hash from what the original was.
         } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
             e.printStackTrace();
         }
 
         String[] ret = new String[0];
         try {
-            ret = new String[]{(new String(hash, "UTF-16")), (new String(salt, "UTF-16"))};
+            ret = new String[]{(new String(hash, "UTF-8")), (new String(salt, "UTF-8"))};
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
@@ -203,7 +200,7 @@ class WorkingUser {
 
     /**
      * Create a random salt for use in generating hashes
-     * @return A strting of UTF-16 encoded random bytes
+     * @return A strting of UTF-8 encoded random bytes
      * @throws NoSuchAlgorithmException
      */
     private static String getSalt() throws NoSuchAlgorithmException
@@ -222,10 +219,12 @@ class WorkingUser {
     public final boolean passwordsEqual(String barcode, String PW) {
         String[] old = personDatabase.getPassword(barcode);
         if(old[0] == null || old[1] == null) return false;
+        System.out.println("Hash Old: " + old[0] +
+                        "\nSalt Old: " + old[1]);
         String[] testing;
         testing = getSecurePassword(PW, old[1]); //get secure password from new password and old salt
-        System.out.println(testing[0]);
-        System.out.println(testing[1]);
+        System.out.println("Hash New: " + testing[0]);
+        System.out.println("Salt New:" + testing[1]);
         return (testing[0].equals(old[0]));
     }
 
@@ -235,7 +234,12 @@ class WorkingUser {
      */
     public final boolean setPassword(String barcode, String PW, String adBarcode, String adPass) {
         if(isUserAdmin(adBarcode) && loginCorrect(adBarcode, adPass)) {
-            String[] pass = getSecurePassword(PW);
+            String[] pass = new String[0];
+            try {
+                pass = getSecurePassword(PW, getSalt());
+            } catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
+            }
             personDatabase.setPassword(barcode, pass[0], pass[1]);
 //            LoggingDatabase.appendPasswordLog(String barcode, String adBarcode);
             return true;
@@ -377,7 +381,12 @@ class WorkingUser {
      * @param ID The PMKeyS of the person you wish to add
      */
     public final void addPersonToDatabase(String name, String ID, String password) {
-        String[] passwd = getSecurePassword(password);
+        String[] passwd = new String[0];
+        try {
+            passwd = getSecurePassword(password, getSalt());
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
         personDatabase.setEntry(ID, name, PersonDatabase.USER, passwd[0], passwd[1]);
     }
 
