@@ -187,9 +187,9 @@ public final class Interface extends Application
                     inputLabel.setText("Enter Barcode"); // change the label to suit the next action.
                     grid.getChildren().remove(userLabel); // remove any error labels which may have appeared.
                     grid.add(userLabel, 3, 0); // add the new user label
+                    grid.getChildren().remove(addUser);
                     // the above two are done as we do not know whether a user label exists there. Adding two things to the same place causes an exception.
                     if (privelage > PersonDatabase.USER) {
-                        grid.getChildren().remove(addUser);
                         grid.add(adminMode, 0, 8); // add the button to the bottum left of the screen.
                     }
                     input.clear(); // clear the barcode from the input ready for product bar codes.
@@ -263,8 +263,10 @@ public final class Interface extends Application
                         flashColour(input, 1500, Color.AQUAMARINE);
                         flashColour(pass, 1500, Color.AQUAMARINE);
                         input.requestFocus();
-                        if (privelage > PersonDatabase.USER) {
-                            grid.getChildren().remove(addUser);
+                        grid.getChildren().remove(addUser);
+                        privelage = workingUser.getRole();
+                        System.out.println("privelage: " + privelage + "\tneeded: " + PersonDatabase.ADMIN);
+                        if (privelage >= PersonDatabase.ADMIN) {
                             grid.add(adminMode, 0, 8); // add the button to the bottum left of the screen.
                         }
                         pass.clear();
@@ -344,6 +346,7 @@ public final class Interface extends Application
                 input.requestFocus();
 				grid.add(pass, 2, 0);
 				grid.getChildren().remove(adminMode);
+                grid.add(addUser, 0, 8);
                 flashColour(purchase, 1500, Color.AQUAMARINE);
             }
             else {
@@ -365,6 +368,7 @@ public final class Interface extends Application
             	input.requestFocus();
 				grid.add(pass, 2, 0);
 				grid.getChildren().remove(adminMode);
+                grid.add(addUser, 0, 8);
     		}
         });
         grid.add(cancel, 5,0, 3,1); // add the button to the right of the user name.

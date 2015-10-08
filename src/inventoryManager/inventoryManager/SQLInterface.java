@@ -800,14 +800,10 @@ public class SQLInterface {
             if(rs.next()) {
                 admin = rs.getInt(1);
             }
-            if(admin == 1) {
-                return PersonDatabase.ADMIN;
-            }
-            else if (admin == 2) return PersonDatabase.ROOT;
         } catch (SQLException e) {
             Log.print(e);
         }
-        return PersonDatabase.USER; // TODO: replace this logic with returning what is in the database.
+        return admin; // TODO: replace this logic with returning what is in the database.
     }
     public boolean entryExists(String type, String ID) {
         String statement;

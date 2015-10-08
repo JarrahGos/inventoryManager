@@ -183,8 +183,8 @@ class WorkingUser {
         SecretKeyFactory skf = null;
         byte[] hash = null;
         try {
-            skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-            hash = skf.generateSecret(spec).getEncoded(); // TODO: this changes the hash from what the original was.
+            skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1"); // TODO: should this use something more than sha1?
+            hash = skf.generateSecret(spec).getEncoded();
         } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
             e.printStackTrace();
         }
