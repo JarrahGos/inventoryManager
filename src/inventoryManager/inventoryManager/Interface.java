@@ -432,7 +432,7 @@ public final class Interface extends Application
         ListView<String> optionList = new ListView<>();
         ObservableList<String> items = FXCollections.observableArrayList();
         final String[] PersonSettingsList = {"Change a Person", "List People", "Save Person Database"};
-        final String[] ProductSettingsList = {"Add Items", "Remove Items", "Change an Item","Enter Stock Counts", "List Items", "Save Item Database"};
+        final String[] itemSettingsList = {"Return Items", "Add Items", "Remove Items", "Change an Item","Enter Stock Counts", "List Items", "Save Item Database"};
         final String[] AdminSettingsList = {"Change Password", "Save Databases To USB", "Close The Program"};
 		final String[] LogSettingsList = {"Item Logs", "Password Logs"};
         final String[] RootSettingsList = {"Create Admins", "Delete Controlled Items"}; //TODO: fininish this by looking at the spec.
@@ -454,7 +454,7 @@ public final class Interface extends Application
         });
         Button products = new Button("Items");
         products.setOnAction((ActionEvent e) -> {
-            items.setAll(ProductSettingsList);
+            items.setAll(itemSettingsList);
             optionList.setItems(items);
             optionList.getSelectionModel().select(0);
         });
@@ -683,6 +683,59 @@ public final class Interface extends Application
 //                            }
 //                        });
 //                    }
+                    else if(selectedOption.equals("Return Items")) {
+                        grid.getChildren().clear();
+
+                        Text barcodeLabel = new Text("Enter Barcode");
+                        TextField barcodeEntry = new TextField();
+
+                        SplitPane inOut = new SplitPane();
+                        ObservableList<String> outItems = FXCollections.observableArrayList();
+                        outItems.setAll(workingUser.getOutItems());
+                        ListView<String> outList = new ListView<>();
+                        outList.setItems(outItems);
+
+                        ObservableList<String> inItems = FXCollections.observableArrayList();
+                        ListView<String> inList = new ListView<>();
+                        inList.setItems(inItems);
+
+                        barcodeEntry.setOnKeyPressed((KeyEvent ke) -> {
+                            if(ke.getCode().equals(KeyCode.ENTER)) {
+                                String toAdd = workingUser.getItemName(barcodeEntry.getText());
+                                if(toAdd == null) {
+                                    flashColour(barcodeEntry, 1500, Color.RED);
+                                }
+                                else {
+                                    inItems.setAll(toAdd);
+                                    inList.setItems(inItems);
+                                    outItems.remove(toAdd);
+                                    outList.setItems(outItems);
+                                }
+                            }
+                        });
+                        grid.add(barcodeLabel, 0,0);
+                        grid.add(barcodeEntry, 1, 0);
+
+                        inOut.getItems().addAll(outList, inList);
+                        inOut.setDividerPositions(0.5f);
+                        grid.add(inOut, 0, 1, 2, 1);
+
+                        Button checkIn = new Button("Check In");
+                        checkIn.setOnAction((ActionEvent e) -> {
+                            inItems.addAll(outList.getSelectionModel().getSelectedItems());
+                            inList.setItems(inItems);
+                            outItems.removeAll(outList.getSelectionModel().getSelectedItems());
+                            outList.setItems(outItems);
+
+                        });
+
+                        Button signIn = new Button("Sign In Items");
+                        signIn.setOnAction((ActionEvent e) -> {
+                            workingUser.signItemsIn((ArrayList<String>)inItems);
+                            //TODO: This requires the barcodes as the names will not be unique.
+                        });
+                        grid.add(signIn, 1, 2);
+                    }
                     else if( selectedOption.equals("Add Items")) {
                         grid.getChildren().clear();
                         Text nameLabel = new Text("Name:");

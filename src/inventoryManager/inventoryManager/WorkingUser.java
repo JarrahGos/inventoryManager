@@ -44,6 +44,8 @@ class WorkingUser {
     private final PersonDatabase personDatabase;
     /** the checkout used to store what a person is purchasing at a given time */
     private CheckOut checkOuts;
+    /** The database used for logging changes and transactions */
+    private LoggingDatabase loggingDatabase;
     /** The currently logged in user */
     private static String userID;
     private static String userName;
@@ -55,6 +57,7 @@ class WorkingUser {
         itemDatabase = new ItemDatabase();
         personDatabase = new PersonDatabase();
         checkOuts = new CheckOut();
+        loggingDatabase = new LoggingDatabase();
         userID = null;
         userName = null;
     }
@@ -339,6 +342,10 @@ class WorkingUser {
         return userID;
     }
 
+    public ArrayList<String> getOutItems() {
+        return loggingDatabase.getOutItems();
+    }
+
     /**
      * Takes the barcode for a product and adds it to the checkout
      * @param input The barcode for the product as a string
@@ -567,5 +574,14 @@ class WorkingUser {
      */
     public boolean PersonExists(String ID) {
         return personDatabase.entryExists(ID);
+    }
+    public LinkedList<String> getInItems() {
+        return checkOuts.getCheckOutNames();
+    }
+    public String getItemName(String barcode) {
+        return itemDatabase.getItemName(barcode);
+    }
+    public void signItemsIn(ArrayList<String> items) {
+        loggingDatabase.signItemsIn(items, userID);
     }
 }

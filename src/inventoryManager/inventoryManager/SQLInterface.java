@@ -488,6 +488,22 @@ public class SQLInterface {
         }
         return ret;
     }
+    public ArrayList<String> getOutItemsLog() {
+        String statement = "SELECT * FROM " + TABITEMLOG + " WHERE " + COLITEMLOGOUT + " = 1";
+        ResultSet rs;
+        ArrayList<String> ret = new ArrayList<>();
+        try {
+            PreparedStatement ps = db.prepareStatement(statement);
+            rs = ps.executeQuery();
+            while(rs.next()) {
+                ret.add(rs.toString());
+            }
+        }
+        catch (SQLException e) {
+            Log.print(e);
+        }
+        return ret;
+    }
     public ArrayList<String> getDatabase(String type) {
         String statement;
         ResultSet rs = null;
