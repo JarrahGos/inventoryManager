@@ -33,7 +33,7 @@ import java.util.ArrayList;
 
 
 public class SQLInterface {
-    private String URL = "jdbc:sqlite:/home/jarrah/ideaProjects/inventoryManager/inv.db"; // these will be initialised from the file.
+    private String URL = "jdbc:sqlite:/Users/jarrah/ideaProjects/inventoryManager/inv.db"; // these will be initialised from the file.
     private String user = "jarrah"; // when sure it works, remove these.
     private String password = "password";
     private Connection db;
@@ -111,9 +111,9 @@ public class SQLInterface {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-//        URL = settings[0];
-//        user = settings[1];
-//        password = settings[2];
+///        URL = settings[0];
+///        user = settings[1];
+///        password = settings[2];
         try {
             db = DriverManager.getConnection(URL);
             System.out.println(db);

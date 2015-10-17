@@ -265,7 +265,6 @@ public final class Interface extends Application
                         input.requestFocus();
                         grid.getChildren().remove(addUser);
                         privelage = workingUser.getRole();
-                        System.out.println("privelage: " + privelage + "\tneeded: " + PersonDatabase.ADMIN);
                         if (privelage >= PersonDatabase.ADMIN) {
                             grid.add(adminMode, 0, 8); // add the button to the bottum left of the screen.
                         }
@@ -348,6 +347,7 @@ public final class Interface extends Application
 				grid.getChildren().remove(adminMode);
                 grid.add(addUser, 0, 8);
                 flashColour(purchase, 1500, Color.AQUAMARINE);
+                privelage = 0;
             }
             else {
                 flashColour(purchase, 1500, Color.RED);
@@ -369,6 +369,7 @@ public final class Interface extends Application
 				grid.add(pass, 2, 0);
 				grid.getChildren().remove(adminMode);
                 grid.add(addUser, 0, 8);
+                privelage = 0;
     		}
         });
         grid.add(cancel, 5,0, 3,1); // add the button to the right of the user name.
@@ -434,6 +435,7 @@ public final class Interface extends Application
         final String[] ProductSettingsList = {"Add Items", "Remove Items", "Change an Item","Enter Stock Counts", "List Items", "Save Item Database"};
         final String[] AdminSettingsList = {"Change Password", "Save Databases To USB", "Close The Program"};
 		final String[] LogSettingsList = {"Item Logs", "Password Logs"};
+        final String[] RootSettingsList = {"Create Admins", "Delete Controlled Items"}; //TODO: fininish this by looking at the spec.
 		items.setAll(PersonSettingsList);
         optionList.setItems(items);
 
@@ -463,7 +465,8 @@ public final class Interface extends Application
             optionList.getSelectionModel().select(0);
         });
         Button logout = new Button("Logout");
-        logout.setOnAction((ActionEvent e) -> adminStage.close());
+        logout.setOnAction((ActionEvent e) -> adminStage.close()); // TODO: this closes the whole program. It shouldn't
+
         ToolBar buttonBar = new ToolBar(people, products, logs, admin, logout);
         rightPane.getChildren().addAll(buttonBar, grid);
         split.getItems().addAll(optionList, rightPane);
@@ -1166,7 +1169,6 @@ public final class Interface extends Application
 		grid.add(firstInput, 1,1);
 		grid.add(second, 0,2);
 		grid.add(secondInput, 1,2);
-		boolean success = false;
 		Text admin = new Text("Enter admin ID");
         Text admin2 = new Text("Enter admin password");
 		TextField adminID = new TextField();
@@ -1203,27 +1205,28 @@ public final class Interface extends Application
 			}
 		});
 		adminPass.setOnKeyPressed((KeyEvent ke) -> {
-            boolean successful = false;
-			if(ke.getCode().equals(KeyCode.ENTER)) { 
-				if(firstInput.getText().equals(secondInput.getText()) && IDInput != adminID) {
-					successful = workingUser.setPassword(ID.getText(), firstInput.getText(), adminID.getText(), adminPass.getText());
-				}
-			}
-			if(successful) {
-				flashColour(IDInput, 1500, Color.AQUAMARINE);
-				flashColour(firstInput, 1500, Color.AQUAMARINE);
-				flashColour(secondInput, 1500, Color.AQUAMARINE);
-				flashColour(adminID, 1500, Color.AQUAMARINE);
-				flashColour(adminPass, 1500, Color.AQUAMARINE);
+            int success = -1;
+            if (ke.getCode().equals(KeyCode.ENTER)) {
+                if (firstInput.getText().equals(secondInput.getText()) && IDInput != adminID) {
+                    success = workingUser.setPassword(ID.getText(), firstInput.getText(), adminID.getText(), adminPass.getText());
+                }
+
+                if (success == 0) {
+                    flashColour(new Node[]{IDInput, firstInput, secondInput, adminID, adminPass}, 1500, Color.AQUAMARINE);
+                } else {
+                    // Success is an int, 0 = success, 1 = user not found, 2 = admin not found/password issue
+                    switch (success) {
+                        case 1:
+                            flashColour(IDInput, 1500, Color.RED);
+                            break;
+                        case 2:
+                            flashColour(new Node[]{adminID, adminPass}, 1500, Color.RED);
+                            break;
+                        default:
+                            flashColour(new Node[]{IDInput, firstInput, secondInput, adminID, adminPass}, 1500, Color.RED);
+                    }
+                }
             }
-			else { //TODO: This should show the error
-				// Success is an int, 0 = success, 1 = user not found, 2 = admin not found/password issue
-				flashColour(IDInput, 1500, Color.RED);
-				flashColour(firstInput, 1500, Color.RED);
-				flashColour(secondInput, 1500, Color.RED);
-				flashColour(adminID, 1500, Color.RED);
-				flashColour(adminPass, 1500, Color.RED);
-			}
 		});
         Button close = new Button("Close");
         close.setOnAction((ActionEvent e) -> PassStage.close());

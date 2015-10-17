@@ -232,26 +232,26 @@ class WorkingUser {
      * Takes the given (prehashed) password and set it as the admin password
      * @param PW The prehashed password to be set
      */
-    public final boolean setPassword(String barcode, String PW, String adBarcode, String adPass) {
-        if(isUserAdmin(adBarcode) && loginCorrect(adBarcode, adPass)) {
-            String[] pass = new String[0];
-            try {
-                pass = getSecurePassword(PW, getSalt());
-            } catch (NoSuchAlgorithmException e) {
-                e.printStackTrace();
+    public final int setPassword(String barcode, String PW, String adBarcode, String adPass) {
+        if(isUserAdmin(adBarcode) && passwordsEqual(adBarcode, adPass)) {
+            if(personDatabase.entryExists(barcode)) {
+                String[] pass = new String[0];
+                try {
+                    pass = getSecurePassword(PW, getSalt());
+                } catch (NoSuchAlgorithmException e) {
+                    e.printStackTrace();
+                    return -1;
+                }
+                personDatabase.setPassword(barcode, pass[0], pass[1]);
+//              LoggingDatabase.appendPasswordLog(String barcode, String adBarcode);
+                return 0;
             }
-            personDatabase.setPassword(barcode, pass[0], pass[1]);
-//            LoggingDatabase.appendPasswordLog(String barcode, String adBarcode);
-            return true;
+            return 1;
         }
-        return false;
+        return 2;
     }
     public final boolean isUserAdmin(String barcode) {
         return personDatabase.isAdmin(barcode) > 1;
-    }
-    public final boolean loginCorrect(String barcode, String pass) {
-        String[] test = getSecurePassword(pass, personDatabase.getPassword(barcode)[1]);
-        return test[0].equals(personDatabase.getPassword(barcode));
     }
     final boolean isLong(String s) {
         if (s == null) return false;
