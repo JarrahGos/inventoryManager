@@ -26,7 +26,7 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
-class ItemDatabase {
+class ItemDatabase implements Database {
     /**
      * Stores the path of the database as a string, based on the OS being run.
      */
@@ -93,7 +93,7 @@ class ItemDatabase {
      * Postconditions: the chosen product will no longer exist.
      * @param barcode The barcode of the item you wish to delete
      */
-    public void delItem(String barcode) {
+    public void deleteEntry(String barcode) {
         if (!this.isControlled(barcode)) {
             db.deleteEntry(SQLInterface.TABGENERAL, barcode);
         }
@@ -105,218 +105,33 @@ class ItemDatabase {
      * @param barcode The barcode of the person you wish to check for
      * @return A boolean value of whether the product exists or not
      */
-    final boolean itemExists(String barcode) {
+    public final boolean entryExists(String barcode) {
         return db.entryExists(SQLInterface.TABITEM, barcode);
         // if you are running this, no product was found and therefore it is logical to conclude none exist.
         // similar to Kiri-Kin-Tha's first law of metaphysics.
     }
 
-//    /**
-//     * Write out the given product to the database
-//     * @param productOut The person you wish to write out
-//     * @return An integer, 0 meaning correct completion, 1 meaning an exception. Exception will be printed.
-//     */
-//	final int writeOutDatabaseProduct(Product productOut) {
-//        if(productOut.productPrice() == 0) return 1;
-//            try {
-//                File check = new File(databaseLocation + productOut.getName());
-//                if(check.exists()) check.delete();
-//                check = new File(databaseLocation + productOut.getBarCode());
-//                if(check.exists()) check.delete();
-//                check = null;
-//                FileOutputStream personOut = new FileOutputStream(databaseLocation + productOut.getName());
-//                ObjectOutputStream out = new ObjectOutputStream(personOut);
-//                out.writeObject(productOut);
-//                out.close();
-//                personOut.close();
-//                FileOutputStream personOut1 = new FileOutputStream(databaseLocation + productOut.getBarCode());
-//                ObjectOutputStream out1 = new ObjectOutputStream(personOut1);
-//                out1.writeObject(productOut);
-//                out1.close();
-//                personOut.close();
-//            }
-//            catch (Exception e) {
-//                Log.print(e);
-//                return 1;
-//            }
-//            return 0;
-//        }
+    @Override
+    public void writeDatabaseCSV(String path) {
 
-//    /**
-//     * Write out the given products array to the database
-//     * @param productsOut The person you wish to write out
-//     */
-//	public final void writeOutDatabase(Product[] productsOut) {
-//		for (Product productOut : productsOut) {
-//            if(productOut.productPrice() == 0) continue;
-//			try {
-//                File check = new File(databaseLocation + productOut.getName());
-//                if(check.exists()) check.delete();
-//                check = new File(databaseLocation + productOut.getBarCode());
-//                if(check.exists()) check.delete();
-//                check = null;
-//                FileOutputStream personOut = new FileOutputStream(databaseLocation + productOut.getName());
-//                ObjectOutputStream out = new ObjectOutputStream(new BufferedOutputStream(personOut));
-//                out.writeObject(productOut);
-//                out.close();
-//                personOut.close();
-//                FileOutputStream personOut1 = new FileOutputStream(databaseLocation + productOut.getBarCode()); // do it all a second time for the barcode.
-//                // it may be quicker to do this with the java.properties setup that I have made. The code for that will sit unused in settings.java.
-//                ObjectOutputStream out1 = new ObjectOutputStream(personOut1);
-//                out1.writeObject(productOut);
-//                out1.close();
-//                personOut.close();
-//			} catch (Exception e) {
-//				Log.print(e);
-//			}
-//		}
-//	}
+    }
+
+
 
     /**
      * Write out a CSV version of the database for future import.
      * @param path The path to the directory you wish to output to
      * @return An integer of 1 if the file was not found and 0 if it worked.
      */
-    public void adminWriteOutDatabase(String type, String path) {
+    public void writeDatabaseCSV(String type, String path) {
         db.export(type, path);
     }
-
-
-//    /**
-//     * Reads one product from the database.
-//     * @param barcode The barcode of the product you wish to read
-//     * @return The person in the database which correlates with the barcode, or null if the person is not found
-//     */
-//	final Product readDatabaseProduct(long barcode){
-//            Product importing = null;
-//            try {
-//                FileInputStream productIn = new FileInputStream(databaseLocation + String.valueOf(barcode));
-//                ObjectInputStream in = new ObjectInputStream(new BufferedInputStream(productIn));
-//                importing = (Product)in.readObject();
-//                in.close();
-//                productIn.close();
-//            }
-//            catch (IOException e) {
-//                Log.print(e);
-//                return null;
-//            } catch (ClassNotFoundException e) {
-//				Log.print(e);
-//			}
-//			 return importing;
-//        }
-
-//    /**
-//     * Reads one product from the database.
-//     * @param name The name of the product you wish to read
-//     * @return The person in the database which correlates with the barcode, or null if the person is not found
-//     */
-//    public final Product readDatabaseProduct(String name){
-//            Product importing = null;
-//            try {
-//                FileInputStream productIn = new FileInputStream(databaseLocation + name);
-//                ObjectInputStream in = new ObjectInputStream(new BufferedInputStream(productIn));
-//                importing = (Product)in.readObject();
-//                in.close();
-//                productIn.close();
-//            }
-//            catch (IOException e) {
-//                Log.print(e);
-//                return null;
-//            } catch (ClassNotFoundException e) {
-//				Log.print(e);
-//			}
-//			 return importing;
-//        }
-//    /**
-//     * Create an array of products from the provided string of paths
-//     * @param databaseList A File array of files which are to be put into the array
-//     * @return An array of all products found from the given file array
-//     */
-//	final Product[] readDatabase(File[] databaseList){
-//		Product[] importing = new Product[databaseList.length];
-//        int i = 0;
-//		for(File product : databaseList) {
-//            Product inProd = null;
-//            try {
-//                FileInputStream productIn = new FileInputStream(product);
-//                ObjectInputStream in = new ObjectInputStream(new BufferedInputStream(productIn));
-//                inProd = (Product) in.readObject();
-//                in.close();
-//                productIn.close();
-//            } catch (IOException e) {
-//                Log.print(e);
-//                return null;
-//            } catch (ClassNotFoundException e) {
-//                Log.print(e);
-//            }
-//            boolean alreadyExists = false;
-//            if(inProd != null) {
-//                for (Product prod : importing) {
-//                    if (prod != null && inProd.getBarCode() == prod.getBarCode()) {
-//                        alreadyExists = true;
-//                        break;
-//                    }
-//                }
-//            }
-//            else alreadyExists = true;
-//            if (!alreadyExists) {
-//                importing[i] = inProd;
-//                i++;
-//            }
-//		}
-//		return importing;
-//	}
-//    /**
-//     * Create an array of products from the provided string of paths
-//     * @param databaseList A string array of paths to files which are to be put into the array
-//     * @return An array of all Products found from the given string
-//     */
-//    final Product[] readDatabase(String[] databaseList){
-//        Product[] importing = new Product[databaseList.length];
-//        int i = 0;
-//
-//		for(String product : databaseList) {
-//            Product inProd = null;
-//
-//			try {
-//                FileInputStream productIn = new FileInputStream(product);
-//                ObjectInputStream in = new ObjectInputStream(new BufferedInputStream(productIn));
-//                inProd = (Product) in.readObject();
-//                in.close();
-//                productIn.close();
-//
-//			} catch (IOException e) {
-//                Log.print(e);
-//                return null;
-//
-//			} catch (ClassNotFoundException e) {
-//                Log.print(e);
-//
-//			}
-//            boolean alreadyExists = false;
-//            if(inProd != null) {
-//                for (Product prod : importing) {
-//                    if (prod != null && inProd.getBarCode() == prod.getBarCode()) {
-//                        alreadyExists = true;
-//                        break;
-//                    }
-//                }
-//            }
-//            else alreadyExists = true;
-//            if (!alreadyExists) {
-//                importing[i] = inProd;
-//                i++;
-//            }
-//        }
-//        return importing;
-//    }
-
 
     /**
      * A list of the names of all products in the database
      * @return A String array of the names of all products in the database.
      */
-    public ArrayList<String> getItemNames(String type) {
+    public ArrayList<String> getNamesOfEntries(String type) {
         return db.getName(type);
     }
 
@@ -325,7 +140,7 @@ class ItemDatabase {
      * @param ID The ID of the item to get the name of.
      * @return The name of the item.
      */
-    public String getItemName(String ID) {
+    public String getEntryName(String ID) {
         return db.getName(SQLInterface.TABITEM, ID);
     }
 
@@ -385,7 +200,7 @@ class ItemDatabase {
      * @param ID The ID of the item to delete.
      * @param controlled Whether the item is stored in the controlled database or in the general dataase.
      */
-    public void delItem(String ID, boolean controlled) {
+    public void deleteEntry(String ID, boolean controlled) {
         if (controlled) {
             db.deleteEntry(SQLInterface.TABCONTROLLED, ID);
             db.deleteEntry(SQLInterface.TABITEM, ID);
@@ -430,7 +245,7 @@ class ItemDatabase {
      * A list of the names of all products in the database
      * @return A String array of the names of all products in the database.
      */
-    public final ArrayList<String> getItemNames() {
+    public final ArrayList<String> getNamesOfEntries() {
         return db.getName(SQLInterface.TABGENERAL);
     }
 }

@@ -75,7 +75,7 @@ final class CheckOut {
         if (!alreadyExists) {
             items.add(ID);
             names.add(name);
-            names.add(itemDB.getItemName(ID));
+            names.add(itemDB.getEntryName(ID));
             quantities.add(quantity);
             ++logicalSize;
         } else {

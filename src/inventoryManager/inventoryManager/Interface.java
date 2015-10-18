@@ -61,10 +61,6 @@ import java.util.List;
 
 public final class Interface extends Application {
     /**
-     * The class which the user logs into and which handles all interaction with the program.
-     */
-    private final WorkingUser workingUser; // Place for all data to go through
-    /**
      * the number of horizontal pixels, defaulted to 1024 but set by the settings class
      */
     private static int horizontalSize = 1024;
@@ -72,6 +68,10 @@ public final class Interface extends Application {
      * the number of vertical pixels, defaulted to 576 but set by the settings class
      */
     private static int verticalSize = 576;
+    /**
+     * The class which the user logs into and which handles all interaction with the program.
+     */
+    private final WorkingUser workingUser; // Place for all data to go through
     /**
      * The text size of the program, set by the settings class
      */
@@ -93,6 +93,111 @@ public final class Interface extends Application {
         textSize = Integer.parseInt(settings[2]);
         //initalize the variables created above
 
+    }
+
+    /**
+     * Flash the given node a given colour for a given time
+     *
+     * @param node     The node to be flashed
+     * @param duration the duration in ms for the node to be flashed
+     * @param colour   The colour (from Color) that you wish to flash.
+     */
+    private static void flashColour(Node node, int duration, Color colour) {
+
+        InnerShadow shadow = new InnerShadow();
+        shadow.setRadius(25d);
+        shadow.setColor(colour);
+        node.setEffect(shadow);
+
+        Timeline time = new Timeline();
+
+        time.setCycleCount(1);
+
+        List<KeyFrame> frames = new ArrayList<>();
+        frames.add(new KeyFrame(Duration.ZERO, new KeyValue(shadow.radiusProperty(), 25)));
+        frames.add(new KeyFrame(new Duration(duration), new KeyValue(shadow.radiusProperty(), 0)));
+        time.getKeyFrames().addAll(frames);
+
+        time.playFromStart();
+    }
+
+    private static void flashColour(Node[] node, int duration, Color colour) {
+
+        InnerShadow shadow = new InnerShadow();
+        shadow.setRadius(25d);
+        shadow.setColor(colour);
+        for (Node n : node) {
+            n.setEffect(shadow);
+        }
+
+        Timeline time = new Timeline();
+
+        time.setCycleCount(1);
+
+        List<KeyFrame> frames = new ArrayList<>();
+        frames.add(new KeyFrame(Duration.ZERO, new KeyValue(shadow.radiusProperty(), 25)));
+        frames.add(new KeyFrame(new Duration(duration), new KeyValue(shadow.radiusProperty(), 0)));
+        time.getKeyFrames().addAll(frames);
+
+        time.playFromStart();
+    }
+
+    /**
+     * Bind the scrollbars of two listviews
+     *
+     * @param lv1 The first listview to bind
+     * @param lv2 The second Listview to bind
+     */
+    public static void bind(ListView lv1, ListView lv2) { //TODO: this does not work.
+        ScrollBar bar1 = null;
+        ScrollBar bar2 = null;
+
+        for (Node node : lv1.lookupAll(".scroll-bar")) {
+            if (node instanceof ScrollBar && ((ScrollBar) node).getOrientation().equals(Orientation.VERTICAL)) {
+                bar1 = (ScrollBar) node;
+            }
+        }
+        for (Node node : lv2.lookupAll(".scroll-bar")) {
+            if (node instanceof ScrollBar && ((ScrollBar) node).getOrientation().equals(Orientation.VERTICAL)) {
+                bar2 = (ScrollBar) node;
+            }
+        }
+        if (bar1 == null || bar2 == null) return;
+
+        final ScrollBar fbar1 = bar1;
+        final ScrollBar fbar2 = bar2;
+        if (fbar1 != null) {
+            fbar1.valueProperty().addListener((observable, oldValue, newValue) -> {
+                fbar2.setValue(newValue.doubleValue());
+            });
+        }
+        if (fbar2 != null) {
+            fbar2.valueProperty().addListener((observable, oldValue, newValue) -> {
+                fbar1.setValue(newValue.doubleValue());
+            });
+        }
+    }
+
+    /**
+     * The main method of the program
+     *
+     * @param args No arguments needed, -w int for width, -h int for height, both in pixels.
+     */
+    public static void main(String[] args) {
+//		try {
+//			Interface i = new Interface();
+//		}
+//		catch (IOException e) {
+//			Log.print(e);
+//		}
+        for (int i = args.length - 1; i > 0; i--) {
+            if (args[i].equals("-w") && i != args.length - 1) {
+                horizontalSize = Integer.parseInt(args[i + 1]);
+            } else if (args[i].equals("-h") && i != args.length - 1) {
+                verticalSize = Integer.parseInt(args[i + 1]);
+            }
+        }
+        Application.launch(args);
     }
 
     /**
@@ -251,7 +356,7 @@ public final class Interface extends Application {
             }
         });
         pass.setOnKeyPressed((KeyEvent ke) -> {
-            if (ke.getCode().equals(KeyCode.ENTER)) { //TODO: this is duplicate code, make a method call. 
+            if (ke.getCode().equals(KeyCode.ENTER)) { //TODO: this is duplicate code, make a method call.
                 if (pass.getText() == null || pass.getText().isEmpty()) {
                     pass.requestFocus();
                     flashColour(pass, 1500, Color.RED);
@@ -413,7 +518,6 @@ public final class Interface extends Application {
         return workingUser.addToCart(input);
     }
 
-
     /**
      * Will open the admin panel of the program.
      *
@@ -479,10 +583,9 @@ public final class Interface extends Application {
         });
 
         ToolBar buttonBar;
-        if(privelage == PersonDatabase.ROOT) {
+        if (privelage == PersonDatabase.ROOT) {
             buttonBar = new ToolBar(people, products, logs, admin, root, logout);
-        }
-        else {
+        } else {
             buttonBar = new ToolBar(people, products, logs, admin, logout);
         }
         rightPane.getChildren().addAll(buttonBar, grid);
@@ -491,9 +594,7 @@ public final class Interface extends Application {
         optionList.getSelectionModel().selectedItemProperty().addListener(
                 (ObservableValue<? extends String> ov, String old_val, String selectedOption) -> {
                     if (selectedOption == null) {
-                    }
-
-                    else if (selectedOption.equals("Save Person Database")) {
+                    } else if (selectedOption.equals("Save Person Database")) {
                         DirectoryChooser fc = new DirectoryChooser();
 
 
@@ -540,10 +641,7 @@ public final class Interface extends Application {
                             }
                         });
 
-                    }
-
-
-                    else if (selectedOption.equals("Return Items")) {
+                    } else if (selectedOption.equals("Return Items")) {
                         grid.getChildren().clear();
 
                         Text barcodeLabel = new Text("Enter Barcode");
@@ -629,7 +727,7 @@ public final class Interface extends Application {
                         Button remove = new Button("Remove");
                         ListView<String> productList = new ListView<>();
                         ObservableList<String> product = FXCollections.observableArrayList();
-                        product.setAll(workingUser.getProductNames("General"));
+                        product.setAll(workingUser.getProductNames(SQLInterface.TABGENERAL));
                         productList.setItems(product);
                         grid.add(productList, 0, 1);
                         product.setAll(workingUser.getProductNames(SQLInterface.TABGENERAL));
@@ -648,14 +746,13 @@ public final class Interface extends Application {
                         });
                         grid.add(remove, 1, 0);
                         product.setAll(workingUser.getProductNames("Item"));
-                    }
-                    else if( selectedOption.equals("Change a Product")) { //TODO
+                    } else if (selectedOption.equals("Change a Product")) { //TODO
                         grid.getChildren().clear();
                         ListView<String> productList = new ListView<>();
                         ObservableList<String> product = FXCollections.observableArrayList();
                         product.setAll(workingUser.getProductNames(SQLInterface.TABGENERAL));
                         productList.setItems(product);
-                        grid.add(productList,0,0, 1, 4);
+                        grid.add(productList, 0, 0, 1, 4);
                         Text nameLabel = new Text("Name:");
                         grid.add(nameLabel, 1, 0);
                         TextField nameEntry = new TextField();
@@ -700,8 +797,7 @@ public final class Interface extends Application {
                         });
 
 
-                    }
-                    else if (selectedOption.equals("Enter Stock Counts")) {
+                    } else if (selectedOption.equals("Enter Stock Counts")) {
                         grid.getChildren().clear();
                         ListView<String> productList = new ListView<>();
                         ObservableList<String> product = FXCollections.observableArrayList();
@@ -781,9 +877,7 @@ public final class Interface extends Application {
                             }
                         });
 
-                    }
-
-                    else if (selectedOption.equals("Change Password")) {
+                    } else if (selectedOption.equals("Change Password")) {
                         grid.getChildren().clear();
 
                         Text current = new Text("Enter your current password: ");
@@ -798,7 +892,6 @@ public final class Interface extends Application {
                         grid.add(firstInput, 1, 2);
                         grid.add(second, 0, 3);
                         grid.add(secondInput, 1, 3);
-
 
 
                         firstInput.setOnKeyPressed((KeyEvent ke) -> {
@@ -899,53 +992,6 @@ public final class Interface extends Application {
         adminStage.show();
         adminStage.toFront();
 
-    }
-
-    /**
-     * Flash the given node a given colour for a given time
-     *
-     * @param node     The node to be flashed
-     * @param duration the duration in ms for the node to be flashed
-     * @param colour   The colour (from Color) that you wish to flash.
-     */
-    private static void flashColour(Node node, int duration, Color colour) {
-
-        InnerShadow shadow = new InnerShadow();
-        shadow.setRadius(25d);
-        shadow.setColor(colour);
-        node.setEffect(shadow);
-
-        Timeline time = new Timeline();
-
-        time.setCycleCount(1);
-
-        List<KeyFrame> frames = new ArrayList<>();
-        frames.add(new KeyFrame(Duration.ZERO, new KeyValue(shadow.radiusProperty(), 25)));
-        frames.add(new KeyFrame(new Duration(duration), new KeyValue(shadow.radiusProperty(), 0)));
-        time.getKeyFrames().addAll(frames);
-
-        time.playFromStart();
-    }
-
-    private static void flashColour(Node[] node, int duration, Color colour) {
-
-        InnerShadow shadow = new InnerShadow();
-        shadow.setRadius(25d);
-        shadow.setColor(colour);
-        for (Node n : node) {
-            n.setEffect(shadow);
-        }
-
-        Timeline time = new Timeline();
-
-        time.setCycleCount(1);
-
-        List<KeyFrame> frames = new ArrayList<>();
-        frames.add(new KeyFrame(Duration.ZERO, new KeyValue(shadow.radiusProperty(), 25)));
-        frames.add(new KeyFrame(new Duration(duration), new KeyValue(shadow.radiusProperty(), 0)));
-        time.getKeyFrames().addAll(frames);
-
-        time.playFromStart();
     }
 
     public void addUser(String userID) {
@@ -1109,64 +1155,5 @@ public final class Interface extends Application {
         PassStage.setScene(PassScene);
         PassStage.show();
         PassStage.toFront();
-    }
-
-    /**
-     * Bind the scrollbars of two listviews
-     *
-     * @param lv1 The first listview to bind
-     * @param lv2 The second Listview to bind
-     */
-    public static void bind(ListView lv1, ListView lv2) { //TODO: this does not work.
-        ScrollBar bar1 = null;
-        ScrollBar bar2 = null;
-
-        for (Node node : lv1.lookupAll(".scroll-bar")) {
-            if (node instanceof ScrollBar && ((ScrollBar) node).getOrientation().equals(Orientation.VERTICAL)) {
-                bar1 = (ScrollBar) node;
-            }
-        }
-        for (Node node : lv2.lookupAll(".scroll-bar")) {
-            if (node instanceof ScrollBar && ((ScrollBar) node).getOrientation().equals(Orientation.VERTICAL)) {
-                bar2 = (ScrollBar) node;
-            }
-        }
-        if (bar1 == null || bar2 == null) return;
-
-        final ScrollBar fbar1 = bar1;
-        final ScrollBar fbar2 = bar2;
-        if (fbar1 != null) {
-            fbar1.valueProperty().addListener((observable, oldValue, newValue) -> {
-                fbar2.setValue(newValue.doubleValue());
-            });
-        }
-        if (fbar2 != null) {
-            fbar2.valueProperty().addListener((observable, oldValue, newValue) -> {
-                fbar1.setValue(newValue.doubleValue());
-            });
-        }
-    }
-
-
-    /**
-     * The main method of the program
-     *
-     * @param args No arguments needed, -w int for width, -h int for height, both in pixels.
-     */
-    public static void main(String[] args) {
-//		try {
-//			Interface i = new Interface();
-//		}
-//		catch (IOException e) {
-//			Log.print(e);
-//		}
-        for (int i = args.length - 1; i > 0; i--) {
-            if (args[i].equals("-w") && i != args.length - 1) {
-                horizontalSize = Integer.parseInt(args[i + 1]);
-            } else if (args[i].equals("-h") && i != args.length - 1) {
-                verticalSize = Integer.parseInt(args[i + 1]);
-            }
-        }
-        Application.launch(args);
     }
 }

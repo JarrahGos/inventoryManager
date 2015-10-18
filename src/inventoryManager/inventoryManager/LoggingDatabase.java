@@ -6,7 +6,7 @@ import java.util.ArrayList;
  * Created by jarrah on 4/09/15.
  */
 
-public class LoggingDatabase {
+public class LoggingDatabase implements Database {
     /**
      * Stores the path of the database as a string, based on the OS being run.
      */
@@ -23,5 +23,35 @@ public class LoggingDatabase {
         for(String item : items) {
             db.returnItem(item, persID);
         }
+    }
+
+    @Override
+    public ArrayList<String> getDatabase() {
+        return null;
+    }
+
+    @Override
+    public void deleteEntry(String barcode) {
+
+    }
+
+    @Override
+    public String getEntryName(String barcode) {
+        return null;
+    }
+
+    @Override
+    public ArrayList<String> getNamesOfEntries() {
+        return null;
+    }
+
+    @Override
+    public boolean entryExists(String barcode) {
+        return false;
+    }
+
+    @Override
+    public void writeDatabaseCSV(String path) {
+
     }
 }

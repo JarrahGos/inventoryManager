@@ -38,6 +38,11 @@ import java.util.LinkedList;
 class WorkingUser {
 
     /**
+     * The currently logged in user
+     */
+    private static String userID;
+    private static String userName;
+    /**
      * The database which stores all products used by the system.
      */
     private final ItemDatabase itemDatabase;
@@ -53,11 +58,6 @@ class WorkingUser {
      * The database used for logging changes and transactions
      */
     private LoggingDatabase loggingDatabase;
-    /**
-     * The currently logged in user
-     */
-    private static String userID;
-    private static String userName;
 
     /**
      * Create the working user instance with both databases and a checkout.
@@ -70,77 +70,6 @@ class WorkingUser {
         userID = null;
         userName = null;
     }
-
-    /**
-     * Take the given PMKeyS and find the user which correlates with it. Then authenticate the user with the given password.
-     *
-     * @param ID   The ID that you wish to search for as a string
-     * @param pass The password of the ID.
-     * @return 0 if the user found, 1 if the user dose not exist, 2 if the user cannot buy.
-     */
-    public final int getbarcode(String ID, String pass) {
-        //if ((input != null && !input.equals("")) && (!input.matches("[0-9]+"))) {
-        //    input = input.substring(1);
-        //}
-        if (ID == null || ID.equals("") || !personDatabase.entryExists(ID)) { // checks for valid numbers in the PMKeyS
-            userName = null;
-            userID = null;
-            return 1;
-        } else {
-            if (passwordsEqual(ID, pass)) {
-                userName = personDatabase.getEntryName(ID);
-                userID = ID;
-            } else {
-                return 1;
-            }
-        }
-        return 0;
-    }
-
-    /**
-     * Get a list of the names of all users in the database
-     *
-     * @return A string array of the usernames
-     */
-    public final ArrayList<String> getUserNames() {
-        return personDatabase.getNamesOfEntries();
-    }
-
-
-    /**
-     * Get a list of the names of all products in the database
-     *
-     * @return A string array of the product names
-     */
-    public final ArrayList<String> getProductNames(String type) {
-        if (type.equals("general")) {
-            return itemDatabase.getItemNames();
-        } else if (type.equals("controlled")) {
-            return itemDatabase.getItemNames();
-        }
-        return itemDatabase.getItemNames();
-    }
-
-    /**
-     * Take a cleartext password and hash it ready for either checking or storage
-     * @param password The clear text password
-     * @return The hash of the given password.
-     */
-//    public final String getSecurePassword(String passwordToHash) {
-//        String generatedPassword = null;
-//        try {
-//            MessageDigest md = MessageDigest.getInstance("SHA-1");
-//            byte[] bytes = md.digest(passwordToHash.getBytes());
-//            StringBuilder sb = new StringBuilder();
-//            for (byte aByte : bytes) {
-//                sb.append(Integer.toString((aByte & 0xff) + 0x100, 16).substring(1));
-//            }
-//            generatedPassword = sb.toString();
-//        } catch (NoSuchAlgorithmException e) {
-//            inventoryManager.Log.print(e);
-//        }
-//        return generatedPassword;
-//    }
 
     /**
      * Get a hashed password ready for storage
@@ -224,6 +153,85 @@ class WorkingUser {
         byte[] salt = new byte[16];
         sr.nextBytes(salt);
         return salt.toString();
+    }
+
+    /**
+     * Take a cleartext password and hash it ready for either checking or storage
+     * @param password The clear text password
+     * @return The hash of the given password.
+     */
+//    public final String getSecurePassword(String passwordToHash) {
+//        String generatedPassword = null;
+//        try {
+//            MessageDigest md = MessageDigest.getInstance("SHA-1");
+//            byte[] bytes = md.digest(passwordToHash.getBytes());
+//            StringBuilder sb = new StringBuilder();
+//            for (byte aByte : bytes) {
+//                sb.append(Integer.toString((aByte & 0xff) + 0x100, 16).substring(1));
+//            }
+//            generatedPassword = sb.toString();
+//        } catch (NoSuchAlgorithmException e) {
+//            inventoryManager.Log.print(e);
+//        }
+//        return generatedPassword;
+//    }
+
+    /**
+     * Get the ID of the member currently logged in
+     *
+     * @return The ID of the currently logged in member.
+     */
+    public static String getLogedInBarcode() {
+        return userID;
+    }
+
+    /**
+     * Take the given PMKeyS and find the user which correlates with it. Then authenticate the user with the given password.
+     *
+     * @param ID   The ID that you wish to search for as a string
+     * @param pass The password of the ID.
+     * @return 0 if the user found, 1 if the user dose not exist, 2 if the user cannot buy.
+     */
+    public final int getbarcode(String ID, String pass) {
+        //if ((input != null && !input.equals("")) && (!input.matches("[0-9]+"))) {
+        //    input = input.substring(1);
+        //}
+        if (ID == null || ID.equals("") || !personDatabase.entryExists(ID)) { // checks for valid numbers in the PMKeyS
+            userName = null;
+            userID = null;
+            return 1;
+        } else {
+            if (passwordsEqual(ID, pass)) {
+                userName = personDatabase.getEntryName(ID);
+                userID = ID;
+            } else {
+                return 1;
+            }
+        }
+        return 0;
+    }
+
+    /**
+     * Get a list of the names of all users in the database
+     *
+     * @return A string array of the usernames
+     */
+    public final ArrayList<String> getUserNames() {
+        return personDatabase.getNamesOfEntries();
+    }
+
+    /**
+     * Get a list of the names of all products in the database
+     *
+     * @return A string array of the product names
+     */
+    public final ArrayList<String> getProductNames(String type) { //TODO: DAFAQ is this. Fix.
+        if (type.equals("general")) {
+            return itemDatabase.getNamesOfEntries();
+        } else if (type.equals("controlled")) {
+            return itemDatabase.getNamesOfEntries();
+        }
+        return itemDatabase.getNamesOfEntries();
     }
 
     /**
@@ -341,7 +349,6 @@ class WorkingUser {
         return checkOuts.getCheckOutNames();
     }
 
-
     /**
      * Takes the error value given by getPMKeyS and uses it to give the username or an error message
      *
@@ -379,7 +386,7 @@ class WorkingUser {
         } else if ((input == null) || ("".equals(input))) {
             return false;
         }
-        String adding = itemDatabase.getItemName(tempBarCode);
+        String adding = itemDatabase.getEntryName(tempBarCode);
         if (adding != null) {
             System.out.println(tempBarCode + "\n" + adding);
             checkOuts.addProduct(tempBarCode, adding); //otherwise, add the product as normal.
@@ -401,7 +408,6 @@ class WorkingUser {
         if (userID == null || userName == null) return 0;
         return personDatabase.getRole(userID);
     }
-
 
     /**
      * Add a person to the database, given their name and PMKeyS
@@ -441,7 +447,6 @@ class WorkingUser {
         itemDatabase.changeItem(oldName, barcode, oldBarcode);
     }
 
-
     /**
      * Alter a product in the database
      *
@@ -466,13 +471,13 @@ class WorkingUser {
                 personDatabase.writeDatabaseCSV("adminPersonDatabase.csv");
                 break;
             case ("Item"): //TODO: change all instances of this in interface from product to item.
-                itemDatabase.adminWriteOutDatabase(type, "adminItemDatabase.csv");
+                itemDatabase.writeDatabaseCSV(type, "adminItemDatabase.csv");
                 break;
             case ("general"):
-                itemDatabase.adminWriteOutDatabase(type, "adminGeneralDatabase.csv");
+                itemDatabase.writeDatabaseCSV(type, "adminGeneralDatabase.csv");
                 break;
             case ("controlled"):
-                itemDatabase.adminWriteOutDatabase(type, "adminControlledDatabase.csv");
+                itemDatabase.writeDatabaseCSV(type, "adminControlledDatabase.csv");
                 break;
             default:
                 personDatabase.writeDatabaseCSV("adminItemDatabase.csv");
@@ -491,7 +496,7 @@ class WorkingUser {
                 personDatabase.writeDatabaseCSV(path);
                 break;
             default:
-                itemDatabase.adminWriteOutDatabase(type, path);
+                itemDatabase.writeDatabaseCSV(type, path);
         }
     }
 
@@ -516,7 +521,7 @@ class WorkingUser {
      * @throws InterruptedException
      */
     public final void removeItem(String ID) throws IOException, InterruptedException {
-        itemDatabase.delItem(ID);
+        itemDatabase.deleteEntry(ID);
     }
 
     /**
@@ -528,7 +533,7 @@ class WorkingUser {
      */
     public final void removeItem(String ID, String rootID, String rootPassWd) {
         if (passwordsEqual(rootID, rootPassWd)) {
-            itemDatabase.delItem(ID);
+            itemDatabase.deleteEntry(ID);
         }
     }
 
@@ -540,7 +545,6 @@ class WorkingUser {
     public final void deleteProduct(int barcode) {
         checkOuts.delItem(barcode);
     }
-
 
     /**
      * Get the barcode of a product given it's name
@@ -559,9 +563,8 @@ class WorkingUser {
      * @return The name of the product with the given barcode
      */
     public final String getProductName(String barcode) {
-        return itemDatabase.getItemName(barcode);
+        return itemDatabase.getEntryName(barcode);
     }
-
 
     /**
      * Get the number of a product left in stock
@@ -593,15 +596,6 @@ class WorkingUser {
     }
 
     /**
-     * Get the ID of the member currently logged in
-     *
-     * @return The ID of the currently logged in member.
-     */
-    public static String getLogedInBarcode() {
-        return userID;
-    }
-
-    /**
      * Determine whether a person exists in the database.
      *
      * @param ID The ID of the person to check for.
@@ -616,7 +610,7 @@ class WorkingUser {
     }
 
     public String getItemName(String barcode) {
-        return itemDatabase.getItemName(barcode);
+        return itemDatabase.getEntryName(barcode);
     }
 
     public void signItemsIn(ArrayList<String> items) {
@@ -624,6 +618,6 @@ class WorkingUser {
     }
 
     public boolean itemExists(String barcode) {
-        return itemDatabase.itemExists(barcode);
+        return itemDatabase.entryExists(barcode);
     }
 }
