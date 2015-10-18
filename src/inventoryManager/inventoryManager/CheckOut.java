@@ -26,17 +26,24 @@ import java.util.LinkedList;
 * Description: This program will allow for the creation, retrieval, modification and deletion of checkOuts created from items in the product database.
 */
 
-final class CheckOut
-{
-	// create the necessary variables in the order of use
-    /** A list of all items which are currently in the checkout */
-	private LinkedList<String> items;
-    /** A list of the names of the items in the checkout ready for printing in the interface. */
+final class CheckOut {
+    // create the necessary variables in the order of use
+    /**
+     * A list of all items which are currently in the checkout
+     */
+    private LinkedList<String> items;
+    /**
+     * A list of the names of the items in the checkout ready for printing in the interface.
+     */
     private LinkedList<String> names;
-    /** A list corresponding to items which contains integers, each denoting the number of it's respective product being bought */
-	private LinkedList<Integer> quantities;
-    /** The size of the above two lists */
-	private int logicalSize;
+    /**
+     * A list corresponding to items which contains integers, each denoting the number of it's respective product being bought
+     */
+    private LinkedList<Integer> quantities;
+    /**
+     * The size of the above two lists
+     */
+    private int logicalSize;
 
     private int first; // TODO: this was for easter eggs. Consired removing.
     private ItemDatabase itemDB = new ItemDatabase();
@@ -44,19 +51,18 @@ final class CheckOut
     /**
      * Construct a new checkout with no items
      */
-	public CheckOut()
-	{
-	    items = new LinkedList<>();
+    public CheckOut() {
+        items = new LinkedList<>();
         names = new LinkedList<>();
         quantities = new LinkedList<>();
-	    logicalSize = 0;
+        logicalSize = 0;
         first = 0;
-	}
+    }
 
     /**
      * Add a new product to the checkout
      */
-	public final void addProduct(String ID, String name) {
+    public final void addProduct(String ID, String name) {
         int quantity = 1; // this can be changed when the user can input a number.
         boolean alreadyExists = false;
         int i = 0;
@@ -66,62 +72,61 @@ final class CheckOut
                 break;
             } else i++;
         }
-		if(!alreadyExists) {
-			items.add(ID);
+        if (!alreadyExists) {
+            items.add(ID);
             names.add(name);
             names.add(itemDB.getItemName(ID));
-			quantities.add(quantity);
-			++logicalSize;
-		}
-		else {
+            quantities.add(quantity);
+            ++logicalSize;
+        } else {
             int quantityStored = quantities.get(i) + quantity;
-			quantities.add(i, quantityStored);
-            quantities.remove(i+1);
-		}
-	}
+            quantities.add(i, quantityStored);
+            quantities.remove(i + 1);
+        }
+    }
 
     /**
      * Get the names and quantities of everything in the checkout
+     *
      * @return A String array of all names and quantities
      */
-	public final LinkedList<String> getCheckOutNames()
-	{
-		return names;
-	}
+    public final LinkedList<String> getCheckOutNames() {
+        return names;
+    }
 
 
     /**
      * Delete a product within the checkout.
+     *
      * @param productNo The index of the item within the checkout.
      */
     public final void delItem(int productNo) // array store exception
-	{
-		/**
-		Class CheckOut: Method delProduct
-		Preconditions: productNo has been entered as an integer parameter
-		PostConditions: the product corresponding to productNo will have been deleted
-		*/
-		
-		if(productNo < logicalSize) { // check that the product exists
-            if(quantities.get(productNo) != 1) {
-                quantities.add(productNo, quantities.get(productNo) -1);
+    {
+        /**
+         Class CheckOut: Method delProduct
+         Preconditions: productNo has been entered as an integer parameter
+         PostConditions: the product corresponding to productNo will have been deleted
+         */
+
+        if (productNo < logicalSize) { // check that the product exists
+            if (quantities.get(productNo) != 1) {
+                quantities.add(productNo, quantities.get(productNo) - 1);
                 quantities.remove(productNo + 1);
-            }
-            else {
+            } else {
                 items.remove(productNo);
                 quantities.remove(productNo);
                 logicalSize--;
             }
-		}
-	}
+        }
+    }
 
 
     /**
      * Reduce the stock counts for the purchased items and return the product array to be stored
-     * @return The product array, having been reduced in stock. 
+     *
+     * @return The product array, having been reduced in stock.
      */
-	public final LinkedList<String> productBought()
-    {
-		return items;
-	}
+    public final LinkedList<String> productBought() {
+        return items;
+    }
 }

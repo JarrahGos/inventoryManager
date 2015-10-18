@@ -19,33 +19,31 @@ package inventoryManager;
 */
 
 /**
-* @author Jarrah Gosbell
-*/
+ * @author Jarrah Gosbell
+ */
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
-class ItemDatabase
-{
+class ItemDatabase {
     /**
      * Stores the path of the database as a string, based on the OS being run.
      */
-	private String databaseLocation;
-	private SQLInterface db = new SQLInterface();
+    private String databaseLocation;
+    private SQLInterface db = new SQLInterface();
 
     /**
      * Constructor for ItemDatabase.
      * Will create a Person database with the ability to read and write people to the database location given in the preferences file of Settings
      */
-	public ItemDatabase()
-	{
-		try {
-			databaseLocation = Settings.productSettings();
-		} catch (FileNotFoundException e) {
-			Log.print(e);
-		}
-	}
+    public ItemDatabase() {
+        try {
+            databaseLocation = Settings.productSettings();
+        } catch (FileNotFoundException e) {
+            Log.print(e);
+        }
+    }
 
     /**
      * Set a new product within the database.
@@ -54,51 +52,52 @@ class ItemDatabase
      * @param name The name of the new product
      * @param barcode The barcode of the new product
      */
-	public void addEntry(String barcode, String name) // take the products data and pass it to the products constructor
-	{
-		/**
-		Class ItemDatabase: Method setDatabase
-		Precondition: augments int productNo, String name, String artist, double size, double duration are input
-		Postcondition: Data for the currant working product in this database will be set. 
-		*/
-		db.addEntry(barcode, name);
+    public void addEntry(String barcode, String name) // take the products data and pass it to the products constructor
+    {
+        /**
+         Class ItemDatabase: Method setDatabase
+         Precondition: augments int productNo, String name, String artist, double size, double duration are input
+         Postcondition: Data for the currant working product in this database will be set.
+         */
+        db.addEntry(barcode, name);
 
-	}
+    }
 
     /**
      * Alter an existing product within the database
      * Precondition: augments int productNo, String name, String artist, double size, double duration are input
      * Postcondition: Data for the currant working product in this database will be set.
-	 * @param newID The new barcode of the product
+     * @param newID The new barcode of the product
      * @param ID The old barcode of the product
-	 * @param name The old name of the product
-	 */
+     * @param name The old name of the product
+     */
     public final void changeItem(String name, String newID, String ID) // take the products data and pass it to the products constructor
     {
-		db.updateEntry(ID, name, newID);
+        db.updateEntry(ID, name, newID);
     }
+
     /**
      * Get the entire database as a string
      * Precondition: setDatabase has been run
      * Postcondition: the user will be see an output of the persons in the database.
      * @return A string containing the entire database
      */
-	public final ArrayList<String> getDatabase() {
-		return db.getDatabase(SQLInterface.TABITEM);
-	}
-	
+    public final ArrayList<String> getDatabase() {
+        return db.getDatabase(SQLInterface.TABITEM);
+    }
+
 
     /**
      * Deletes the specified product from the database
      * Preconditions: setDatabase has been run
      * Postconditions: the chosen product will no longer exist.
      * @param barcode The barcode of the item you wish to delete
-	 */
-	public void delItem(String barcode) {
-		if(!this.isControlled(barcode)) {
-			db.deleteEntry(SQLInterface.TABGENERAL, barcode);
-		}
-	}
+     */
+    public void delItem(String barcode) {
+        if (!this.isControlled(barcode)) {
+            db.deleteEntry(SQLInterface.TABGENERAL, barcode);
+        }
+    }
 
 
     /**
@@ -106,12 +105,11 @@ class ItemDatabase
      * @param barcode The barcode of the person you wish to check for
      * @return A boolean value of whether the product exists or not
      */
-	final boolean itemExists(String barcode)
-	{
-		return db.entryExists(SQLInterface.TABITEM, barcode);
-		// if you are running this, no product was found and therefore it is logical to conclude none exist.
-		// similar to Kiri-Kin-Tha's first law of metaphysics.
-	}
+    final boolean itemExists(String barcode) {
+        return db.entryExists(SQLInterface.TABITEM, barcode);
+        // if you are running this, no product was found and therefore it is logical to conclude none exist.
+        // similar to Kiri-Kin-Tha's first law of metaphysics.
+    }
 
 //    /**
 //     * Write out the given product to the database
@@ -173,14 +171,15 @@ class ItemDatabase
 //			}
 //		}
 //	}
+
     /**
      * Write out a CSV version of the database for future import.
      * @param path The path to the directory you wish to output to
      * @return An integer of 1 if the file was not found and 0 if it worked.
      */
-	public void adminWriteOutDatabase(String type, String path)  {
-		db.export(type, path);
-	}
+    public void adminWriteOutDatabase(String type, String path) {
+        db.export(type, path);
+    }
 
 
 //    /**
@@ -313,102 +312,98 @@ class ItemDatabase
 //    }
 
 
-
-
-
     /**
      * A list of the names of all products in the database
      * @return A String array of the names of all products in the database.
      */
-	public ArrayList<String> getItemNames(String type) {
-		return db.getName(type);
-	}
+    public ArrayList<String> getItemNames(String type) {
+        return db.getName(type);
+    }
 
-	/**
-	 * Get the name of an item given it's ID
-	 * @param ID The ID of the item to get the name of.
-	 * @return The name of the item.
-	 */
-	public String getItemName(String ID) {
-		return db.getName(SQLInterface.TABITEM, ID);
-	}
+    /**
+     * Get the name of an item given it's ID
+     * @param ID The ID of the item to get the name of.
+     * @return The name of the item.
+     */
+    public String getItemName(String ID) {
+        return db.getName(SQLInterface.TABITEM, ID);
+    }
 
-	/**
-	 * Log a single item out of the database.
-	 * @param ID The ID of the item to log out.
-	 * @param persID The ID of the person to log the item out to.
-	 */
-	public void logItemOut(String ID, String persID) {
-		db.addLog(ID, persID, this.isControlled(ID));
-	}
+    /**
+     * Log a single item out of the database.
+     * @param ID The ID of the item to log out.
+     * @param persID The ID of the person to log the item out to.
+     */
+    public void logItemOut(String ID, String persID) {
+        db.addLog(ID, persID, this.isControlled(ID));
+    }
 
-	/**
-	 * Log a linked list of items out of the database to a given user.
-	 * @param IDs A linked list of IDs to log out in the database.
-	 * @param persID The ID of the person to log the items to.
-	 */
-	public void logItemsOut(LinkedList<String> IDs, String persID) {
-		for (String ID : IDs) {
-			logItemOut(ID, persID);
-		}
-	}
+    /**
+     * Log a linked list of items out of the database to a given user.
+     * @param IDs A linked list of IDs to log out in the database.
+     * @param persID The ID of the person to log the items to.
+     */
+    public void logItemsOut(LinkedList<String> IDs, String persID) {
+        for (String ID : IDs) {
+            logItemOut(ID, persID);
+        }
+    }
 
-	/**
-	 * Get the barcode of an item given it's name.
-	 * @param name The name of the item to search for.
-	 * @return The ID of the first item in the database with the given name.
-	 */
-	public final String getBarcode(String name) {
-		return db.getID(SQLInterface.TABITEM, name);
-	}
+    /**
+     * Get the barcode of an item given it's name.
+     * @param name The name of the item to search for.
+     * @return The ID of the first item in the database with the given name.
+     */
+    public final String getBarcode(String name) {
+        return db.getID(SQLInterface.TABITEM, name);
+    }
 
-	/**
-	 * Add an entry to the controlled item database
-	 * @param barcode The barcode of the item to add.
-	 * @param name The name of the item to add.
-	 * @param setName The set name of the item to add. May be null.
-	 * @param state The state of the item to add.
-	 * @param tagPos The tag number or position number of the item.
-	 * @param type The type of the item.
-	 */
-	public void addEntry(String barcode, String name, String setName, String state, String tagPos, String type) {
-		db.addEntry(barcode, name, setName, state, tagPos, type);
-	}
+    /**
+     * Add an entry to the controlled item database
+     * @param barcode The barcode of the item to add.
+     * @param name The name of the item to add.
+     * @param setName The set name of the item to add. May be null.
+     * @param state The state of the item to add.
+     * @param tagPos The tag number or position number of the item.
+     * @param type The type of the item.
+     */
+    public void addEntry(String barcode, String name, String setName, String state, String tagPos, String type) {
+        db.addEntry(barcode, name, setName, state, tagPos, type);
+    }
 
-	/**
-	 * Determine whether an item is a controlled item.
-	 * @param ID The ID of the item to check
-	 * @return True if the item is controlled.
-	 */
-	public final boolean isControlled(String ID) {
-		return db.isItemControlled(ID);
-	}
+    /**
+     * Determine whether an item is a controlled item.
+     * @param ID The ID of the item to check
+     * @return True if the item is controlled.
+     */
+    public final boolean isControlled(String ID) {
+        return db.isItemControlled(ID);
+    }
 
-	/**
-	 * Remove an item from the database.
-	 * @param ID The ID of the item to delete.
-	 * @param controlled Whether the item is stored in the controlled database or in the general dataase.
-	 */
-	public void delItem(String ID, boolean controlled) {
-		if(controlled) {
-			db.deleteEntry(SQLInterface.TABCONTROLLED, ID);
-			db.deleteEntry(SQLInterface.TABITEM, ID);
-		}
-		else {
-			db.deleteEntry(SQLInterface.TABGENERAL, ID);
-			db.deleteEntry(SQLInterface.TABITEM, ID);
-		}
-	}
+    /**
+     * Remove an item from the database.
+     * @param ID The ID of the item to delete.
+     * @param controlled Whether the item is stored in the controlled database or in the general dataase.
+     */
+    public void delItem(String ID, boolean controlled) {
+        if (controlled) {
+            db.deleteEntry(SQLInterface.TABCONTROLLED, ID);
+            db.deleteEntry(SQLInterface.TABITEM, ID);
+        } else {
+            db.deleteEntry(SQLInterface.TABGENERAL, ID);
+            db.deleteEntry(SQLInterface.TABITEM, ID);
+        }
+    }
 
 
-	/**
-	 * add an entry to the item database.
-	 * @param barcode The barcode of the item to add. Will be used as the database key.
-	 * @param name The name of the item.
-	 * @param setName the name of the set the item is is. May be null.
-	 * @param description A description of the item.
-	 * @param quantity The quantity of the item that exists.
-	 */
+    /**
+     * add an entry to the item database.
+     * @param barcode The barcode of the item to add. Will be used as the database key.
+     * @param name The name of the item.
+     * @param setName the name of the set the item is is. May be null.
+     * @param description A description of the item.
+     * @param quantity The quantity of the item that exists.
+     */
     public void addEntry(String barcode, String name, String setName, String description, long quantity) {
         db.addEntry(barcode, name, setName, description, quantity);
     }
@@ -418,8 +413,7 @@ class ItemDatabase
      * @param barcode the name of the product you wish to check
      * @return The number as an int of the product left in stock
      */
-    public final int getNumber(String barcode)
-    {
+    public final int getNumber(String barcode) {
         return db.getQuantity(barcode);
     }
 
@@ -428,10 +422,10 @@ class ItemDatabase
      * @param barcode The name of the item you wish to set
      * @param number The number of that item you now have.
      */
-    public final void setNumber(String barcode, int number)
-    {
+    public final void setNumber(String barcode, int number) {
         db.setQuantity(barcode, number);
     }
+
     /**
      * A list of the names of all products in the database
      * @return A String array of the names of all products in the database.

@@ -33,20 +33,29 @@ import java.util.LinkedList;
 */
 
 /**
- *
  * @author jarrah
  */
 class WorkingUser {
 
-    /** The database which stores all products used by the system. */
+    /**
+     * The database which stores all products used by the system.
+     */
     private final ItemDatabase itemDatabase;
-    /** The database which stores all people who can use the system */
+    /**
+     * The database which stores all people who can use the system
+     */
     private final PersonDatabase personDatabase;
-    /** the checkout used to store what a person is purchasing at a given time */
+    /**
+     * the checkout used to store what a person is purchasing at a given time
+     */
     private CheckOut checkOuts;
-    /** The database used for logging changes and transactions */
+    /**
+     * The database used for logging changes and transactions
+     */
     private LoggingDatabase loggingDatabase;
-    /** The currently logged in user */
+    /**
+     * The currently logged in user
+     */
     private static String userID;
     private static String userName;
 
@@ -64,7 +73,8 @@ class WorkingUser {
 
     /**
      * Take the given PMKeyS and find the user which correlates with it. Then authenticate the user with the given password.
-     * @param ID The ID that you wish to search for as a string
+     *
+     * @param ID   The ID that you wish to search for as a string
      * @param pass The password of the ID.
      * @return 0 if the user found, 1 if the user dose not exist, 2 if the user cannot buy.
      */
@@ -77,19 +87,19 @@ class WorkingUser {
             userID = null;
             return 1;
         } else {
-			if(passwordsEqual(ID, pass)) {
-	            userName = personDatabase.getEntryName(ID);
-				userID = ID;
-			}
-			else {
-				return 1;
-			}
+            if (passwordsEqual(ID, pass)) {
+                userName = personDatabase.getEntryName(ID);
+                userID = ID;
+            } else {
+                return 1;
+            }
         }
         return 0;
     }
 
     /**
      * Get a list of the names of all users in the database
+     *
      * @return A string array of the usernames
      */
     public final ArrayList<String> getUserNames() {
@@ -99,13 +109,13 @@ class WorkingUser {
 
     /**
      * Get a list of the names of all products in the database
+     *
      * @return A string array of the product names
      */
     public final ArrayList<String> getProductNames(String type) {
-        if(type.equals("general")) {
+        if (type.equals("general")) {
             return itemDatabase.getItemNames();
-        }
-        else if (type.equals("controlled")) {
+        } else if (type.equals("controlled")) {
             return itemDatabase.getItemNames();
         }
         return itemDatabase.getItemNames();
@@ -134,6 +144,7 @@ class WorkingUser {
 
     /**
      * Get a hashed password ready for storage
+     *
      * @param password The password to be hashed.
      * @return A string array with the hashed passwod in place 0 and the salt used in place 1.
      * @deprecated Does not generate the correct hash when compared to getSecurePassword(String, String)
@@ -169,8 +180,9 @@ class WorkingUser {
 
     /**
      * Get a hashed password ready for storage or comparison.
+     *
      * @param password The password to hash
-     * @param NaCl The salt to use in the hashing process
+     * @param NaCl     The salt to use in the hashing process
      * @return A string array with the password in the 0 position and the salt in the 1 position
      */
     private static String[] getSecurePassword(String password, String NaCl) //throws NoSuchAlgorithmException, InvalidKeySpecException
@@ -203,11 +215,11 @@ class WorkingUser {
 
     /**
      * Create a random salt for use in generating hashes
+     *
      * @return A strting of UTF-8 encoded random bytes
      * @throws NoSuchAlgorithmException
      */
-    private static String getSalt() throws NoSuchAlgorithmException
-    {
+    private static String getSalt() throws NoSuchAlgorithmException {
         SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
         byte[] salt = new byte[16];
         sr.nextBytes(salt);
@@ -216,14 +228,15 @@ class WorkingUser {
 
     /**
      * Test whether a cleartext password is equal to the stored admin password
+     *
      * @param PW A cleartext password to test
      * @return The boolean test for whether the passwords are equal.
      */
     public final boolean passwordsEqual(String barcode, String PW) {
         String[] old = personDatabase.getPassword(barcode);
-        if(old[0] == null || old[1] == null) return false;
+        if (old[0] == null || old[1] == null) return false;
         System.out.println("Hash Old: " + old[0] +
-                        "\nSalt Old: " + old[1]);
+                "\nSalt Old: " + old[1]);
         String[] testing;
         testing = getSecurePassword(PW, old[1]); //get secure password from new password and old salt
         System.out.println("Hash New: " + testing[0]);
@@ -233,11 +246,12 @@ class WorkingUser {
 
     /**
      * Takes the given (prehashed) password and set it as the admin password
+     *
      * @param PW The prehashed password to be set
      */
     public final int setPassword(String barcode, String PW, String adBarcode, String adPass) {
-        if(isUserAdmin(adBarcode) && passwordsEqual(adBarcode, adPass)) {
-            if(personDatabase.entryExists(barcode)) {
+        if (isUserAdmin(adBarcode) && passwordsEqual(adBarcode, adPass)) {
+            if (personDatabase.entryExists(barcode)) {
                 String[] pass = new String[0];
                 try {
                     pass = getSecurePassword(PW, getSalt());
@@ -253,9 +267,11 @@ class WorkingUser {
         }
         return 2;
     }
+
     public final boolean isUserAdmin(String barcode) {
-        return personDatabase.isAdmin(barcode) > 1;
+        return personDatabase.getRole(barcode) > PersonDatabase.USER;
     }
+
     final boolean isLong(String s) {
         if (s == null) return false;
         try {
@@ -268,6 +284,7 @@ class WorkingUser {
 
     /**
      * Create a scroll pane of one of the databases
+     *
      * @param type A string of either SQLInterface.TABITEM or SQLInterface.TABPERSON used to determine which database to print.
      * @return A scroll pane showing the database chosen in the parameter or the person database by default.
      * @throws IOException
@@ -317,6 +334,7 @@ class WorkingUser {
 
     /**
      * Get the names of all products in the checkout
+     *
      * @return A string array of the names of all products in the checkout
      */
     public final LinkedList<String> getCheckOutNames() {
@@ -326,18 +344,20 @@ class WorkingUser {
 
     /**
      * Takes the error value given by getPMKeyS and uses it to give the username or an error message
+     *
      * @param userError 0 if the user was correctly found, 1 if the user was not found and 2 if the user has been locked out.
      * @return The appropriate error message or the users name
      */
     public final String userName(int userError) {
         switch (userError) {
             case 0:
-                if(userName != null) return userName;
+                if (userName != null) return userName;
             case 1:
                 return "User not found";
         }
         return (userID == null && userName != null) ? "Error" : userName;
     }
+
     public final String getUserID() {
         return userID;
     }
@@ -348,6 +368,7 @@ class WorkingUser {
 
     /**
      * Takes the barcode for a product and adds it to the checkout
+     *
      * @param input The barcode for the product as a string
      * @return True if the product was added, false if it failed
      */
@@ -363,8 +384,7 @@ class WorkingUser {
             System.out.println(tempBarCode + "\n" + adding);
             checkOuts.addProduct(tempBarCode, adding); //otherwise, add the product as normal.
             return true;
-        }
-        else if(userID.equals(tempBarCode)) {
+        } else if (userID.equals(tempBarCode)) {
             adding = "Checking yourself out are you? You can't do that.";
             checkOuts.addProduct("-1", adding);
             return true;
@@ -374,18 +394,20 @@ class WorkingUser {
 
     /**
      * Get the permission role of the user which is currently logged in.
+     *
      * @return The role of the user. 0 for user, 2 for admin, 3 for root (full access)
      */
     public final int getRole() {
-        if(userID == null || userName == null) return 0;
+        if (userID == null || userName == null) return 0;
         return personDatabase.getRole(userID);
     }
 
 
     /**
      * Add a person to the database, given their name and PMKeyS
+     *
      * @param name The name of the person you wish to add
-     * @param ID The PMKeyS of the person you wish to add
+     * @param ID   The PMKeyS of the person you wish to add
      */
     public final void addPersonToDatabase(String name, String ID, String password) {
         String[] passwd = new String[0];
@@ -399,7 +421,8 @@ class WorkingUser {
 
     /**
      * Add barcode product to the database given their name, barcode and price
-     * @param name The name of the product you wish to add
+     *
+     * @param name    The name of the product you wish to add
      * @param barcode The barcode for the product you wish to add.
      */
     public final void addItemToDatabase(String barcode, String name) {
@@ -408,9 +431,10 @@ class WorkingUser {
 
     /**
      * Alter a product in the database
-     * @param name The new name of the product
-     * @param oldName The old name of the product
-     * @param barcode The new barcode of the product
+     *
+     * @param name       The new name of the product
+     * @param oldName    The old name of the product
+     * @param barcode    The new barcode of the product
      * @param oldBarcode The old barcode of the product
      */
     public final void changeDatabaseProduct(String name, String oldName, String barcode, String oldBarcode) {
@@ -420,10 +444,11 @@ class WorkingUser {
 
     /**
      * Alter a product in the database
+     *
      * @param selectedIndex
-     * @param name The new name of the person
-     * @param ID The new PMKeyS of the person
-     * @param oldID The old PMKeyS of the person
+     * @param name          The new name of the person
+     * @param ID            The new PMKeyS of the person
+     * @param oldID         The old PMKeyS of the person
      */
     public final void changeDatabasePerson(String selectedIndex, String name, long ID, long oldID) {
 //        personDatabase.changeDatabasePerson(selectedIndex, name, ID, oldID);
@@ -431,6 +456,7 @@ class WorkingUser {
 
     /**
      * Write out the CSV version of the database for the admin.
+     *
      * @param type SQLInterface.TABPERSON for the person database or "Produt" for the product database
      * @throws IOException
      */
@@ -442,12 +468,12 @@ class WorkingUser {
             case ("Item"): //TODO: change all instances of this in interface from product to item.
                 itemDatabase.adminWriteOutDatabase(type, "adminItemDatabase.csv");
                 break;
-			case ("general"):
-				itemDatabase.adminWriteOutDatabase(type, "adminGeneralDatabase.csv");
-				break;
-			case ("controlled"): 
-				itemDatabase.adminWriteOutDatabase(type, "adminControlledDatabase.csv");
-				break;
+            case ("general"):
+                itemDatabase.adminWriteOutDatabase(type, "adminGeneralDatabase.csv");
+                break;
+            case ("controlled"):
+                itemDatabase.adminWriteOutDatabase(type, "adminControlledDatabase.csv");
+                break;
             default:
                 personDatabase.writeDatabaseCSV("adminItemDatabase.csv");
         }
@@ -455,11 +481,11 @@ class WorkingUser {
 
     /**
      * Write the given type of database out to a CSV file at the given location.
+     *
      * @param type The type of database to write. Person or Item (general or controlled)
      * @param path The location which the file will be stored at
      */
-    public final void adminWriteOutDatabase(String type, String path)
-    {
+    public final void adminWriteOutDatabase(String type, String path) {
         switch (type) {
             case (SQLInterface.TABPERSON):
                 personDatabase.writeDatabaseCSV(path);
@@ -471,18 +497,20 @@ class WorkingUser {
 
     /**
      * Delete the specified person
+     *
      * @param ID The PMKeyS or name of the person as a string
      * @throws IOException
      * @throws InterruptedException
      */
     public final void removePerson(String ID, String rootID, String rootPasswd) throws IOException, InterruptedException {
-        if(passwordsEqual(rootID, rootPasswd)) {
+        if (passwordsEqual(rootID, rootPasswd)) {
             personDatabase.deleteEntry(ID);
         }
     }
 
     /**
      * Remove the specified product
+     *
      * @param ID The barcode or name of the product to be removed
      * @throws IOException
      * @throws InterruptedException
@@ -493,28 +521,30 @@ class WorkingUser {
 
     /**
      * Delete an item, requires root user/password
-     * @param ID The ID of the item to delete
-     * @param rootID The ID of the root user attempting to delete the item.
+     *
+     * @param ID         The ID of the item to delete
+     * @param rootID     The ID of the root user attempting to delete the item.
      * @param rootPassWd The password of the root user attempting to delete the item.
      */
     public final void removeItem(String ID, String rootID, String rootPassWd) {
-        if(passwordsEqual(rootID, rootPassWd)) {
+        if (passwordsEqual(rootID, rootPassWd)) {
             itemDatabase.delItem(ID);
         }
     }
 
     /**
      * Delete a product from the checkout given it's barcode in the checkout array
+     *
      * @param barcode The index of the item to delete in the checkout array
      */
-    public final void deleteProduct(int barcode)
-    {
+    public final void deleteProduct(int barcode) {
         checkOuts.delItem(barcode);
     }
 
 
     /**
      * Get the barcode of a product given it's name
+     *
      * @param name The name of the product to get the barcode of
      * @return The barcode of the product with the name specified.
      */
@@ -524,6 +554,7 @@ class WorkingUser {
 
     /**
      * Get the name of a product given it's barcode
+     *
      * @param barcode The barcode of the product as a string
      * @return The name of the product with the given barcode
      */
@@ -534,6 +565,7 @@ class WorkingUser {
 
     /**
      * Get the number of a product left in stock
+     *
      * @param ID The name of the product you wish to check stock count.
      * @return The number of the specified product in stock
      */
@@ -543,7 +575,8 @@ class WorkingUser {
 
     /**
      * set the number of a product in stock
-     * @param ID The name of the product you wish to set the stock count for
+     *
+     * @param ID               The name of the product you wish to set the stock count for
      * @param numberOfProducts The new stock count.
      */
     public final void setNumberOfProducts(String ID, int numberOfProducts) {
@@ -552,6 +585,7 @@ class WorkingUser {
 
     /**
      * Determine whether there is a user logged in
+     *
      * @return The boolean value of whether the user is logged in.
      */
     public final boolean userLoggedIn() {
@@ -560,28 +594,36 @@ class WorkingUser {
 
     /**
      * Get the ID of the member currently logged in
+     *
      * @return The ID of the currently logged in member.
      */
-    public static String getLogedInBarcode()
-    {
+    public static String getLogedInBarcode() {
         return userID;
     }
 
     /**
      * Determine whether a person exists in the database.
+     *
      * @param ID The ID of the person to check for.
      * @return Boolean of does the member exist in the database.
      */
     public boolean PersonExists(String ID) {
         return personDatabase.entryExists(ID);
     }
+
     public LinkedList<String> getInItems() {
         return checkOuts.getCheckOutNames();
     }
+
     public String getItemName(String barcode) {
         return itemDatabase.getItemName(barcode);
     }
+
     public void signItemsIn(ArrayList<String> items) {
         loggingDatabase.signItemsIn(items, userID);
+    }
+
+    public boolean itemExists(String barcode) {
+        return itemDatabase.itemExists(barcode);
     }
 }

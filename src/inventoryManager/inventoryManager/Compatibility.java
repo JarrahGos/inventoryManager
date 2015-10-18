@@ -18,33 +18,35 @@ package inventoryManager;
 */
 
 /**
-  * @author Michael Brock
-  * This class enables compatibility with Windows based operating
-  * systems and will handle all external file access.
+ * @author Michael Brock
+ *         This class enables compatibility with Windows based operating
+ *         systems and will handle all external file access.
  */
 
 class Compatibility {
 
-	/**
-	 * Get whether the host os is windows based
-	 * @return Whether the system is based on Windows
-	 */
-	private static boolean isWindows(){
-		return (System.getProperty("os.name").startsWith("Windows"));
-	}
+    /**
+     * Get whether the host os is windows based
+     *
+     * @return Whether the system is based on Windows
+     */
+    private static boolean isWindows() {
+        return (System.getProperty("os.name").startsWith("Windows"));
+    }
 
-	/**
-	  * Get either the full path (windows) or the relative path
-	  * (other) of a file
-	  * @param file The relative path of the file.
-	  * @return The path, based on the OS being used.
-	  */
-	public static String getFilePath(String file){
-		if(file == null) return "";
-		if(file.startsWith("./") && isWindows()){
-			file = file.replaceFirst("./", "");
-		}
-		return isWindows()? System.getProperty("user.dir") + "\\" + file : file;
-	}
+    /**
+     * Get either the full path (windows) or the relative path
+     * (other) of a file
+     *
+     * @param file The relative path of the file.
+     * @return The path, based on the OS being used.
+     */
+    public static String getFilePath(String file) {
+        if (file == null) return "";
+        if (file.startsWith("./") && isWindows()) {
+            file = file.replaceFirst("./", "");
+        }
+        return isWindows() ? System.getProperty("user.dir") + "\\" + file : file;
+    }
 
 }

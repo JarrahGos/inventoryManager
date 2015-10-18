@@ -46,27 +46,31 @@ public class SQLInterface {
     public static final String TABITEMLOG       = "itemLog";
     public static final String TABPERSON        = "person";
     public static final String TABPERSONLOG     = "personLog";
-    public static final String TABSET           = "set";
+    public static final String TABSET           = "itemSet";
 
     // column names TABCONTROLLED
     private final String COLCONTROLLEDID        = "ID";
     private final String COLCONTROLLEDTAGNO     = "tagno";
     private final String COLCONTROLLEDTYPE      = "type";
+    private final int    TABCONTROLLEDCOUNT     = 3;
 
     // column names TABCONTROLLEDTYPE
     private final String COLCONTROLLEDTYPEID    = "ID";
     private final String COLCONTROLLEDTYPENAME  = "name";
+    private final int    TABCONTROLLEDTYPECOUNT = 2;
 
     // Column names TABGENERAL
     private final String COLGENERALID = "ID";
     private final String COLGENERALDESCRIPTION  = "description";
     private final String COLGENERALQUANTITY     = "quantity";
     private final String COLGENERALLOCATION     = "location";
+    private final int    TABGENERALCOUNT        = 3;
 
     // Column names TABITEM
     private final String COLITEMID              = "ID";
     private final String COLITEMNAME            = "name";
     private final String COLITEMSETID           = "setID";
+    private final int    TABITEMCOUNT           = 3;
 
     // Column names TABITEMLOG
     private final String COLITEMLOGID           = "ID";
@@ -76,6 +80,7 @@ public class SQLInterface {
     private final String COLITEMLOGPERSID       = "persID";
     private final String COLITEMLOGCONTROLLED   = "controlled";
     private final String COLITEMLOGADMINNAME    = "adminName";
+    private final int    TABITEMLOGCOUNT        = 7;
 
     // Column names TABPERSON
     private final String COLPERSONID            = "ID";
@@ -83,15 +88,19 @@ public class SQLInterface {
     private final String COLPERSONADMIN         = "admin";
     private final String COLPERSONPASSOWRD      = "password";
     private final String COLPERSONSALT          = "salt";
+    private final int    TABPERSONCOUNT         = 5;
 
     // Column names TABPERSONLOG
     private final String COLPERSONLOGPERSID     = "persID";
-    private final String COLPERSONLOGDATE       = "date";
+    private final String COLPERSONLOGDATE       = "changeDate";
     private final String COLPERSONLOGAUTHNAME   = "authName";
+    private final int    TABPERSONLOGCOUNT      = 3;
 
     // Column names TABSET
     private final String COLSETID               = "ID";
     private final String COLSETNAME             = "name";
+    private final int    TABSETCOUNT            = 2;
+
 
     public SQLInterface()
     {
@@ -135,7 +144,7 @@ public class SQLInterface {
             case "GeneralItem":
                 statement = "DELETE * FROM " + TABGENERAL + " WHERE " + COLGENERALID + " = ?";
                 break;
-            case "controlledItem": statement = "DELETE * FROM " + TABCONTROLLED + " WHERE " + COLCONTROLLEDID + " = ?"; // TODO: this will delete controlled but not item. Use the key and a delete on cascade.
+            case "controlledItem": statement = "DELETE FROM " + TABCONTROLLED + " WHERE " + COLCONTROLLEDID + " = ?"; // TODO: this will delete controlled but not item. Use the key and a delete on cascade.
         }
         try {
             PreparedStatement ps = db.prepareStatement(statement);
@@ -507,26 +516,31 @@ public class SQLInterface {
     public ArrayList<String> getDatabase(String type) {
         String statement;
         ResultSet rs = null;
+        int count = 0;
         switch (type) {
-            case "person":
+            case TABPERSON:
                 statement = "SELECT * FROM " + TABPERSON + " ";
+                count = TABPERSONCOUNT;
                 break;
-            case "item":
+            case TABITEM:
                 statement = "Select * FROM " + TABITEM + " i" +
                         "INNER JOIN " + TABGENERAL + " g" +
                         " on i.ID = g.ID" +
                         "INNER JOIN " + TABCONTROLLED + " c " +
                         "on i.ID = c.ID";
+                count = TABITEMCOUNT;
                 break;
-            case "controlled":
+            case TABCONTROLLED:
                 statement = "SELECT * FROM " + TABITEM + " i " +
                         "INNER JOIN " + TABCONTROLLED + " c " +
                         "on i.ID = c.ID";
+                count = TABCONTROLLEDCOUNT;
                 break;
-            case "general":
+            case TABGENERAL:
                 statement = "SELECT * FROM " + TABITEM + " i " +
                         "INNER JOIN " + TABGENERAL + " g " +
                         "ON i.ID = g.ID";
+                count = TABGENERALCOUNT;
                 break;
             default:
                 statement = "Select * FROM " + TABITEM + " i" +
@@ -534,6 +548,7 @@ public class SQLInterface {
                         " on i.ID = g.ID" +
                         "INNER JOIN " + TABCONTROLLED + " c " +
                         "on i.ID = c.ID";
+                count = TABITEMCOUNT; //TODO: this needs to be added to general and item. Work out what the joins will return.
                 break;
         }
         try {
@@ -543,10 +558,17 @@ public class SQLInterface {
         catch (SQLException e) {
             Log.print(e);
         }
-        ArrayList<String> ret = null;
+        ArrayList<String> ret = new ArrayList<>();
+        StringBuilder line = new StringBuilder();
         try {
-            for (int i = 0; rs.next(); i++) {
-                ret.add(rs.toString()); // TODO: Test this toString.
+            if(rs != null) {
+                while(rs.next()) {
+                    line = new StringBuilder();
+                    for(int i = 1; i <= count; i++) {
+                        line.append(rs.getString(i));
+                    }
+                    ret.add(line.toString());
+                }
             }
         }
         catch (SQLException e) {
@@ -819,7 +841,7 @@ public class SQLInterface {
         } catch (SQLException e) {
             Log.print(e);
         }
-        return admin; // TODO: replace this logic with returning what is in the database.
+        return admin;
     }
     public boolean entryExists(String type, String ID) {
         String statement;
@@ -952,19 +974,5 @@ public class SQLInterface {
         }
         return false;
     }
-    public int isAdmin(String ID) {
-        String statement = "SELECT " + COLPERSONADMIN + " FROM " + TABPERSON + " WHERE " + COLPERSONID + " = ?";
-        ResultSet rs = null;
-        try {
-            PreparedStatement ps = db.prepareStatement(statement);
-            ps.setString(1, ID);
-            rs = ps.executeQuery();
-            if (rs.next()) {
-                return rs.getInt(1);
-            }
-        } catch (SQLException e) {
-            Log.print(e);
-        }
-        return PersonDatabase.USER;
-    }
+
 }

@@ -42,19 +42,19 @@ import java.util.Properties;
  */
 
 final class Settings {
-	/**
-	 * The properties object which is used to interact with the properties file
-	 */
-	private static final Properties properties = new Properties();
-	/**
-	 * the path to the properties file which contains the settings
-	 */
+    /**
+     * The properties object which is used to interact with the properties file
+     */
+    private static final Properties properties = new Properties();
+    /**
+     * the path to the properties file which contains the settings
+     */
 //	private final String propFileName = Compatibility.getFilePath("inventoryManager.properties");
-	private static final String propFileName = "inventoryManager.properties";
-	/**
-	 * an input stream which is used to access the properties file
-	 */
-	private static FileInputStream inputStream;
+    private static final String propFileName = "inventoryManager.properties";
+    /**
+     * an input stream which is used to access the properties file
+     */
+    private static FileInputStream inputStream;
 
     static {
         try {
@@ -69,135 +69,137 @@ final class Settings {
             (byte) 0xde, (byte) 0xa3, (byte) 0x10, (byte) 0x15,
             (byte) 0xde, (byte) 0xa3, (byte) 0x10, (byte) 0x15,
     };
-	/**
-	 * Create an instance of the settings class from which to read settings from.
-	 */
-	private Settings() {
-		if (inputStream != null) return;
 
-		try {
-			if (inputStream == null) {
-				inputStream = new FileInputStream(String.valueOf(Paths.get(propFileName)));
-			}
-			if (inputStream == null) {
-				throw new FileNotFoundException("property file '" + propFileName + "' not found in the classpath");
-			}
-		} catch (FileNotFoundException e) {
-		//	Log.print(e);
-		}
-	}
+    /**
+     * Create an instance of the settings class from which to read settings from.
+     */
+    private Settings() {
+        if (inputStream != null) return;
 
-	/**
-	 * Get the settings for the person database, specifically the location to store the database
-	 *
-	 * @return The location in which the database is stored. This is checked for compatibility against the running OS
-	 * @throws FileNotFoundException if the settings file is not in the location it should be.
-	 */
-	public static String personSettings() throws FileNotFoundException {
-		if (inputStream != null) {
-			try {
-				properties.load(inputStream);
-			} catch (IOException e) {
-			//	Log.print("property file '" + propFileName + "' not " +
-               //         "found in the classpath");
-			}
-		} else {
-			throw new FileNotFoundException("property file '" + propFileName + "' not found in the classpath");
-		}
+        try {
+            if (inputStream == null) {
+                inputStream = new FileInputStream(String.valueOf(Paths.get(propFileName)));
+            }
+            if (inputStream == null) {
+                throw new FileNotFoundException("property file '" + propFileName + "' not found in the classpath");
+            }
+        } catch (FileNotFoundException e) {
+            //	Log.print(e);
+        }
+    }
 
-		String output;
-		output = properties.getProperty("personDatabaseLocation");
-		output = Compatibility.getFilePath(output);
-		return output;
-	}
-
-	/**
-	 * Get the settings for the product datasbase, specifically the location to store the database in.
-	 *
-	 * @return The location in which the database is stored. This is checked for compatibility against the running OS
-	 * @throws FileNotFoundException If the settings file is not in the location it should be.
-	 */
-	public static  String productSettings() throws FileNotFoundException {
-		if (inputStream != null) {
-			try {
-				properties.load(inputStream);
-			} catch (IOException e) {
-			//	Log.print("property file '" + propFileName + "' not " +
-              //          "found in the classpath");
-			}
-		} else {
-			throw new FileNotFoundException("property file '" + propFileName + "' not found in the classpath");
-		}
-
-		String output;
-		output = properties.getProperty("productDatabaseLocation");
-		output = Compatibility.getFilePath(output);
-		return output;
-	}
-
-	/**
-	 * Get the settings for the interface. Specifically the horizontal size, vertical size, (both in pixels) and the text size
-	 *
-	 * @return A string array with the horizontal size, vertical size and textsize.
-	 * @throws FileNotFoundException If the settings file is not in the location it should be.
-	 */
-	public static String[] interfaceSettings() throws FileNotFoundException {
-		if (inputStream != null) {
-			try {
-				properties.load(inputStream);
-			} catch (IOException e) {
-			//	Log.print("property file '" + propFileName + "' not " +
-                  //      "found in the classpath");
-			}
-		} else {
-			throw new FileNotFoundException("property file '" + propFileName + "' not found in the classpath");
-		}
-
-		String[] output = new String[3];
-		output[0] = properties.getProperty("horizontalSize");
-		output[1] = properties.getProperty("verticalSize");
-		output[2] = properties.getProperty("textSize");
-		return output;
-	}
-	/**
-	 * Get the settings for the error log. Specifically the location of it's storage
-	 * @return A string with the location of the log. This is checked for compatibility against the running OS
-	 * @throws FileNotFoundException If the settings file is not in the location it should be.
-	 */
-	public static String logSettings() throws FileNotFoundException {
-		if (inputStream != null) {
-			try {
-				properties.load(inputStream);
-			} catch (IOException e) {
-			//	Log.print("property file '" + propFileName + "' not " +
-                //        "found in the classpath");
-			}
-		} else {
-			throw new FileNotFoundException("property file '" + propFileName + "' not found in the classpath");
-		}
-
-		String output;
-		output = properties.getProperty("logFileLocation");
-		output = Compatibility.getFilePath(output);
-		return output;
-	}
-//TODO: does SQLite even have a user/pass combination
-	/**
-	 * Get the settings for the SQLite database which will be used by the program.
-	 * @return A string array with the URL, user and password of the database.
-	 * @throws FileNotFoundException If the settings file is not in the correct location or does not exist.
-	 */
-    public static String[] SQLInterfaceSettings() throws FileNotFoundException
-    {
+    /**
+     * Get the settings for the person database, specifically the location to store the database
+     *
+     * @return The location in which the database is stored. This is checked for compatibility against the running OS
+     * @throws FileNotFoundException if the settings file is not in the location it should be.
+     */
+    public static String personSettings() throws FileNotFoundException {
         if (inputStream != null) {
             try {
                 properties.load(inputStream);
+            } catch (IOException e) {
+                //	Log.print("property file '" + propFileName + "' not " +
+                //         "found in the classpath");
             }
-            catch(IOException e) {
+        } else {
+            throw new FileNotFoundException("property file '" + propFileName + "' not found in the classpath");
+        }
+
+        String output;
+        output = properties.getProperty("personDatabaseLocation");
+        output = Compatibility.getFilePath(output);
+        return output;
+    }
+
+    /**
+     * Get the settings for the product datasbase, specifically the location to store the database in.
+     *
+     * @return The location in which the database is stored. This is checked for compatibility against the running OS
+     * @throws FileNotFoundException If the settings file is not in the location it should be.
+     */
+    public static String productSettings() throws FileNotFoundException {
+        if (inputStream != null) {
+            try {
+                properties.load(inputStream);
+            } catch (IOException e) {
+                //	Log.print("property file '" + propFileName + "' not " +
+                //          "found in the classpath");
+            }
+        } else {
+            throw new FileNotFoundException("property file '" + propFileName + "' not found in the classpath");
+        }
+
+        String output;
+        output = properties.getProperty("productDatabaseLocation");
+        output = Compatibility.getFilePath(output);
+        return output;
+    }
+
+    /**
+     * Get the settings for the interface. Specifically the horizontal size, vertical size, (both in pixels) and the text size
+     *
+     * @return A string array with the horizontal size, vertical size and textsize.
+     * @throws FileNotFoundException If the settings file is not in the location it should be.
+     */
+    public static String[] interfaceSettings() throws FileNotFoundException {
+        if (inputStream != null) {
+            try {
+                properties.load(inputStream);
+            } catch (IOException e) {
+                //	Log.print("property file '" + propFileName + "' not " +
+                //      "found in the classpath");
+            }
+        } else {
+            throw new FileNotFoundException("property file '" + propFileName + "' not found in the classpath");
+        }
+
+        String[] output = new String[3];
+        output[0] = properties.getProperty("horizontalSize");
+        output[1] = properties.getProperty("verticalSize");
+        output[2] = properties.getProperty("textSize");
+        return output;
+    }
+
+    /**
+     * Get the settings for the error log. Specifically the location of it's storage
+     *
+     * @return A string with the location of the log. This is checked for compatibility against the running OS
+     * @throws FileNotFoundException If the settings file is not in the location it should be.
+     */
+    public static String logSettings() throws FileNotFoundException {
+        if (inputStream != null) {
+            try {
+                properties.load(inputStream);
+            } catch (IOException e) {
+                //	Log.print("property file '" + propFileName + "' not " +
+                //        "found in the classpath");
+            }
+        } else {
+            throw new FileNotFoundException("property file '" + propFileName + "' not found in the classpath");
+        }
+
+        String output;
+        output = properties.getProperty("logFileLocation");
+        output = Compatibility.getFilePath(output);
+        return output;
+    }
+//TODO: does SQLite even have a user/pass combination
+
+    /**
+     * Get the settings for the SQLite database which will be used by the program.
+     *
+     * @return A string array with the URL, user and password of the database.
+     * @throws FileNotFoundException If the settings file is not in the correct location or does not exist.
+     */
+    public static String[] SQLInterfaceSettings() throws FileNotFoundException {
+        if (inputStream != null) {
+            try {
+                properties.load(inputStream);
+            } catch (IOException e) {
                 System.out.print("property file '" + propFileName + "' not found in the classpath");
             }
-        }
-        else {
+        } else {
             throw new FileNotFoundException("property file '" + propFileName + "' not found in the classpath");
         }
 
@@ -209,9 +211,10 @@ final class Settings {
         } catch (GeneralSecurityException | IOException e) {
             e.printStackTrace();
         }
-		return output;
+        return output;
     }
-	//TODO: the below is an idea, but not necessary. It would encrypt the settings file, but that file stores nothing of use anyway.
+
+    //TODO: the below is an idea, but not necessary. It would encrypt the settings file, but that file stores nothing of use anyway.
     private static String encrypt(String property) throws GeneralSecurityException, UnsupportedEncodingException {
         SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("PBEWithMD5AndDES");
         SecretKey key = keyFactory.generateSecret(new PBEKeySpec(PASSWORD));
@@ -226,7 +229,7 @@ final class Settings {
     }
 
     private static String decrypt(String property) throws GeneralSecurityException, IOException {
-		return property;
+        return property;
 //        SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("PBEWithMD5AndDES");
 //        SecretKey key = keyFactory.generateSecret(new PBEKeySpec(PASSWORD));
 //        Cipher pbeCipher = Cipher.getInstance("PBEWithMD5AndDES");
