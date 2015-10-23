@@ -332,7 +332,7 @@ public class SQLInterface {
         }
     }
 
-    public void returnItem(String itemID) { // Return an item
+    public void returnItem(String itemID) { // Return an item TODO: Why is this a thing.
         String statement = "UPDATE " + TABITEMLOG + " SET in=TRUE, inDate=NOW()" +
                 "WHERE ID=?";
         try {
@@ -345,6 +345,12 @@ public class SQLInterface {
         }
     }
 
+    /**
+     * Return an item to the store.
+     *
+     * @param itemID The ID of the item to return.
+     * @param persID The ID of the admin returning the idem.
+     */
     public void returnItem(String itemID, String persID) { // Return a general item.
         String statement = "UPDATE " + TABITEMLOG + " SET in=TRUE, inDate=NOW()" +
                 "WHERE ID=? AND persID=?";
@@ -410,6 +416,12 @@ public class SQLInterface {
         return ret;
     }
 
+    /**
+     * Get the log of a given type for a given ID. Person or all item logs are available.
+     * @param type The table type to get the log for. Use the public table strings available in this class.
+     * @param ID The ID to get the log for.
+     * @return An arraylist of the records in the log file.
+     */
     public ArrayList<String> getLog(String type, String ID) {
         String statement;
         ResultSet rs = null;
@@ -457,6 +469,12 @@ public class SQLInterface {
         return ret;
     }
 
+    /**
+     * Get logs for person and both items for a given date.
+     * @param type The table to get the log for. Use the public Strings available within this class.
+     * @param date The date that you would like to get the log for.
+     * @return An arrayList of each record within the log.
+     */
     public ArrayList<String> getLog(String type, LocalDate date) {
         String statement;
         ResultSet rs = null;
@@ -522,6 +540,11 @@ public class SQLInterface {
         return ret;
     }
 
+    /**
+     * Get an ArrayList of the a given table within the database.
+     * @param type The table type. Use the public Strings available within this class.
+     * @return An arraylist of every record within the given table.
+     */
     public ArrayList<String> getDatabase(String type) {
         String statement;
         ResultSet rs = null;
@@ -586,6 +609,12 @@ public class SQLInterface {
         return ret;
     }
 
+    /**
+     * Get an ArrayList of the given table where the given ID is in place.
+     * @param type The table you would like to get. Use the public strings found in this class.
+     * @param ID The user or item ID to search for within the table.
+     * @return An ArrayList of the records within the chosen table which match the given ID.
+     */
     public ArrayList<String> getDatabase(String type, String ID) {
         String statement;
         ResultSet rs = null;
@@ -654,6 +683,12 @@ public class SQLInterface {
         return ret;
     }
 
+    /**
+     * An ArrayList of every record within the given database that match the given date.
+     * @param type The table type that you would like to get. Use the Public Strings found within this class.
+     * @param date The date to search for within the records.
+     * @return An ArrayList containing the records from the given table that match the given date.
+     */
     public ArrayList<String> getDatabase(String type, LocalDate date) {
         String statement;
         ResultSet rs = null;
@@ -710,6 +745,11 @@ public class SQLInterface {
         return ret;
     }
 
+    /**
+     * Reduce the quantity of a general item.
+     * @param ID The ID of the item to reduce.
+     * @param sub The number to subtract from the item.
+     */
     public void lowerQuantity(String ID, int sub) {
         String statement = "UPDATE " + TABGENERAL + " SET " + COLGENERALQUANTITY + " = " +
                 "((SELECT " + COLGENERALQUANTITY + " FROM " + TABGENERAL + " WHERE " + COLGENERALID + " = ?) - ?)" +
@@ -726,6 +766,12 @@ public class SQLInterface {
         }
     }
 
+    /**
+     * Get the name of a given item or person.
+     * @param type The table name. Use the public strings found within this class.
+     * @param ID The ID of the item or person.
+     * @return The name of the item or person.
+     */
     public String getName(String type, String ID) {
         String statement;
         ResultSet rs;
@@ -757,6 +803,11 @@ public class SQLInterface {
         return out;
     }
 
+    /**
+     * Get the name every item within a given tabel
+     * @param type The name of the table to use. Use the public Strings found within this class.
+     * @return An arraylist of every name in the table.
+     */
     public ArrayList<String> getName(String type) {
         String statement;
         ResultSet rs;
@@ -791,6 +842,12 @@ public class SQLInterface {
         return out;
     }
 
+    /**
+     * Get the ID of an item or person with the given name. Will return the first, not necessarily the only.
+     * @param type The table that you wish to get the name from. Use the public Strings found within this class.
+     * @param name The name to search for.
+     * @return The ID of the first record found which matches the name given.
+     */
     public String getID(String type, String name) {
         String statement;
         ResultSet rs;
@@ -822,6 +879,11 @@ public class SQLInterface {
         return out;
     }
 
+    /**
+     * Get the password and salt of the member with the given barcode.
+     * @param barcode The barcode of the person to search for.
+     * @return A String array with password at 0 and salt at 1
+     */
     public String[] getPassword(String barcode) {
         String statement = "SELECT " + COLPERSONPASSOWRD + ", " + COLPERSONSALT + " FROM " + TABPERSON + " WHERE " + COLPERSONID + " = ?";
         ResultSet rs;
@@ -844,6 +906,12 @@ public class SQLInterface {
         return out;
     }
 
+    /**
+     * Set the password of the person with the given ID to the password given. Store the salt alongside.
+     * @param ID The ID of the person to change the password for.
+     * @param password The password to enter into the database for this person
+     * @param salt The salt that the password was hashed with to enter into the database.
+     */
     public void setPassword(String ID, String password, String salt) {
         String statement = "UPDATE " + TABPERSON + " SET " + COLPERSONPASSOWRD + " = ?, " + COLPERSONSALT + " = ? WHERE " + COLPERSONID + " = ?";
         try {
@@ -859,6 +927,11 @@ public class SQLInterface {
 
     }
 
+    /**
+     * Get the role of the given member. 0 for user, 1 for admin, 2 for root.
+     * @param barcode The barcode of the member to get the role of.
+     * @return The role of the user: 0 for user, 1 for admin, 2 for root.
+     */
     public int getRole(String barcode) {
         String statement = "SELECT " + COLPERSONADMIN + " FROM " + TABPERSON + " WHERE " + COLPERSONID + " = ?";
         ResultSet rs;
@@ -878,6 +951,12 @@ public class SQLInterface {
         return admin;
     }
 
+    /**
+     * Check that the entry for the given table and ID exists
+     * @param type The table to check for the given ID.
+     * @param ID The ID to search for.
+     * @return True if the user exists. False otherwise. Multiple users with the same ID will return true.
+     */
     public boolean entryExists(String type, String ID) {
         String statement;
         ResultSet rs;
@@ -908,6 +987,11 @@ public class SQLInterface {
         return false;
     }
 
+    /**
+     * Export the given table to the give path. Item table will be joined with the relevant tables.
+     * @param type The table to export.
+     * @param path The location within the filesystem to export the table(s) to.
+     */
     public void export(String type, String path) {
         String statement;
         switch (type) {
@@ -960,6 +1044,11 @@ public class SQLInterface {
         }
     }
 
+    /**
+     * Get the quantity of a given general item.
+     * @param ID The ID of the general item.
+     * @return
+     */
     public int getQuantity(String ID) {
         String statement = "SELECT " + COLGENERALQUANTITY + " FROM " + TABGENERAL + " WHERE " + COLGENERALID + " = ?";
         ResultSet rs = null;
@@ -978,6 +1067,11 @@ public class SQLInterface {
         return 0;
     }
 
+    /**
+     * Set the quantity of the general item given by the ID.
+     * @param ID The ID of the item to set the ID of.
+     * @param quantity The new quantity. Set to exactly the value given in the parameter. 
+     */
     public void setQuantity(String ID, int quantity) {
         String statement = "UPDATE " + TABGENERAL + " SET " + COLGENERALQUANTITY + "=?  WHERE " + COLGENERALID + " = ?";
         try {
