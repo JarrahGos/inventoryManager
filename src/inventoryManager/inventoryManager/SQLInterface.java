@@ -30,6 +30,7 @@ import java.io.FileNotFoundException;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Random;
 
 
 public class SQLInterface {
@@ -92,6 +93,8 @@ public class SQLInterface {
     private String password = "password";
     private Connection db;
 
+    private Random rand = new Random();
+
 
     public SQLInterface() {
         try {
@@ -110,9 +113,11 @@ public class SQLInterface {
 ///        URL = settings[0];
         try {
             db = DriverManager.getConnection(URL);
+            db.setAutoCommit(true);
             System.out.println(db);
         } catch (java.sql.SQLException e) {
         }
+
     }
 
     public void deleteEntry(String type, String barcode) {
@@ -303,7 +308,8 @@ public class SQLInterface {
     }
 
     public void addLog(String persID, String adminID) { // add to change password log.
-        String statement = String.format("INSERT INTO %s (%s, %s, %s) VALUES(?, NOW(), (SELECT %s FROM %s WHERE %s = ?)", TABPERSONLOG, COLPERSONLOGPERSID, COLPERSONLOGDATE, COLPERSONLOGAUTHNAME, COLPERSONNAME, TABPERSON, COLPERSONID);
+        String statement = String.format("INSERT INTO %s (%s, %s, %s) VALUES(?, DATE('now', 'localtime'), (SELECT %s FROM %s WHERE %s = ?))",
+                TABPERSONLOG, COLPERSONLOGPERSID, COLPERSONLOGDATE, COLPERSONLOGAUTHNAME, COLPERSONNAME, TABPERSON, COLPERSONID);
         try {
             PreparedStatement ps = db.prepareStatement(statement);
             ps.setString(1, persID);
@@ -311,6 +317,12 @@ public class SQLInterface {
             ps.execute();
             ps.closeOnCompletion();
         } catch (SQLException e) {
+            try {
+                Thread.sleep((rand.nextInt(65536)) % 50);
+                addLog(persID, adminID);
+            } catch (InterruptedException e1) {
+                Log.print(e1);
+            }
             Log.print(e);
         }
 
@@ -318,8 +330,8 @@ public class SQLInterface {
 
     public void addLog(String itemID, String persID, boolean controlled) { // Sign an item out
         //TODO: Should this check the item as out in the controlled table?
-        String statment = "INSERT INTO " + TABITEMLOG + " (" + COLITEMLOGID + ", " + COLITEMLOGOUTDATE + ", " + COLITEMLOGOUT + ", " + COLITEMLOGINDATE + ", " + COLITEMLOGPERSID + ", " + COLITEMLOGCONTROLLED + ") " +
-                "VALUES(?, NOW(), TRUE, \"FALSE\", ?, ?)"; // TODO: inDate may be setting gibberish
+        String statment = "INSERT INTO " + TABITEMLOG + " (" + COLITEMLOGID + ", " + COLITEMLOGOUTDATE + ", " + COLITEMLOGINDATE + ", " + COLITEMLOGPERSID + ", " + COLITEMLOGCONTROLLED + ") " +
+                "VALUES(?, DATE('now', 'localtime'), \"FALSE\", ?, ?)";
         try {
             PreparedStatement ps = db.prepareStatement(statment);
             ps.setString(1, itemID);
@@ -328,12 +340,18 @@ public class SQLInterface {
             ps.execute();
             ps.closeOnCompletion();
         } catch (SQLException e) {
+            try {
+                wait((rand.nextInt(65536)) % 50);
+                addLog(itemID, persID, controlled);
+            } catch (Exception e1) {
+                Log.print(e1);
+            }
             Log.print(e);
         }
     }
 
     public void returnItem(String itemID) { // Return an item TODO: Why is this a thing.
-        String statement = "UPDATE " + TABITEMLOG + " SET in=TRUE, inDate=NOW()" +
+        String statement = "UPDATE " + TABITEMLOG + " SET in=TRUE, inDate=DATE('now', 'localtime')" +
                 "WHERE ID=?";
         try {
             PreparedStatement ps = db.prepareStatement(statement);
@@ -352,7 +370,7 @@ public class SQLInterface {
      * @param persID The ID of the admin returning the idem.
      */
     public void returnItem(String itemID, String persID) { // Return a general item.
-        String statement = "UPDATE " + TABITEMLOG + " SET in=TRUE, inDate=NOW()" +
+        String statement = "UPDATE " + TABITEMLOG + " SET in=TRUE, inDate=DATE('now', 'localtime')" +
                 "WHERE ID=? AND persID=?";
         try {
             PreparedStatement ps = db.prepareStatement(statement);

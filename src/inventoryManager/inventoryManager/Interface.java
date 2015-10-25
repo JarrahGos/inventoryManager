@@ -184,12 +184,6 @@ public final class Interface extends Application {
      * @param args No arguments needed, -w int for width, -h int for height, both in pixels.
      */
     public static void main(String[] args) {
-//		try {
-//			Interface i = new Interface();
-//		}
-//		catch (IOException e) {
-//			Log.print(e);
-//		}
         for (int i = args.length - 1; i > 0; i--) {
             if (args[i].equals("-w") && i != args.length - 1) {
                 horizontalSize = Integer.parseInt(args[i + 1]);
@@ -316,7 +310,6 @@ public final class Interface extends Application {
                     flashColour(pass, 1500, Color.RED);
                 }
             } else {
-                System.out.println(input.getText());
                 boolean correct = productEntered(input.getText());
                 if (correct) {
                     productError.setText("");
@@ -1125,10 +1118,13 @@ public final class Interface extends Application {
             }
         });
         adminPass.setOnKeyPressed((KeyEvent ke) -> {
-            int success = -1;
+            int success = 0;
             if (ke.getCode().equals(KeyCode.ENTER)) {
                 if (firstInput.getText().equals(secondInput.getText()) && IDInput != adminID) {
-                    success = workingUser.setPassword(ID.getText(), firstInput.getText(), adminID.getText(), adminPass.getText());
+                    new Thread(() -> {
+                        workingUser.setPassword(IDInput.getText(), firstInput.getText(), adminID.getText(), adminPass.getText());
+                    }).start();
+
                 }
 
                 if (success == 0) {

@@ -268,7 +268,7 @@ class WorkingUser {
                     return -1;
                 }
                 personDatabase.setPassword(barcode, pass[0], pass[1]);
-//              LoggingDatabase.appendPasswordLog(String barcode, String adBarcode);
+                LoggingDatabase.appendPasswordLog(barcode, adBarcode);
                 return 0;
             }
             return 1;
