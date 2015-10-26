@@ -31,8 +31,6 @@ class ItemDatabase implements Database {
      * Stores the path of the database as a string, based on the OS being run.
      */
     private String databaseLocation;
-    private SQLInterface db = new SQLInterface();
-
     /**
      * Constructor for ItemDatabase.
      * Will create a Person database with the ability to read and write people to the database location given in the preferences file of Settings
@@ -59,7 +57,7 @@ class ItemDatabase implements Database {
          Precondition: augments int productNo, String name, String artist, double size, double duration are input
          Postcondition: Data for the currant working product in this database will be set.
          */
-        db.addEntry(barcode, name);
+        SQLInterface.addEntry(barcode, name);
 
     }
 
@@ -73,7 +71,7 @@ class ItemDatabase implements Database {
      */
     public final void changeItem(String name, String newID, String ID) // take the products data and pass it to the products constructor
     {
-        db.updateEntry(ID, name, newID);
+        SQLInterface.updateEntry(ID, name, newID);
     }
 
     /**
@@ -83,7 +81,7 @@ class ItemDatabase implements Database {
      * @return A string containing the entire database
      */
     public final ArrayList<String> getDatabase() {
-        return db.getDatabase(SQLInterface.TABITEM);
+        return SQLInterface.getDatabase(SQLInterface.TABITEM);
     }
 
 
@@ -95,7 +93,7 @@ class ItemDatabase implements Database {
      */
     public void deleteEntry(String barcode) {
         if (!this.isControlled(barcode)) {
-            db.deleteEntry(SQLInterface.TABGENERAL, barcode);
+            SQLInterface.deleteEntry(SQLInterface.TABGENERAL, barcode);
         }
     }
 
@@ -106,7 +104,7 @@ class ItemDatabase implements Database {
      * @return A boolean value of whether the product exists or not
      */
     public final boolean entryExists(String barcode) {
-        return db.entryExists(SQLInterface.TABITEM, barcode);
+        return SQLInterface.entryExists(SQLInterface.TABITEM, barcode);
         // if you are running this, no product was found and therefore it is logical to conclude none exist.
         // similar to Kiri-Kin-Tha's first law of metaphysics.
     }
@@ -124,7 +122,7 @@ class ItemDatabase implements Database {
      * @return An integer of 1 if the file was not found and 0 if it worked.
      */
     public void writeDatabaseCSV(String type, String path) {
-        db.export(type, path);
+        SQLInterface.export(type, path);
     }
 
     /**
@@ -132,7 +130,7 @@ class ItemDatabase implements Database {
      * @return A String array of the names of all products in the database.
      */
     public ArrayList<String> getNamesOfEntries(String type) {
-        return db.getName(type);
+        return SQLInterface.getName(type);
     }
 
     /**
@@ -141,7 +139,7 @@ class ItemDatabase implements Database {
      * @return The name of the item.
      */
     public String getEntryName(String ID) {
-        return db.getName(SQLInterface.TABITEM, ID);
+        return SQLInterface.getName(SQLInterface.TABITEM, ID);
     }
 
     /**
@@ -150,7 +148,7 @@ class ItemDatabase implements Database {
      * @param persID The ID of the person to log the item out to.
      */
     public void logItemOut(String ID, String persID) {
-        db.addLog(ID, persID, this.isControlled(ID));
+        SQLInterface.addLog(ID, persID, this.isControlled(ID));
     }
 
     /**
@@ -170,7 +168,7 @@ class ItemDatabase implements Database {
      * @return The ID of the first item in the database with the given name.
      */
     public final String getBarcode(String name) {
-        return db.getID(SQLInterface.TABITEM, name);
+        return SQLInterface.getID(SQLInterface.TABITEM, name);
     }
 
     /**
@@ -183,7 +181,7 @@ class ItemDatabase implements Database {
      * @param type The type of the item.
      */
     public void addEntry(String barcode, String name, String setName, String state, String tagPos, String type) {
-        db.addEntry(barcode, name, setName, state, tagPos, type);
+        SQLInterface.addEntry(barcode, name, setName, state, tagPos, type);
     }
 
     /**
@@ -192,7 +190,7 @@ class ItemDatabase implements Database {
      * @return True if the item is controlled.
      */
     public final boolean isControlled(String ID) {
-        return db.isItemControlled(ID);
+        return SQLInterface.isItemControlled(ID);
     }
 
     /**
@@ -202,11 +200,11 @@ class ItemDatabase implements Database {
      */
     public void deleteEntry(String ID, boolean controlled) {
         if (controlled) {
-            db.deleteEntry(SQLInterface.TABCONTROLLED, ID);
-            db.deleteEntry(SQLInterface.TABITEM, ID);
+            SQLInterface.deleteEntry(SQLInterface.TABCONTROLLED, ID);
+            SQLInterface.deleteEntry(SQLInterface.TABITEM, ID);
         } else {
-            db.deleteEntry(SQLInterface.TABGENERAL, ID);
-            db.deleteEntry(SQLInterface.TABITEM, ID);
+            SQLInterface.deleteEntry(SQLInterface.TABGENERAL, ID);
+            SQLInterface.deleteEntry(SQLInterface.TABITEM, ID);
         }
     }
 
@@ -220,7 +218,7 @@ class ItemDatabase implements Database {
      * @param quantity The quantity of the item that exists.
      */
     public void addEntry(String barcode, String name, String setName, String description, long quantity) {
-        db.addEntry(barcode, name, setName, description, quantity);
+        SQLInterface.addEntry(barcode, name, setName, description, quantity);
     }
 
     /**
@@ -229,7 +227,7 @@ class ItemDatabase implements Database {
      * @return The number as an int of the product left in stock
      */
     public final int getNumber(String barcode) {
-        return db.getQuantity(barcode);
+        return SQLInterface.getQuantity(barcode);
     }
 
     /**
@@ -238,7 +236,7 @@ class ItemDatabase implements Database {
      * @param number The number of that item you now have.
      */
     public final void setNumber(String barcode, int number) {
-        db.setQuantity(barcode, number);
+        SQLInterface.setQuantity(barcode, number);
     }
 
     /**
@@ -246,6 +244,6 @@ class ItemDatabase implements Database {
      * @return A String array of the names of all products in the database.
      */
     public final ArrayList<String> getNamesOfEntries() {
-        return db.getName(SQLInterface.TABGENERAL);
+        return SQLInterface.getName(SQLInterface.TABGENERAL);
     }
 }

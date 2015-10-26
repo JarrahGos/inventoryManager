@@ -27,12 +27,19 @@ import java.util.ArrayList;
 final class PersonDatabase implements Database {
 
     /**
+     * The value of the the role a user will take in the system
+     */
+    public static final int USER = 0;
+    /**
+     * The value of the role an admin will take in the system
+     */
+    public static final int ADMIN = 2;
+    /**
      * Stores the path of the database as a string, based on the OS being run.
      */
     private String databaseLocation;
-    private SQLInterface db = new SQLInterface();
-    public static final int USER = 0;
-    public static final int ADMIN = 2;
+
+    /** The value of the role the root user will take in the system.
     public static final int ROOT = 3;
 
     /**
@@ -53,16 +60,16 @@ final class PersonDatabase implements Database {
      * Postcondition: Data for the currant working person in this database will be set.
      *
      * @param name    The name of the new person
-     * @param running The running bill of the person
-     * @param week    The current bill of the person
-     * @param barCode The barcode of the person
-     * @param canBuy  Whether the person can buy or not
+     * @param admin The users role within the program
+     * @param ID The ID of the user
+     * @param passwd The hashed password of the user.
+     * @param salt the salt used to hash the user's password.
      */
     public final void setEntry(String ID, String name, int admin, String passwd, String salt) // take the persons data and pass it to the persons constructor
     {
         System.out.printf("This entry exists %s", entryExists(ID));
         if (!entryExists(ID)) { // check whether the person already exists
-            db.addEntry(ID, name, admin, passwd, salt); // pass off the work to the constructor: "make it so."
+            SQLInterface.addEntry(ID, name, admin, passwd, salt); // pass off the work to the constructor: "make it so."
         }
     }
 
@@ -75,7 +82,7 @@ final class PersonDatabase implements Database {
      * @return A string containing the entire database
      */
     public final ArrayList<String> getDatabase() {
-        ArrayList<String> output = db.getDatabase(SQLInterface.TABPERSON);
+        ArrayList<String> output = SQLInterface.getDatabase(SQLInterface.TABPERSON);
 
         return output; // send the calling program one large string containing the ingredients of all the persons in the database
     }
@@ -88,7 +95,7 @@ final class PersonDatabase implements Database {
      * @param barcode The barcode of the person you wish to delete
      */
     public final void deleteEntry(String barcode) {
-        db.deleteEntry(SQLInterface.TABPERSON, barcode);
+        SQLInterface.deleteEntry(SQLInterface.TABPERSON, barcode);
     }
 
     /**
@@ -100,7 +107,7 @@ final class PersonDatabase implements Database {
      * @return The name of the person with the specified barcode as a string or error if the person does not exist.
      */
     public final String getEntryName(String barcode) {
-        return db.getName(SQLInterface.TABPERSON, barcode);
+        return SQLInterface.getName(SQLInterface.TABPERSON, barcode);
     }
 
     /**
@@ -110,11 +117,11 @@ final class PersonDatabase implements Database {
      * @return The ID of the first person found with that name.
      */
     public final String getEntryID(String name) {
-        return db.getID(SQLInterface.TABPERSON, name);
+        return SQLInterface.getID(SQLInterface.TABPERSON, name);
     }
 
     public final int getRole(String barcode) { // 0 = user, 1 = admin, 2 = root
-        return db.getRole(barcode);
+        return SQLInterface.getRole(barcode);
     }
 
     /**
@@ -123,7 +130,7 @@ final class PersonDatabase implements Database {
      * @return A String array of the names of those in the database
      */
     public final ArrayList<String> getNamesOfEntries() {
-        return db.getName(SQLInterface.TABPERSON);
+        return SQLInterface.getName(SQLInterface.TABPERSON);
     }
 
 
@@ -134,42 +141,10 @@ final class PersonDatabase implements Database {
      * @return A boolean value of whether the person exists or not
      */
     public final boolean entryExists(String barcode) {
-        return db.entryExists(SQLInterface.TABPERSON, barcode); // if you are running this, no person was found and therefore it is logical to conclude none exist.
+        return SQLInterface.entryExists(SQLInterface.TABPERSON, barcode); // if you are running this, no person was found and therefore it is logical to conclude none exist.
         // similar to Kiri-Kin-Tha's first law of metaphysics.
     }
 
-    /**
-     * Write out the given person to the database
-     * @param persOut The person you wish to write out
-     * @return An integer, 0 meaning correct completion, 1 meaning an exception. Stack trace will be printed on error.
-     */ //TODO is this necessary?
-//	public final int writeDatabaseEntry(Person persOut) {
-//            try {
-//                File check = new File(databaseLocation + persOut.getEName());
-//                if(check.exists()) check.delete();
-//                check = new File(databaseLocation + persOut.getBarCode());
-//                if(check.exists()) check.delete();
-//                check = null;
-//                if(persOut.getBarCode() != 7000000) {
-//                    FileOutputStream personOut = new FileOutputStream(databaseLocation + persOut.getName());
-//                    ObjectOutputStream out = new ObjectOutputStream(new BufferedOutputStream(personOut));
-//                    out.writeObject(persOut);
-//		            out.close();
-//                    personOut.close();
-//                }
-//                // it may be quicker to do this with the java.properties setup that I have made. The code for that will sit unused in settings.java.
-//				FileOutputStream personOut1 = new FileOutputStream(databaseLocation + persOut.getBarCode());
-//				ObjectOutputStream out1 = new ObjectOutputStream(personOut1);
-//				out1.writeObject(persOut);
-//				out1.close();
-//				personOut1.close();
-//			}
-//            catch (Exception e) {
-//                Log.print(e);
-//                return 1;
-//            }
-//            return 0;
-//    }
 
     /**
      * Write out a CSV version of the database for future import.
@@ -178,68 +153,9 @@ final class PersonDatabase implements Database {
      * @return An integer of 1 if the file was not found and 0 if it worked.
      */
     public final void writeDatabaseCSV(String path) { //TODO: Ensure this works as a CSV
-        db.export(SQLInterface.TABPERSON, path); // ensure that this path is the full absolute path rather than a relative one.
+        SQLInterface.export(SQLInterface.TABPERSON, path); // ensure that this path is the full absolute path rather than a relative one.
     }
 
-//    /**
-//     * Reads one person from the database
-//     * @param barcode The name of the person you wish to read
-//     * @return The person in the database which correlates with the name, or null if the person is not found
-//     */
-//         public final Person readEntry(String barcode) {
-//			 Person importing = null;
-//			 try {
-//				 FileInputStream personIn = new FileInputStream(databaseLocation + barcode );
-//				 ObjectInputStream in = new ObjectInputStream(new BufferedInputStream(personIn));
-//				 importing = (Person) in.readObject();
-//				 in.close();
-//				 personIn.close();
-//			 } catch (IOException e) {
-//				 Log.print(e);
-//				 return null;
-//			 } catch (ClassNotFoundException e) {
-//				 Log.print(e);
-//			 }
-//			 return importing;
-//		 }
-
-    /**
-     * Create an array of people from the provided string of paths
-     * @param databaseList A string array of paths to files which are to be put into the array
-     * @return An array of all people found from the given string
-     */
-//	public final Person[] readEntries(String[] databaseList){
-//		Person[] importing = new Person[databaseList.length];
-//        int i = 0;
-//		for(String person : databaseList) {
-//			Person inPers = null;
-//			try {
-//				FileInputStream personIn = new FileInputStream(person);
-//				ObjectInputStream in = new ObjectInputStream(new BufferedInputStream(personIn));
-//				inPers = (Person) in.readObject();
-//				in.close();
-//				personIn.close();
-//			}
-//			catch (IOException | ClassNotFoundException e) {
-//				Log.print(e);
-//			}
-//            boolean alreadyExists = false;
-//			if(inPers != null) {
-//				for (Person pers : importing) {
-//					if ( pers != null && inPers.getBarCode() != 7000000 && inPers.getBarCode() == pers.getBarCode()) {
-//						alreadyExists = true;
-//						break;
-//					}
-//				}
-//			}
-//			else alreadyExists = true;
-//			if(!alreadyExists) {
-//                importing[i] = inPers;
-//                i++;
-//            }
-//		}
-//		return importing;
-//	}
 
     /**
      * Changes the Admin password to the one specified
@@ -249,11 +165,11 @@ final class PersonDatabase implements Database {
      * @param salt     The salt that the password was hashed with for storage.
      */
     public final void setPassword(String barcode, String password, String salt) {
-        db.setPassword(barcode, password, salt);
+        SQLInterface.setPassword(barcode, password, salt);
     }
 
     public final String[] getPassword(String ID) {
-        return db.getPassword(ID);
+        return SQLInterface.getPassword(ID);
     }
 
     /**
