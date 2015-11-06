@@ -35,6 +35,10 @@ final class PersonDatabase implements Database {
      */
     public static final int ADMIN = 2;
     /**
+     * The value of the role a root user will take in the system.
+     */
+    public static final int ROOT = 3;
+    /**
      * Stores the path of the database as a string, based on the OS being run.
      */
     private String databaseLocation;
