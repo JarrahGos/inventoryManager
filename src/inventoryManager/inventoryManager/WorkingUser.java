@@ -13,6 +13,7 @@ import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.Optional;
 
 /*
 *    TOC19 is a simple program to run TOC payments within a small group.
@@ -216,6 +217,10 @@ class WorkingUser {
             }
         }
         return 0;
+    }
+
+    public final Optional<String> getPersonID(String name) {
+        return personDatabase.getEntryID(name);
     }
 
     /**
@@ -457,12 +462,12 @@ class WorkingUser {
     /**
      * Alter a product in the database
      *
-     * @param selectedIndex
+     * @param OldName       The old name of the person.
      * @param name          The new name of the person
-     * @param ID            The new PMKeyS of the person
-     * @param oldID         The old PMKeyS of the person
+     * @param ID            The new ID of the person
+     * @param oldID         The old ID of the person
      */
-    public final void changeDatabasePerson(String selectedIndex, String name, long ID, long oldID) {
+    public final void changeDatabasePerson(String OldName, String name, String ID, String oldID) {
 //        personDatabase.changeDatabasePerson(selectedIndex, name, ID, oldID);
     }
 

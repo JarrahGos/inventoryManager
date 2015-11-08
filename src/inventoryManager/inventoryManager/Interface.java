@@ -587,6 +587,56 @@ public final class Interface extends Application {
         optionList.getSelectionModel().selectedItemProperty().addListener(
                 (ObservableValue<? extends String> ov, String old_val, String selectedOption) -> {
                     if (selectedOption == null) {
+                    } else if (selectedOption.equals("Change a Person")) {
+                        grid.getChildren().clear();
+
+                        ListView<String> personList = new ListView<>();
+                        ObservableList<String> person = FXCollections.observableArrayList();
+                        person.setAll(workingUser.getUserNames());
+                        personList.setItems(person);
+                        grid.add(personList, 0, 0, 1, 4);
+
+                        Text nameLabel = new Text("Name:");
+                        grid.add(nameLabel, 1, 0);
+                        TextField nameEntry = new TextField();
+                        nameEntry.requestFocus();
+                        grid.add(nameEntry, 2, 0);
+                        Text IDLabel = new Text("ID:");
+                        grid.add(IDLabel, 1, 1);
+                        TextField ID = new TextField();
+                        grid.add(ID, 2, 1);
+                        personList.getSelectionModel().selectedItemProperty().addListener(
+                                (ObservableValue<? extends String> vo, String oldVal, String selectedPerson) -> {
+                                    if (selectedPerson != null) {
+                                        nameEntry.setText(selectedPerson);
+                                        String IDVal = workingUser.getPersonID(selectedPerson).orElse("ERROR getting ID");
+                                        ID.setText(IDVal); //TODO: This doesn't work with the same name. returns first ID.
+                                    }
+                                });
+                        nameEntry.setOnAction((ActionEvent e) -> ID.requestFocus());
+
+                        ID.setOnAction((ActionEvent e) -> {
+                            String IDNew = null;
+                            try {
+                                IDNew = ID.getText();
+                            } catch (NumberFormatException e1) {
+                                flashColour(ID, 1500, Color.RED);
+                            }
+                            if (IDNew != null && IDNew != "") {
+                                String name = personList.getSelectionModel().getSelectedItem();
+                                workingUser.changeDatabasePerson(name, nameEntry.getText(), IDNew, workingUser.getPersonID(name).get());
+                                nameEntry.clear();
+                                ID.clear();
+                                nameEntry.requestFocus();
+                                flashColour(nameEntry, 1500, Color.AQUAMARINE);
+                                flashColour(ID, 1500, Color.AQUAMARINE);
+                                //Now need to update the form
+                                String selectedIndex = personList.getSelectionModel().getSelectedItem();
+                                person.setAll(workingUser.getUserNames());
+                                personList.setItems(person);
+                                personList.getSelectionModel().select(selectedIndex);
+                            }
+                        });
                     } else if (selectedOption.equals("Save Person Database")) {
                         DirectoryChooser fc = new DirectoryChooser();
 
@@ -854,7 +904,7 @@ public final class Interface extends Application {
                         });
 
                         saveBtn.setOnAction((ActionEvent e) -> {
-                            workingUser.adminWriteOutDatabase("Product"); //adminProductDatabase.csv
+                            workingUser.adminWriteOutDatabase(SQLInterface.TABITEM); //adminProductDatabase.csv
                             File adminProductFile = new File(Compatibility.getFilePath("adminProductDatabase.csv"));
                             if (filePath.getText() != null || !filePath.getText().isEmpty()) {
                                 File destProd = new File(filePath.getText() + "/adminProductDatabase.csv");
