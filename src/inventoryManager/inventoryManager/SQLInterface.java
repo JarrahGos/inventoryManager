@@ -976,10 +976,10 @@ public class SQLInterface {
         ResultSet rs;
         String out = null;
         switch (type) {
-            case "person":
+            case TABPERSON:
                 statement = "SELECT " + COLPERSONID + " FROM " + TABPERSON + " WHERE " + COLPERSONNAME + "=?";
                 break;
-            case "item":
+            case TABITEM:
                 statement = "SELECT " + COLITEMID + " FROM " + TABITEM + "" +
                         " WHERE " + COLITEMNAME + " = ?";
                 break;
@@ -993,7 +993,7 @@ public class SQLInterface {
             rs = ps.executeQuery();
             ps.closeOnCompletion();
             if (rs.next()) {
-                out = rs.getString(0);
+                out = rs.getString(1);
             }
             rs.close();
             db.close();
