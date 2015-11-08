@@ -31,8 +31,13 @@ public class LoggingDatabase implements Database {
     }
 
     @Override
+    @Deprecated
     public void deleteEntry(String barcode) {
+        return;
+    }
 
+    public void deleteEntry(String type, String barcode) {
+        SQLInterface.deleteEntry(type, barcode);
     }
 
     @Override
@@ -42,12 +47,17 @@ public class LoggingDatabase implements Database {
 
     @Override
     public ArrayList<String> getNamesOfEntries() {
-        return null;
+        return SQLInterface.getName(SQLInterface.TABITEMLOG);
     }
 
     @Override
+    @Deprecated
     public boolean entryExists(String barcode) {
         return false;
+    }
+
+    public boolean entryExists(String barcode, String type) {
+        return SQLInterface.entryExists(type, barcode);
     }
 
     @Override
