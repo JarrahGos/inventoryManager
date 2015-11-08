@@ -21,6 +21,7 @@ package inventoryManager;
  * @author Michael Brock
  *         This class enables compatibility with Windows based operating
  *         systems and will handle all external file access.
+ *         Stolen from https://github.com/jarrah-95/TOC19/blob/Serialization-rebuild/src/TOC19/TOC19/Compatibility.java
  */
 
 class Compatibility {

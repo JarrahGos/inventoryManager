@@ -463,7 +463,6 @@ class WorkingUser {
      * Write out the CSV version of the database for the admin.
      *
      * @param type SQLInterface.TABPERSON for the person database or "Produt" for the product database
-     * @throws IOException
      */
     public final void adminWriteOutDatabase(String type) {
         switch (type) {

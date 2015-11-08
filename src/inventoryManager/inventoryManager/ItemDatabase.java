@@ -120,7 +120,6 @@ class ItemDatabase implements Database {
     /**
      * Write out a CSV version of the database for future import.
      * @param path The path to the directory you wish to output to
-     * @return An integer of 1 if the file was not found and 0 if it worked.
      */
     public void writeDatabaseCSV(String type, String path) {
         SQLInterface.export(type, path);
