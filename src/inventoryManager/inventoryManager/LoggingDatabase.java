@@ -1,6 +1,7 @@
 package inventoryManager;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 /**
  * Created by jarrah on 4/09/15.
@@ -35,8 +36,8 @@ public class LoggingDatabase implements Database {
     }
 
     @Override
-    public String getEntryName(String barcode) {
-        return null;
+    public Optional<String> getEntryName(String barcode) {
+        return Optional.empty();
     }
 
     @Override

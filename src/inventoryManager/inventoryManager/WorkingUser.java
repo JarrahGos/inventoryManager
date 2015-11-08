@@ -202,7 +202,7 @@ class WorkingUser {
             return 1;
         } else {
             if (passwordsEqual(ID, pass)) {
-                userName = personDatabase.getEntryName(ID);
+                userName = personDatabase.getEntryName(ID).get();
                 userID = ID;
             } else {
                 return 1;
@@ -386,7 +386,7 @@ class WorkingUser {
         } else if ((input == null) || ("".equals(input))) {
             return false;
         }
-        String adding = itemDatabase.getEntryName(tempBarCode);
+        String adding = itemDatabase.getEntryName(tempBarCode).orElse("ERROR"); //TODO: what is the go with these methods.
         if (adding != null) {
             System.out.println(tempBarCode + "\n" + adding);
             checkOuts.addProduct(tempBarCode, adding); //otherwise, add the product as normal.
@@ -553,7 +553,7 @@ class WorkingUser {
      * @return The barcode of the product with the name specified.
      */
     public final String getProductBarCode(String name) {
-        return itemDatabase.getBarcode(name);
+        return itemDatabase.getBarcode(name).orElse("Item Not Found");
     }
 
     /**
@@ -563,7 +563,7 @@ class WorkingUser {
      * @return The name of the product with the given barcode
      */
     public final String getProductName(String barcode) {
-        return itemDatabase.getEntryName(barcode);
+        return itemDatabase.getEntryName(barcode).orElse("ERROR");
     }
 
     /**
@@ -610,7 +610,7 @@ class WorkingUser {
     }
 
     public String getItemName(String barcode) {
-        return itemDatabase.getEntryName(barcode);
+        return itemDatabase.getEntryName(barcode).orElse("ERROR");
     }
 
     public void signItemsIn(ArrayList<String> items) {
