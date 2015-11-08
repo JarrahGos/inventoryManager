@@ -119,7 +119,7 @@ public class SQLInterface {
 
     }
 
-    private static Optional<Connection> getDatabase() //TODO: Implement optional.
+    private static Optional<Connection> getDatabase()
     {
         try {
             Connection db = DriverManager.getConnection(URL);

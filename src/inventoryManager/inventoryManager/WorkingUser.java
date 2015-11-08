@@ -78,6 +78,7 @@ class WorkingUser {
      * @return A string array with the hashed passwod in place 0 and the salt used in place 1.
      * @deprecated Does not generate the correct hash when compared to getSecurePassword(String, String)
      */
+    @Deprecated
     public static String[] getSecurePassword(String password) //throws NoSuchAlgorithmException, InvalidKeySpecException
     {
         int iterations = 1000;
@@ -152,7 +153,13 @@ class WorkingUser {
         SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
         byte[] salt = new byte[16];
         sr.nextBytes(salt);
-        return salt.toString();
+        String ret = null;
+        try {
+            ret = new String(salt, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            Log.print(e);
+        }
+        return ret;
     }
 
     /**
