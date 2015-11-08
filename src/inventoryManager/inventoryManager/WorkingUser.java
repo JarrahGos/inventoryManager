@@ -595,12 +595,12 @@ class WorkingUser {
     }
 
     /**
-     * Determine whether a person exists in the database.
+     * Determine whether a person personExists in the database.
      *
      * @param ID The ID of the person to check for.
      * @return Boolean of does the member exist in the database.
      */
-    public boolean PersonExists(String ID) {
+    public boolean personExists(String ID) {
         return personDatabase.entryExists(ID);
     }
 
@@ -618,5 +618,9 @@ class WorkingUser {
 
     public boolean itemExists(String barcode) {
         return itemDatabase.entryExists(barcode);
+    }
+
+    public void updateRole(String ID, int role) {
+        personDatabase.updateRole(ID, role);
     }
 }

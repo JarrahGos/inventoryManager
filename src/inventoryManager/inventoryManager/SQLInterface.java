@@ -421,16 +421,10 @@ public class SQLInterface {
             ps.setString(1, itemID);
             ps.setString(2, persID);
             ps.setBoolean(3, controlled);
-            ps.execute();
+            ps.execute(); //TODO: Why is database locked at this point.
             ps.closeOnCompletion();
             db.close();
         } catch (SQLException e) {
-            try {
-                Thread.sleep((rand.nextInt(65536)) % 50);
-                addLog(itemID, persID, controlled);
-            } catch (Exception e1) {
-                Log.print(e1);
-            }
             Log.print(e);
         }
     }
@@ -1240,6 +1234,22 @@ public class SQLInterface {
             ps.setString(1, name);
             ps.setString(2, newID);
             ps.setString(3, ID);
+            ps.execute();
+            ps.closeOnCompletion();
+            db.close();
+        } catch (SQLException e) {
+            Log.print(e);
+        }
+    }
+
+    public static void updateEntry(String ID, int role) {
+        Connection db = getDatabase().get();
+        String statement = "UPDATE " + TABPERSON + " SET " + COLPERSONADMIN + " = ? WHERE " + COLPERSONID + "= ?;";
+
+        try {
+            PreparedStatement ps = db.prepareStatement(statement);
+            ps.setInt(1, role);
+            ps.setString(2, ID);
             ps.execute();
             ps.closeOnCompletion();
             db.close();

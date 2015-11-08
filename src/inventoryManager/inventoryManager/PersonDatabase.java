@@ -191,4 +191,7 @@ final class PersonDatabase implements Database {
 //		deleteEntry(selectedIndex);
 //		writeDatabaseEntry(newPerson);
 //	}
+    public void updateRole(String ID, int role) {
+        SQLInterface.updateEntry(ID, role);
+    }
 }

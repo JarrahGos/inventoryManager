@@ -516,7 +516,7 @@ public final class Interface extends Application {
      *
      * @param lastStage The stage which opened this stage
      */
-    private void enterAdminMode(Stage lastStage) {
+    private void enterAdminMode(Stage lastStage) {  //TODO: Break this and all other admin stuff up and put it in it's own extension class.
         lastStage.hide();
         Stage adminStage = new Stage();
         adminStage.setTitle("Inventory Admin");
@@ -978,6 +978,38 @@ public final class Interface extends Application {
                             flashColour(save, 1500, Color.AQUAMARINE);
                             System.exit(0);
                         });
+                    } else if (selectedOption.equals("Create Admins")) {
+                        grid.getChildren().clear();
+                        Text IDLabel = new Text("New admin's ID:");
+                        TextField ID = new TextField();
+                        ChoiceBox<String> level = new ChoiceBox<String>();
+                        level.getItems().setAll("USER", "ADMIN", "STAFF");
+                        Button save = new Button("Save");
+                        save.setOnAction((ActionEvent e) -> {
+                            if (!workingUser.personExists(ID.getText())) {
+                                flashColour(ID, 1500, Color.RED);
+                            } else {
+                                int levelInt = PersonDatabase.USER;
+                                switch (level.getSelectionModel().getSelectedItem()) {
+                                    case "USER":
+                                        break;
+                                    case "ADMIN":
+                                        levelInt = PersonDatabase.ADMIN;
+                                        break;
+                                    case "STAFF":
+                                        levelInt = PersonDatabase.ROOT;
+                                        break;
+                                }
+                                workingUser.updateRole(ID.getText(), levelInt);
+                            }
+                        });
+
+                        grid.add(IDLabel, 0, 0);
+                        grid.add(ID, 1, 0);
+                        grid.add(level, 2, 0);
+                        grid.add(save, 3, 0);
+
+
                     }
                 });
         Scene adminScene = new Scene(split, horizontalSize, verticalSize);
@@ -1032,7 +1064,7 @@ public final class Interface extends Application {
         });
         secondInput.setOnKeyPressed((KeyEvent ke) -> {
             if (ke.getCode().equals(KeyCode.ENTER)) {
-                if (!workingUser.PersonExists(IDInput.getText())) {
+                if (!workingUser.personExists(IDInput.getText())) {
                     if (secondInput.getText().equals(firstInput.getText())) {
                         workingUser.addPersonToDatabase(nameInput.getText(), IDInput.getText(), firstInput.getText());
                         flashColour(new Node[]{IDInput, nameInput, firstInput, secondInput}, 1500, Color.AQUAMARINE);
