@@ -25,6 +25,7 @@ package inventoryManager;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.Optional;
 
 class ItemDatabase implements Database {
     /**
@@ -138,7 +139,7 @@ class ItemDatabase implements Database {
      * @param ID The ID of the item to get the name of.
      * @return The name of the item.
      */
-    public String getEntryName(String ID) {
+    public Optional<String> getEntryName(String ID) {
         return SQLInterface.getName(SQLInterface.TABITEM, ID);
     }
 
@@ -167,7 +168,7 @@ class ItemDatabase implements Database {
      * @param name The name of the item to search for.
      * @return The ID of the first item in the database with the given name.
      */
-    public final String getBarcode(String name) {
+    public final Optional<String> getBarcode(String name) {
         return SQLInterface.getID(SQLInterface.TABITEM, name);
     }
 

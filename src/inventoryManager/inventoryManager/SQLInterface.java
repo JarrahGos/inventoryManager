@@ -30,6 +30,7 @@ import java.io.FileNotFoundException;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.Random;
 
 
@@ -118,15 +119,15 @@ public class SQLInterface {
 
     }
 
-    private static Connection getDatabase() //TODO: Implement optional.
+    private static Optional<Connection> getDatabase() //TODO: Implement optional.
     {
         try {
             Connection db = DriverManager.getConnection(URL);
             db.setAutoCommit(true);
-            return db;
+            return Optional.of(db);
         } catch (java.sql.SQLException e) {
             Log.print(e);
-            return null;
+            return Optional.empty();
         }
 
     }
@@ -138,7 +139,7 @@ public class SQLInterface {
      * @param barcode The barcode of the item or person to delete.
      */
     public static void deleteEntry(String type, String barcode) {
-        Connection db = getDatabase();
+        Connection db = getDatabase().get();
         String statement = "";
         switch (type) {
             case "person":
@@ -173,7 +174,7 @@ public class SQLInterface {
     public static void addEntry(String ID, String name, int admin, String password, String salt) { // add a new person
         String statement = "INSERT INTO " + TABPERSON + " (" + COLPERSONID + ", " + COLPERSONNAME + ", " + COLPERSONADMIN + ", " + COLPERSONPASSOWRD + ", " + COLPERSONSALT + ")" +
                 "VALUES(?, ?, ?, ?, ?)";
-        Connection db = getDatabase();
+        Connection db = getDatabase().get(); 
         System.out.println(statement + ID + name + admin + password + salt);
         try {
             PreparedStatement ps = db.prepareStatement(statement);
@@ -197,7 +198,7 @@ public class SQLInterface {
      */
     public static void addEntry(String name) // add new set
     {
-        Connection db = getDatabase();
+        Connection db = getDatabase().get();
         String statement = "INSERT INTO " + TABSET + " (" + COLSETNAME + ") VALUES(?)";
         try {
             PreparedStatement ps = db.prepareStatement(statement);
@@ -233,7 +234,7 @@ public class SQLInterface {
 //        } catch (SQLException e) {
 //            Log.print(e);
 //        }
-        Connection db = getDatabase();
+        Connection db = getDatabase().get();
         String statement = "INSERT INTO " + TABGENERAL + " (" + COLGENERALID + ", " + COLGENERALDESCRIPTION + ", " + COLGENERALQUANTITY + ")" +
                 "VALUES(?, ?, ?, ?, ?)";
         try {
@@ -293,7 +294,7 @@ public class SQLInterface {
 //        } catch (SQLException e) {
 //            Log.print(e);
 //        }
-        Connection db = getDatabase();
+        Connection db = getDatabase().get();
         String statement;
         if (type != null && !type.isEmpty()) {
             statement = "SELECT " + COLCONTROLLEDTYPEID + " FROM " + TABCONTROLLEDTYPE + " WHERE " + COLCONTROLLEDTYPENAME + " = ?";
@@ -365,7 +366,7 @@ public class SQLInterface {
      * @param name The name of the item.
      */
     public static  void addEntry(String ID, String name) {
-        Connection db = getDatabase();
+        Connection db = getDatabase().get();
         String statement = "INSERT INTO " + TABITEM + " (" + COLITEMID + ", " + COLITEMNAME + ") " +
                 "VALUES(?, ?)";
         try {
@@ -387,7 +388,7 @@ public class SQLInterface {
      * @param adminID The ID of the admin who allowed the change.
      */
     public static  void addLog(String persID, String adminID) { // add to change password log.
-        Connection db = getDatabase();
+        Connection db = getDatabase().get();
         String statement = String.format("INSERT INTO %s (%s, %s, %s) VALUES(?, DATE('now', 'localtime'), (SELECT %s FROM %s WHERE %s = ?))",
                 TABPERSONLOG, COLPERSONLOGPERSID, COLPERSONLOGDATE, COLPERSONLOGAUTHNAME, COLPERSONNAME, TABPERSON, COLPERSONID);
         try {
@@ -411,7 +412,7 @@ public class SQLInterface {
      * @param controlled Whether the item is controlled or not.
      */
     public static  void addLog(String itemID, String persID, boolean controlled) { // Sign an item out
-        Connection db = getDatabase();
+        Connection db = getDatabase().get();
         //TODO: Should this check the item as out in the controlled table?
         String statment = "INSERT INTO " + TABITEMLOG + " (" + COLITEMLOGID + ", " + COLITEMLOGOUTDATE + ", " + COLITEMLOGINDATE + ", " + COLITEMLOGPERSID + ", " + COLITEMLOGCONTROLLED + ") " +
                 "VALUES(?, DATE('now', 'localtime'), \"FALSE\", ?, ?)";
@@ -441,7 +442,7 @@ public class SQLInterface {
      * @param persID The ID of the admin returning the idem.
      */
     public static  void returnItem(String itemID, String persID) { // Return a general item.
-        Connection db = getDatabase();
+        Connection db = getDatabase().get();
         String statement = "UPDATE " + TABITEMLOG + " SET in=TRUE, inDate=DATE('now', 'localtime')" +
                 "WHERE ID=? AND persID=?";
         try {
@@ -472,7 +473,7 @@ public class SQLInterface {
      * @return
      */
     public static  ArrayList<String> getLog(String type) {
-        Connection db = getDatabase();
+        Connection db = getDatabase().get();
         String statement;
         ResultSet rs = null;
         switch (type) {
@@ -521,7 +522,7 @@ public class SQLInterface {
      * @return An arraylist of the records in the log file.
      */
     public static  ArrayList<String> getLog(String type, String ID) {
-        Connection db = getDatabase();
+        Connection db = getDatabase().get();
         String statement;
         ResultSet rs = null;
         switch (type) {
@@ -576,7 +577,7 @@ public class SQLInterface {
      * @return An arrayList of each record within the log.
      */
     public static  ArrayList<String> getLog(String type, LocalDate date) {
-        Connection db = getDatabase();
+        Connection db = getDatabase().get();
         String statement;
         ResultSet rs = null;
         switch (type) {
@@ -630,7 +631,7 @@ public class SQLInterface {
      * @return An ArrayList of all items that have been logged out.
      */
     public static  ArrayList<String> getOutItemsLog() {
-        Connection db = getDatabase();
+        Connection db = getDatabase().get();
         String statement = "SELECT * FROM " + TABITEMLOG + " WHERE " + COLITEMLOGOUT + " = 1";
         ResultSet rs;
         ArrayList<String> ret = new ArrayList<>();
@@ -655,7 +656,7 @@ public class SQLInterface {
      * @return An arraylist of every record within the given table.
      */
     public static  ArrayList<String> getDatabase(String type) {
-        Connection db = getDatabase();
+        Connection db = getDatabase().get();
         String statement;
         ResultSet rs = null;
         int count = 0;
@@ -727,7 +728,7 @@ public class SQLInterface {
      * @return An ArrayList of the records within the chosen table which match the given ID.
      */
     public static  ArrayList<String> getDatabase(String type, String ID) {
-        Connection db = getDatabase();
+        Connection db = getDatabase().get();
         String statement;
         ResultSet rs = null;
         switch (type) {
@@ -803,7 +804,7 @@ public class SQLInterface {
      * @return An ArrayList containing the records from the given table that match the given date.
      */
     public static  ArrayList<String> getDatabase(String type, LocalDate date) {
-        Connection db = getDatabase();
+        Connection db = getDatabase().get();
         String statement;
         ResultSet rs = null;
         switch (type) {
@@ -866,7 +867,7 @@ public class SQLInterface {
      * @param sub The number to subtract from the item.
      */
     public static  void lowerQuantity(String ID, int sub) {
-        Connection db = getDatabase();
+        Connection db = getDatabase().get();
         String statement = "UPDATE " + TABGENERAL + " SET " + COLGENERALQUANTITY + " = " +
                 "((SELECT " + COLGENERALQUANTITY + " FROM " + TABGENERAL + " WHERE " + COLGENERALID + " = ?) - ?)" +
                 " WHERE " + COLGENERALID + " = ?";
@@ -889,16 +890,16 @@ public class SQLInterface {
      * @param ID The ID of the item or person.
      * @return The name of the item or person.
      */
-    public static  String getName(String type, String ID) {
-        Connection db = getDatabase();
+    public static Optional<String> getName(String type, String ID) {
+        Connection db = getDatabase().get();
         String statement;
         ResultSet rs;
-        String out = "";
+        String out = null;
         switch (type) {
-            case "person":
+            case TABPERSON:
                 statement = "SELECT " + COLPERSONNAME + " FROM " + TABPERSON + " WHERE " + COLPERSONID + "=?";
                 break;
-            case "item":
+            case TABITEM:
                 statement = "SELECT " + COLITEMNAME + " FROM " + TABITEM + "" +
                         " WHERE " + COLITEMID + " = ?";
                 break;
@@ -919,7 +920,7 @@ public class SQLInterface {
         } catch (SQLException e) {
             Log.print(e);
         }
-        return out;
+        return Optional.ofNullable(out);
     }
 
     /**
@@ -928,7 +929,7 @@ public class SQLInterface {
      * @return An arraylist of every name in the table.
      */
     public static  ArrayList<String> getName(String type) {
-        Connection db = getDatabase();
+        Connection db = getDatabase().get();
         String statement;
         ResultSet rs;
         ArrayList<String> out = new ArrayList<>();
@@ -969,11 +970,11 @@ public class SQLInterface {
      * @param name The name to search for.
      * @return The ID of the first record found which matches the name given.
      */
-    public static  String getID(String type, String name) {
-        Connection db = getDatabase();
+    public static Optional<String> getID(String type, String name) {
+        Connection db = getDatabase().get();
         String statement;
         ResultSet rs;
-        String out = "";
+        String out = null;
         switch (type) {
             case "person":
                 statement = "SELECT " + COLPERSONID + " FROM " + TABPERSON + " WHERE " + COLPERSONNAME + "=?";
@@ -999,7 +1000,7 @@ public class SQLInterface {
         } catch (SQLException e) {
             Log.print(e);
         }
-        return out;
+        return Optional.ofNullable(out);
     }
 
     /**
@@ -1008,7 +1009,7 @@ public class SQLInterface {
      * @return A String array with password at 0 and salt at 1
      */
     public static  String[] getPassword(String barcode) {
-        Connection db = getDatabase();
+        Connection db = getDatabase().get();
         String statement = "SELECT " + COLPERSONPASSOWRD + ", " + COLPERSONSALT + " FROM " + TABPERSON + " WHERE " + COLPERSONID + " = ?";
         ResultSet rs;
         String[] out = new String[2];
@@ -1038,7 +1039,7 @@ public class SQLInterface {
      * @param salt The salt that the password was hashed with to enter into the database.
      */
     public static  void setPassword(String ID, String password, String salt) {
-        Connection db = getDatabase();
+        Connection db = getDatabase().get();
         String statement = "UPDATE " + TABPERSON + " SET " + COLPERSONPASSOWRD + " = ?, " + COLPERSONSALT + " = ? WHERE " + COLPERSONID + " = ?";
         try {
             PreparedStatement ps = db.prepareStatement(statement);
@@ -1060,10 +1061,10 @@ public class SQLInterface {
      * @return The role of the user: 0 for user, 1 for admin, 2 for root.
      */
     public static  int getRole(String barcode) {
-        Connection db = getDatabase();
+        Connection db = getDatabase().get();
         String statement = "SELECT " + COLPERSONADMIN + " FROM " + TABPERSON + " WHERE " + COLPERSONID + " = ?";
         ResultSet rs;
-        int admin = 0;
+        int admin = PersonDatabase.USER;
         try {
             PreparedStatement ps = db.prepareStatement(statement);
             ps.setString(1, barcode);
@@ -1087,7 +1088,7 @@ public class SQLInterface {
      * @return True if the user exists. False otherwise. Multiple users with the same ID will return true.
      */
     public static  boolean entryExists(String type, String ID) {
-        Connection db = getDatabase();
+        Connection db = getDatabase().get();
         String statement;
         ResultSet rs;
         switch (type) {
@@ -1124,8 +1125,8 @@ public class SQLInterface {
      * @param path The location within the filesystem to export the table(s) to.
      */
     @SuppressWarnings("Duplicates")
-    public static  void export(String type, String path) {
-        Connection db = getDatabase();
+    public static void export(String type, String path) { //TODO: At least one of these would work in normal SQL.
+        Connection db = getDatabase().get();
         String statement;
         switch (type) {
             case "person":
@@ -1184,7 +1185,7 @@ public class SQLInterface {
      * @return
      */
     public static  int getQuantity(String ID) {
-        Connection db = getDatabase();
+        Connection db = getDatabase().get();
         String statement = "SELECT " + COLGENERALQUANTITY + " FROM " + TABGENERAL + " WHERE " + COLGENERALID + " = ?";
         ResultSet rs = null;
         try {
@@ -1209,7 +1210,7 @@ public class SQLInterface {
      * @param quantity The new quantity. Set to exactly the value given in the parameter.
      */
     public static  void setQuantity(String ID, int quantity) {
-        Connection db = getDatabase();
+        Connection db = getDatabase().get();
         String statement = "UPDATE " + TABGENERAL + " SET " + COLGENERALQUANTITY + "=?  WHERE " + COLGENERALID + " = ?";
         try {
             PreparedStatement ps = db.prepareStatement(statement);
@@ -1230,7 +1231,7 @@ public class SQLInterface {
      * @param newID The new ID of the item. Re-enter the same ID as above for no change.
      */
     public static  void updateEntry(String ID, String name, String newID) {
-        Connection db = getDatabase();
+        Connection db = getDatabase().get();
         String statement = "UPDATE " + TABITEM + " SET " + COLITEMNAME + " = ?, set (" + COLITEMID + " = ? )" +
                 " WHERE " + COLITEMID + " = ?";
         try {
@@ -1252,7 +1253,7 @@ public class SQLInterface {
      * @return True if item is controlled, false otherwise.
      */
     public static  boolean isItemControlled(String ID) {
-        Connection db = getDatabase();
+        Connection db = getDatabase().get();
         String statement = "SELECT " + COLCONTROLLEDID + " FROM " + TABCONTROLLED + " WHERE " + COLCONTROLLEDID + " = ?";
         ResultSet rs;
         try {

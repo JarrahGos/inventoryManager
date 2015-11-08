@@ -202,7 +202,7 @@ class WorkingUser {
             return 1;
         } else {
             if (passwordsEqual(ID, pass)) {
-                userName = personDatabase.getEntryName(ID);
+                userName = personDatabase.getEntryName(ID).get();
                 userID = ID;
             } else {
                 return 1;
@@ -386,7 +386,7 @@ class WorkingUser {
         } else if ((input == null) || ("".equals(input))) {
             return false;
         }
-        String adding = itemDatabase.getEntryName(tempBarCode);
+        String adding = itemDatabase.getEntryName(tempBarCode).orElseGet("ERROR"); //TODO: what is the go with these methods. 
         if (adding != null) {
             System.out.println(tempBarCode + "\n" + adding);
             checkOuts.addProduct(tempBarCode, adding); //otherwise, add the product as normal.

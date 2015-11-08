@@ -23,6 +23,7 @@ package inventoryManager;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Optional;
 
 final class PersonDatabase implements Database {
 
@@ -110,7 +111,7 @@ final class PersonDatabase implements Database {
      * @param barcode The barcode of the person you wish to get
      * @return The name of the person with the specified barcode as a string or error if the person does not exist.
      */
-    public final String getEntryName(String barcode) {
+    public final Optional<String> getEntryName(String barcode) {
         return SQLInterface.getName(SQLInterface.TABPERSON, barcode);
     }
 
@@ -120,7 +121,7 @@ final class PersonDatabase implements Database {
      * @param name The name of the person to search for.
      * @return The ID of the first person found with that name.
      */
-    public final String getEntryID(String name) {
+    public final Optional<String> getEntryID(String name) {
         return SQLInterface.getID(SQLInterface.TABPERSON, name);
     }
 

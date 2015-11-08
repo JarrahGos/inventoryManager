@@ -1,19 +1,9 @@
 package inventoryManager;
 
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
-
-import javax.crypto.Cipher;
-import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
-import javax.crypto.spec.PBEParameterSpec;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.file.Paths;
-import java.security.GeneralSecurityException;
 import java.util.Properties;
 
 /*
@@ -64,11 +54,6 @@ final class Settings {
         }
     }
 
-    private static final char[] PASSWORD = "12345678".toCharArray();
-    private static final byte[] SALT = {
-            (byte) 0xde, (byte) 0xa3, (byte) 0x10, (byte) 0x15,
-            (byte) 0xde, (byte) 0xa3, (byte) 0x10, (byte) 0x15,
-    };
 
     /**
      * Create an instance of the settings class from which to read settings from.
@@ -94,13 +79,14 @@ final class Settings {
      * @return The location in which the database is stored. This is checked for compatibility against the running OS
      * @throws FileNotFoundException if the settings file is not in the location it should be.
      */
+    @SuppressWarnings("Duplicates")
     public static String personSettings() throws FileNotFoundException {
         if (inputStream != null) {
             try {
                 properties.load(inputStream);
             } catch (IOException e) {
-                //	Log.print("property file '" + propFileName + "' not " +
-                //         "found in the classpath");
+                Log.print("property file '" + propFileName + "' not " +
+                        "found in the classpath");
             }
         } else {
             throw new FileNotFoundException("property file '" + propFileName + "' not found in the classpath");
@@ -118,13 +104,14 @@ final class Settings {
      * @return The location in which the database is stored. This is checked for compatibility against the running OS
      * @throws FileNotFoundException If the settings file is not in the location it should be.
      */
+    @SuppressWarnings("Duplicates")
     public static String productSettings() throws FileNotFoundException {
         if (inputStream != null) {
             try {
                 properties.load(inputStream);
             } catch (IOException e) {
-                //	Log.print("property file '" + propFileName + "' not " +
-                //          "found in the classpath");
+                Log.print("property file '" + propFileName + "' not " +
+                        "found in the classpath");
             }
         } else {
             throw new FileNotFoundException("property file '" + propFileName + "' not found in the classpath");
@@ -142,13 +129,14 @@ final class Settings {
      * @return A string array with the horizontal size, vertical size and textsize.
      * @throws FileNotFoundException If the settings file is not in the location it should be.
      */
+    @SuppressWarnings("Duplicates")
     public static String[] interfaceSettings() throws FileNotFoundException {
         if (inputStream != null) {
             try {
                 properties.load(inputStream);
             } catch (IOException e) {
-                //	Log.print("property file '" + propFileName + "' not " +
-                //      "found in the classpath");
+                Log.print("property file '" + propFileName + "' not " +
+                        "found in the classpath");
             }
         } else {
             throw new FileNotFoundException("property file '" + propFileName + "' not found in the classpath");
@@ -167,6 +155,7 @@ final class Settings {
      * @return A string with the location of the log. This is checked for compatibility against the running OS
      * @throws FileNotFoundException If the settings file is not in the location it should be.
      */
+    @SuppressWarnings("Duplicates")
     public static String logSettings() throws FileNotFoundException {
         if (inputStream != null) {
             try {
@@ -206,39 +195,10 @@ final class Settings {
         String[] output = new String[3];
         output[0] = properties.getProperty("URL");
         output[1] = properties.getProperty("user");
-        try {
-            output[2] = decrypt(properties.getProperty("password"));
-        } catch (GeneralSecurityException | IOException e) {
-            e.printStackTrace();
-        }
+        output[2] = properties.getProperty("password");
+
         return output;
     }
 
-    //TODO: the below is an idea, but not necessary. It would encrypt the settings file, but that file stores nothing of use anyway.
-    private static String encrypt(String property) throws GeneralSecurityException, UnsupportedEncodingException {
-        SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("PBEWithMD5AndDES");
-        SecretKey key = keyFactory.generateSecret(new PBEKeySpec(PASSWORD));
-        Cipher pbeCipher = Cipher.getInstance("PBEWithMD5AndDES");
-        pbeCipher.init(Cipher.ENCRYPT_MODE, key, new PBEParameterSpec(SALT, 20));
-        return base64Encode(pbeCipher.doFinal(property.getBytes("UTF-8")));
-    }
 
-    private static String base64Encode(byte[] bytes) {
-        // NB: This class is internal, and you probably should use another impl
-        return new BASE64Encoder().encode(bytes);
-    }
-
-    private static String decrypt(String property) throws GeneralSecurityException, IOException {
-        return property;
-//        SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("PBEWithMD5AndDES");
-//        SecretKey key = keyFactory.generateSecret(new PBEKeySpec(PASSWORD));
-//        Cipher pbeCipher = Cipher.getInstance("PBEWithMD5AndDES");
-//        pbeCipher.init(Cipher.DECRYPT_MODE, key, new PBEParameterSpec(SALT, 20));
-//        return new String(pbeCipher.doFinal(base64Decode(property)), "UTF-8");
-    }
-
-    private static byte[] base64Decode(String property) throws IOException {
-        // NB: This class is internal, and you probably should use another impl
-        return new BASE64Decoder().decodeBuffer(property);
-    }
 }
