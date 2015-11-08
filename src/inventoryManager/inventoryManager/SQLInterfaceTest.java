@@ -102,17 +102,22 @@ public class SQLInterfaceTest {
 
     @org.junit.Test
     public void testGetName() throws Exception {
-
+        assert !SQLInterface.getName(SQLInterface.TABPERSON).isEmpty();
+        assert !SQLInterface.getName(SQLInterface.TABITEM).isEmpty();
     }
 
     @org.junit.Test
     public void testGetName1() throws Exception {
+        assert SQLInterface.getName(SQLInterface.TABITEM, "1").get().equals("razor");
+        assert SQLInterface.getName(SQLInterface.TABPERSON, "7000000").get().equals("nameb");
+        assert SQLInterface.getName(SQLInterface.TABPERSON, "123").get().equals("name");
 
     }
 
     @org.junit.Test
     public void testGetID() throws Exception {
-        assert SQLInterface.getID(SQLInterface.TABPERSON, "name").get().equals("123");
+
+        assert SQLInterface.getID(SQLInterface.TABPERSON, "nameb").get().equals("7000000");
         assert !SQLInterface.getID(SQLInterface.TABPERSON, "").isPresent();
         assert !SQLInterface.getID(SQLInterface.TABPERSON, null).isPresent();
         assert !SQLInterface.getID(SQLInterface.TABPERSON, "123").isPresent();

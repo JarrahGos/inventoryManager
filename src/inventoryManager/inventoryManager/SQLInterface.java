@@ -970,6 +970,7 @@ public class SQLInterface {
      * @param name The name to search for.
      * @return The ID of the first record found which matches the name given.
      */
+    @SuppressWarnings("Duplicates")
     public static Optional<String> getID(String type, String name) {
         Connection db = getDatabase().get();
         String statement;
