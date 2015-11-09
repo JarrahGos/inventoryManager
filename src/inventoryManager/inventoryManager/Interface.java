@@ -208,78 +208,7 @@ public class Interface extends Application {
         Button adminMode = new Button("Enter Admin Mode");
 
         enterBarCode.setOnAction((ActionEvent e) -> {
-            if ((pass.getText() == null || pass.getText().isEmpty()) && !WorkingUser.userLoggedIn()) {
-                pass.requestFocus();
-                flashColour(pass, 1500, Color.RED);
-            } else if (!WorkingUser.userLoggedIn()) { // treat the input as a barcode
-                int userError;
-                userError = barcodeEntered(input.getText(), pass.getText()); // take the text, do user logon stuff with it.
-
-
-                if (WorkingUser.userLoggedIn()) {
-                    privelage = WorkingUser.getRole();
-                    Thread thread = new Thread(new Runnable() { //TODO: make this work.
-
-                        @Override
-                        public void run() {
-                            try {
-                                Thread.sleep(1); // after this time, log the user out.
-                                WorkingUser.logOut(); // set user number to -1 and delete any checkout made.
-
-                                grid.getChildren().remove(userLabel); // make it look like no user is logged in
-                                inputLabel.setText("Enter your barcode"); // set the input label to something appropriate.
-//                                total.setText(String.valueOf("$" + WorkingUser.getPrice())); // set the total price to 0.00.
-                            } catch (InterruptedException e) {
-                                // do nothing here.
-                            }
-                        }
-                    });
-                    thread.setDaemon(true);
-                    thread.setPriority(Thread.MIN_PRIORITY);
-                    thread.start();
-                    thread.interrupt();
-                    flashColour(input, 1500, Color.AQUAMARINE);
-                    flashColour(pass, 1500, Color.AQUAMARINE);
-                    input.requestFocus();
-                    userLabel.setText(WorkingUser.userName(userError)); // find the name of those who dare log on.
-                    inputLabel.setText("Enter Barcode"); // change the label to suit the next action.
-                    grid.getChildren().remove(userLabel); // remove any error labels which may have appeared.
-                    grid.add(userLabel, 3, 0); // add the new user label
-                    grid.getChildren().remove(addUser);
-                    // the above two are done as we do not know whether a user label exists there. Adding two things to the same place causes an exception.
-                    if (privelage > PersonDatabase.USER) {
-                        grid.add(adminMode, 0, 8); // add the button to the bottum left of the screen.
-                    }
-                    input.clear(); // clear the barcode from the input ready for product bar codes.
-                    pass.clear();
-                    grid.getChildren().remove(pass);
-
-                } else {
-                    input.clear(); // there was an error with the barcode, get ready for another.
-                    pass.clear();
-                    input.requestFocus();
-                    userLabel.setText(WorkingUser.userName(userError)); // tell the user there was a problem. Maybe this could be done better.
-                    grid.getChildren().remove(userLabel); // Remove a userlabel, as above.
-                    grid.add(userLabel, 3, 0); // add it again, as above.
-                    flashColour(input, 1500, Color.RED);
-                    flashColour(pass, 1500, Color.RED);
-                }
-            } else {
-                boolean correct = productEntered(input.getText());
-                if (correct) {
-                    productError.setText("");
-                    items.setAll(WorkingUser.getCheckOutNames());
-                    itemList.setItems(items);
-                    input.clear();
-                    input.requestFocus();
-                    flashColour(input, 500, Color.AQUAMARINE);
-                } else {
-                    productError.setText("Could not read that product");
-                    input.clear();
-                    input.requestFocus();
-                    flashColour(input, 500, Color.RED);
-                }
-            }
+            OnOKPressed(grid, inputLabel, input, userLabel, pass, addUser, itemList, items, adminMode);
         });
         input.setOnKeyPressed((KeyEvent ke) -> { // the following allows the user to hit enter rather than OK. Works exactly the same as hitting OK.
             if (ke.getCode().equals(KeyCode.ENTER) && !WorkingUser.userLoggedIn()) {
@@ -305,60 +234,13 @@ public class Interface extends Application {
         });
         pass.setOnKeyPressed((KeyEvent ke) -> {
             if (ke.getCode().equals(KeyCode.ENTER)) { //TODO: this is duplicate code, make a method call.
-                if (pass.getText() == null || pass.getText().isEmpty()) {
-                    pass.requestFocus();
-                    flashColour(pass, 1500, Color.RED);
-                } else if (!WorkingUser.userLoggedIn()) {
-                    int userError = barcodeEntered(input.getText(), pass.getText());
-
-                    if (WorkingUser.userLoggedIn()) {
-                        userLabel.setText(WorkingUser.userName(userError));
-                        inputLabel.setText("Enter Barcode");
-                        grid.getChildren().remove(userLabel);
-                        grid.add(userLabel, 3, 0);
-                        input.clear();
-                        flashColour(input, 1500, Color.AQUAMARINE);
-                        flashColour(pass, 1500, Color.AQUAMARINE);
-                        input.requestFocus();
-                        grid.getChildren().remove(addUser);
-                        privelage = WorkingUser.getRole();
-                        if (privelage >= PersonDatabase.ADMIN) {
-                            grid.add(adminMode, 0, 8); // add the button to the bottum left of the screen.
-                        }
-                        pass.clear();
-                        grid.getChildren().remove(pass);
-                    } else {
-                        input.clear();
-                        userLabel.setText(WorkingUser.userName(userError));
-                        grid.getChildren().remove(userLabel);
-                        grid.add(userLabel, 3, 0);
-                        input.clear();
-                        pass.clear();
-                        input.requestFocus();
-                        flashColour(input, 1500, Color.RED);
-                        flashColour(pass, 1500, Color.RED);
-                    }
-                } else {
-                    boolean correct = productEntered(input.getText());
-                    if (correct) {
-                        items.setAll(WorkingUser.getCheckOutNames());
-                        itemList.setItems(items);
-                        input.clear();
-                        input.requestFocus();
-                        flashColour(input, 500, Color.AQUAMARINE);
-                    } else {
-                        input.clear();
-                        input.requestFocus();
-                        flashColour(input, 500, Color.RED);
-                    }
-                }
+                OnOKPressed(grid, inputLabel, input, userLabel, pass, addUser, itemList, items, adminMode);
             }
         });
 
 
         // create and listen on admin button
         adminMode.setOnAction((ActionEvent e) -> {
-            //TODO: Should this log out the user?
             WorkingUser.logOut(); // set user number to -1 and delete any checkout made.
             grid.getChildren().remove(userLabel); // make it look like no user is logged in
             inputLabel.setText("Enter your barcode"); // set the input label to something appropriate.
@@ -444,6 +326,56 @@ public class Interface extends Application {
         primaryStage.setScene(primaryScene);
 
         primaryStage.show();
+    }
+
+    private void OnOKPressed(GridPane grid, Text inputLabel, TextField input, Text userLabel, PasswordField pass, Button addUser, ListView<String> itemList, ObservableList<String> items, Button adminMode) {
+        if (pass.getText() == null || pass.getText().isEmpty()) {
+            pass.requestFocus();
+            flashColour(pass, 1500, Color.RED);
+        } else if (!WorkingUser.userLoggedIn()) {
+            int userError = barcodeEntered(input.getText(), pass.getText());
+
+            if (WorkingUser.userLoggedIn()) {
+                userLabel.setText(WorkingUser.userName(userError));
+                inputLabel.setText("Enter Barcode");
+                grid.getChildren().remove(userLabel);
+                grid.add(userLabel, 3, 0);
+                input.clear();
+                flashColour(input, 1500, Color.AQUAMARINE);
+                flashColour(pass, 1500, Color.AQUAMARINE);
+                input.requestFocus();
+                grid.getChildren().remove(addUser);
+                privelage = WorkingUser.getRole();
+                if (privelage >= PersonDatabase.ADMIN) {
+                    grid.add(adminMode, 0, 8); // add the button to the bottum left of the screen.
+                }
+                pass.clear();
+                grid.getChildren().remove(pass);
+            } else {
+                input.clear();
+                userLabel.setText(WorkingUser.userName(userError));
+                grid.getChildren().remove(userLabel);
+                grid.add(userLabel, 3, 0);
+                input.clear();
+                pass.clear();
+                input.requestFocus();
+                flashColour(input, 1500, Color.RED);
+                flashColour(pass, 1500, Color.RED);
+            }
+        } else {
+            boolean correct = productEntered(input.getText());
+            if (correct) {
+                items.setAll(WorkingUser.getCheckOutNames());
+                itemList.setItems(items);
+                input.clear();
+                input.requestFocus();
+                flashColour(input, 500, Color.AQUAMARINE);
+            } else {
+                input.clear();
+                input.requestFocus();
+                flashColour(input, 500, Color.RED);
+            }
+        }
     }
 
     /**
