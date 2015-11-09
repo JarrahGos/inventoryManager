@@ -17,6 +17,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 import java.io.File;
 import java.io.IOException;
@@ -109,6 +110,7 @@ public class AdminInterface extends Interface {
         split.setDividerPositions(0.2f);
         optionList.getSelectionModel().selectedItemProperty().addListener(
                 (ObservableValue<? extends String> ov, String old_val, String selectedOption) -> {
+                    if (selectedOption == null) return;
                     switch (selectedOption) {
                         case "Change a Person":
                             changePerson(grid);
@@ -153,6 +155,9 @@ public class AdminInterface extends Interface {
                 });
         Scene adminScene = new Scene(split, horizontalSize, verticalSize);
         adminStage.setScene(adminScene);
+        adminStage.setOnCloseRequest((WindowEvent event) -> {
+            lastStage.show();
+        });
         adminStage.show();
         adminStage.toFront();
 

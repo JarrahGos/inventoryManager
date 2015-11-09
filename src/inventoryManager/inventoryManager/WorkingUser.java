@@ -41,24 +41,24 @@ public final class WorkingUser {
     /**
      * The currently logged in user
      */
-    private static String userID;
-    private static String userName;
+    private static String userID = null;
+    private static String userName = null;
     /**
      * The database which stores all products used by the system.
      */
-    private static ItemDatabase itemDatabase;
+    private static ItemDatabase itemDatabase = new ItemDatabase();
     /**
      * The database which stores all people who can use the system
      */
-    private static PersonDatabase personDatabase;
+    private static PersonDatabase personDatabase = new PersonDatabase();
     /**
      * the checkout used to store what a person is purchasing at a given time
      */
-    private static CheckOut checkOuts;
+    private static CheckOut checkOuts = new CheckOut();
     /**
      * The database used for logging changes and transactions
      */
-    private static LoggingDatabase loggingDatabase;
+    private static LoggingDatabase loggingDatabase = new LoggingDatabase();
 
     /**
      * Create the working user instance with both databases and a checkout.
@@ -116,7 +116,7 @@ public final class WorkingUser {
      * @param NaCl     The salt to use in the hashing process
      * @return A string array with the password in the 0 position and the salt in the 1 position
      */
-    private static String[] getSecurePassword(String password, String NaCl) //throws NoSuchAlgorithmException, InvalidKeySpecException
+    private static String[] getSecurePassword(String password, String NaCl)
     {
         int iterations = 1000;
         char[] chars = password.toCharArray();
@@ -129,7 +129,7 @@ public final class WorkingUser {
         SecretKeyFactory skf = null;
         byte[] hash = null;
         try {
-            skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1"); // TODO: should this use something more than sha1?
+            skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512"); // TODO: should this use something more than sha1?
             hash = skf.generateSecret(spec).getEncoded();
         } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
             e.printStackTrace();
@@ -237,13 +237,8 @@ public final class WorkingUser {
      *
      * @return A string array of the product names
      */
-    public static final ArrayList<String> getProductNames(String type) { //TODO: DAFAQ is this. Fix.
-        if (type.equals("general")) {
-            return itemDatabase.getNamesOfEntries();
-        } else if (type.equals("controlled")) {
-            return itemDatabase.getNamesOfEntries();
-        }
-        return itemDatabase.getNamesOfEntries();
+    public static final ArrayList<String> getProductNames(String type) { //TODO: DAFAQ is this. Fix. (Switch?)
+        return itemDatabase.getNamesOfEntries(type);
     }
 
     /**

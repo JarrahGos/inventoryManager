@@ -121,6 +121,7 @@ public class SQLInterface {
 
     private static Optional<Connection> getDatabase()
     {
+
         try {
             Connection db = DriverManager.getConnection(URL);
             db.setAutoCommit(true);
@@ -935,8 +936,8 @@ public class SQLInterface {
                 statement = "SELECT " + COLITEMNAME + " FROM " + TABITEM + "";
                 break;
             case TABGENERAL:
-                statement = "SELECT " + COLITEMNAME + " FROM " + TABGENERAL +
-                        " JOIN " + TABITEM + " ON " + TABGENERAL + "." + COLGENERALID +
+                statement = "SELECT " + COLITEMNAME + " FROM " + TABITEM +
+                        " JOIN " + TABGENERAL + " ON " + TABGENERAL + "." + COLGENERALID +
                         " = " + TABITEM + "." + COLITEMID + ";";
                 break;
             default:
