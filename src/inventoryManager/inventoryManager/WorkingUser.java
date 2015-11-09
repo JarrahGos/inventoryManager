@@ -36,7 +36,7 @@ import java.util.Optional;
 /**
  * @author jarrah
  */
-class WorkingUser {
+public final class WorkingUser {
 
     /**
      * The currently logged in user
@@ -46,24 +46,24 @@ class WorkingUser {
     /**
      * The database which stores all products used by the system.
      */
-    private final ItemDatabase itemDatabase;
+    private static ItemDatabase itemDatabase;
     /**
      * The database which stores all people who can use the system
      */
-    private final PersonDatabase personDatabase;
+    private static PersonDatabase personDatabase;
     /**
      * the checkout used to store what a person is purchasing at a given time
      */
-    private CheckOut checkOuts;
+    private static CheckOut checkOuts;
     /**
      * The database used for logging changes and transactions
      */
-    private LoggingDatabase loggingDatabase;
+    private static LoggingDatabase loggingDatabase;
 
     /**
      * Create the working user instance with both databases and a checkout.
      */
-    public WorkingUser() {
+    private WorkingUser() {
         itemDatabase = new ItemDatabase();
         personDatabase = new PersonDatabase();
         checkOuts = new CheckOut();
@@ -200,7 +200,7 @@ class WorkingUser {
      * @param pass The password of the ID.
      * @return 0 if the user found, 1 if the user dose not exist, 2 if the user cannot buy.
      */
-    public final int getbarcode(String ID, String pass) {
+    public static final int getbarcode(String ID, String pass) {
         //if ((input != null && !input.equals("")) && (!input.matches("[0-9]+"))) {
         //    input = input.substring(1);
         //}
@@ -219,7 +219,7 @@ class WorkingUser {
         return 0;
     }
 
-    public final Optional<String> getPersonID(String name) {
+    public static final Optional<String> getPersonID(String name) {
         return personDatabase.getEntryID(name);
     }
 
@@ -228,7 +228,7 @@ class WorkingUser {
      *
      * @return A string array of the usernames
      */
-    public final ArrayList<String> getUserNames() {
+    public static final ArrayList<String> getUserNames() {
         return personDatabase.getNamesOfEntries();
     }
 
@@ -237,7 +237,7 @@ class WorkingUser {
      *
      * @return A string array of the product names
      */
-    public final ArrayList<String> getProductNames(String type) { //TODO: DAFAQ is this. Fix.
+    public static final ArrayList<String> getProductNames(String type) { //TODO: DAFAQ is this. Fix.
         if (type.equals("general")) {
             return itemDatabase.getNamesOfEntries();
         } else if (type.equals("controlled")) {
@@ -252,7 +252,7 @@ class WorkingUser {
      * @param PW A cleartext password to test
      * @return The boolean test for whether the passwords are equal.
      */
-    public final boolean passwordsEqual(String barcode, String PW) {
+    public static final boolean passwordsEqual(String barcode, String PW) {
         String[] old = personDatabase.getPassword(barcode);
         if (old[0] == null || old[1] == null) return false;
         System.out.println("Hash Old: " + old[0] +
@@ -269,7 +269,7 @@ class WorkingUser {
      *
      * @param PW The prehashed password to be set
      */
-    public final int setPassword(String barcode, String PW, String adBarcode, String adPass) {
+    public static final int setPassword(String barcode, String PW, String adBarcode, String adPass) {
         if (isUserAdmin(adBarcode) && passwordsEqual(adBarcode, adPass)) {
             if (personDatabase.entryExists(barcode)) {
                 String[] pass = new String[0];
@@ -288,11 +288,11 @@ class WorkingUser {
         return 2;
     }
 
-    public final boolean isUserAdmin(String barcode) {
+    public static final boolean isUserAdmin(String barcode) {
         return personDatabase.getRole(barcode) > PersonDatabase.USER;
     }
 
-    final boolean isLong(String s) {
+    final static boolean isLong(String s) {
         if (s == null) return false;
         try {
             Long.parseLong(s); // try to parse the string, catching a failure.
@@ -309,7 +309,7 @@ class WorkingUser {
      * @return A scroll pane showing the database chosen in the parameter or the person database by default.
      * @throws IOException
      */
-    public ScrollPane printDatabase(String type) throws IOException {
+    public static ScrollPane printDatabase(String type) throws IOException {
         TextArea textArea;
         switch (type) {
             case (SQLInterface.TABITEM):
@@ -334,7 +334,7 @@ class WorkingUser {
     /**
      * Log the user out from this class
      */
-    public final void logOut() { //TODO: this will probably have ta change.
+    public static final void logOut() { //TODO: this will probably have ta change.
         userName = null;
         userID = null;
         checkOuts = new CheckOut();
@@ -344,7 +344,7 @@ class WorkingUser {
      * Have the connected user buy the products in the checkout, adding the total cost to the users bill,
      * taking the number bought from the products in the database and clearing both the user and the checkout
      */
-    public final void checkOutItems() {
+    public static final void checkOutItems() {
         LinkedList purchased = checkOuts.productBought(); // clear the quantities and checkout
         itemDatabase.logItemsOut(purchased, userID); //TODO: Make this actually write out the items.
         checkOuts = new CheckOut(); // ensure checkout clear
@@ -357,7 +357,7 @@ class WorkingUser {
      *
      * @return A string array of the names of all products in the checkout
      */
-    public final LinkedList<String> getCheckOutNames() {
+    public static final LinkedList<String> getCheckOutNames() {
         return checkOuts.getCheckOutNames();
     }
 
@@ -367,7 +367,7 @@ class WorkingUser {
      * @param userError 0 if the user was correctly found, 1 if the user was not found and 2 if the user has been locked out.
      * @return The appropriate error message or the users name
      */
-    public final String userName(int userError) {
+    public static final String userName(int userError) {
         switch (userError) {
             case 0:
                 if (userName != null) return userName;
@@ -377,11 +377,11 @@ class WorkingUser {
         return (userID == null && userName != null) ? "Error" : userName;
     }
 
-    public final String getUserID() {
+    public static final String getUserID() {
         return userID;
     }
 
-    public ArrayList<String> getOutItems() {
+    public static ArrayList<String> getOutItems() {
         return loggingDatabase.getOutItems();
     }
 
@@ -391,7 +391,7 @@ class WorkingUser {
      * @param input The barcode for the product as a string
      * @return True if the product was added, false if it failed
      */
-    public final boolean addToCart(String input) {
+    public static final boolean addToCart(String input) {
         String tempBarCode = "-1";
         if (input != null && !input.equals("")) {
             tempBarCode = input; // disallows the user from entering nothing or clicking cancel.
@@ -416,7 +416,7 @@ class WorkingUser {
      *
      * @return The role of the user. 0 for user, 2 for admin, 3 for root (full access)
      */
-    public final int getRole() {
+    public static final int getRole() {
         if (userID == null || userName == null) return 0;
         return personDatabase.getRole(userID);
     }
@@ -427,7 +427,7 @@ class WorkingUser {
      * @param name The name of the person you wish to add
      * @param ID   The PMKeyS of the person you wish to add
      */
-    public final void addPersonToDatabase(String name, String ID, String password) {
+    public static final void addPersonToDatabase(String name, String ID, String password) {
         String[] passwd = new String[0];
         try {
             passwd = getSecurePassword(password, getSalt());
@@ -443,7 +443,7 @@ class WorkingUser {
      * @param name    The name of the product you wish to add
      * @param barcode The barcode for the product you wish to add.
      */
-    public final void addItemToDatabase(String barcode, String name) {
+    public static final void addItemToDatabase(String barcode, String name) {
         itemDatabase.addEntry(barcode, name);
     } //TODO: make this work for general and controlled items
 
@@ -455,7 +455,7 @@ class WorkingUser {
      * @param barcode    The new barcode of the product
      * @param oldBarcode The old barcode of the product
      */
-    public final void changeDatabaseProduct(String name, String oldName, String barcode, String oldBarcode) {
+    public static final void changeDatabaseProduct(String name, String oldName, String barcode, String oldBarcode) {
         itemDatabase.changeItem(oldName, barcode, oldBarcode);
     }
 
@@ -467,7 +467,7 @@ class WorkingUser {
      * @param ID            The new ID of the person
      * @param oldID         The old ID of the person
      */
-    public final void changeDatabasePerson(String OldName, String name, String ID, String oldID) {
+    public static final void changeDatabasePerson(String OldName, String name, String ID, String oldID) {
 //        personDatabase.changeDatabasePerson(selectedIndex, name, ID, oldID);
     }
 
@@ -476,7 +476,7 @@ class WorkingUser {
      *
      * @param type SQLInterface.TABPERSON for the person database or "Produt" for the product database
      */
-    public final void adminWriteOutDatabase(String type) {
+    public static final void adminWriteOutDatabase(String type) {
         switch (type) {
             case (SQLInterface.TABPERSON):
                 personDatabase.writeDatabaseCSV("adminPersonDatabase.csv");
@@ -501,7 +501,7 @@ class WorkingUser {
      * @param type The type of database to write. Person or Item (general or controlled)
      * @param path The location which the file will be stored at
      */
-    public final void adminWriteOutDatabase(String type, String path) {
+    public static final void adminWriteOutDatabase(String type, String path) {
         switch (type) {
             case (SQLInterface.TABPERSON):
                 personDatabase.writeDatabaseCSV(path);
@@ -518,7 +518,7 @@ class WorkingUser {
      * @throws IOException
      * @throws InterruptedException
      */
-    public final void removePerson(String ID, String rootID, String rootPasswd) throws IOException, InterruptedException {
+    public static final void removePerson(String ID, String rootID, String rootPasswd) throws IOException, InterruptedException {
         if (passwordsEqual(rootID, rootPasswd)) {
             personDatabase.deleteEntry(ID);
         }
@@ -531,7 +531,7 @@ class WorkingUser {
      * @throws IOException
      * @throws InterruptedException
      */
-    public final void removeItem(String ID) throws IOException, InterruptedException {
+    public static final void removeItem(String ID) throws IOException, InterruptedException {
         itemDatabase.deleteEntry(ID);
     }
 
@@ -542,7 +542,7 @@ class WorkingUser {
      * @param rootID     The ID of the root user attempting to delete the item.
      * @param rootPassWd The password of the root user attempting to delete the item.
      */
-    public final void removeItem(String ID, String rootID, String rootPassWd) {
+    public static final void removeItem(String ID, String rootID, String rootPassWd) {
         if (passwordsEqual(rootID, rootPassWd)) {
             itemDatabase.deleteEntry(ID);
         }
@@ -553,7 +553,7 @@ class WorkingUser {
      *
      * @param barcode The index of the item to delete in the checkout array
      */
-    public final void deleteProduct(int barcode) {
+    public static final void deleteProduct(int barcode) {
         checkOuts.delItem(barcode);
     }
 
@@ -563,7 +563,7 @@ class WorkingUser {
      * @param name The name of the product to get the barcode of
      * @return The barcode of the product with the name specified.
      */
-    public final String getProductBarCode(String name) {
+    public static final String getProductBarCode(String name) {
         return itemDatabase.getBarcode(name).orElse("Item Not Found");
     }
 
@@ -573,7 +573,7 @@ class WorkingUser {
      * @param barcode The barcode of the product as a string
      * @return The name of the product with the given barcode
      */
-    public final String getProductName(String barcode) {
+    public static final String getProductName(String barcode) {
         return itemDatabase.getEntryName(barcode).orElse("ERROR");
     }
 
@@ -583,7 +583,7 @@ class WorkingUser {
      * @param ID The name of the product you wish to check stock count.
      * @return The number of the specified product in stock
      */
-    public final int getProductNumber(String ID) {
+    public static final int getProductNumber(String ID) {
         return itemDatabase.getNumber(ID);
     }
 
@@ -593,7 +593,7 @@ class WorkingUser {
      * @param ID               The name of the product you wish to set the stock count for
      * @param numberOfProducts The new stock count.
      */
-    public final void setNumberOfProducts(String ID, int numberOfProducts) {
+    public static final void setNumberOfProducts(String ID, int numberOfProducts) {
         itemDatabase.setNumber(ID, numberOfProducts);
     }
 
@@ -602,7 +602,7 @@ class WorkingUser {
      *
      * @return The boolean value of whether the user is logged in.
      */
-    public final boolean userLoggedIn() {
+    public static final boolean userLoggedIn() {
         return (userID != null && userName != null);
     }
 
@@ -612,27 +612,27 @@ class WorkingUser {
      * @param ID The ID of the person to check for.
      * @return Boolean of does the member exist in the database.
      */
-    public boolean personExists(String ID) {
+    public static boolean personExists(String ID) {
         return personDatabase.entryExists(ID);
     }
 
-    public LinkedList<String> getInItems() {
+    public static LinkedList<String> getInItems() {
         return checkOuts.getCheckOutNames();
     }
 
-    public String getItemName(String barcode) {
+    public static String getItemName(String barcode) {
         return itemDatabase.getEntryName(barcode).orElse("ERROR");
     }
 
-    public void signItemsIn(ArrayList<String> items) {
+    public static void signItemsIn(ArrayList<String> items) {
         loggingDatabase.signItemsIn(items, userID);
     }
 
-    public boolean itemExists(String barcode) {
+    public static boolean itemExists(String barcode) {
         return itemDatabase.entryExists(barcode);
     }
 
-    public void updateRole(String ID, int role) {
+    public static void updateRole(String ID, int role) {
         personDatabase.updateRole(ID, role);
     }
 }
