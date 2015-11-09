@@ -40,7 +40,7 @@ public class AdminInterface extends Interface {
         super();
     }
 
-    public static void enterAdminMode(Stage lastStage, int privelage) {  //TODO: Break this and all other admin stuff up and put it in it's own extension class.
+    public static void enterAdminMode(Stage lastStage, int privelage) {
         lastStage.hide();
         Stage adminStage = new Stage();
         adminStage.setTitle("Inventory Admin");
@@ -311,7 +311,7 @@ public class AdminInterface extends Interface {
         Button signIn = new Button("Sign In Items");
         signIn.setOnAction((ActionEvent e) -> {
             WorkingUser.signItemsIn((ArrayList<String>) inItems);
-            //TODO: This requires the barcodes as the names will not be unique.
+            //TODO: This requires the barcodes as the names may not be unique.
         });
         grid.add(signIn, 1, 2);
     }

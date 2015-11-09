@@ -45,7 +45,6 @@ final class CheckOut {
      */
     private int logicalSize;
 
-    private int first; // TODO: this was for easter eggs. Consired removing.
     private ItemDatabase itemDB = new ItemDatabase();
 
     /**
@@ -56,7 +55,6 @@ final class CheckOut {
         names = new LinkedList<>();
         quantities = new LinkedList<>();
         logicalSize = 0;
-        first = 0;
     }
 
     /**
