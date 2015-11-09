@@ -233,7 +233,7 @@ public class Interface extends Application {
             }
         });
         pass.setOnKeyPressed((KeyEvent ke) -> {
-            if (ke.getCode().equals(KeyCode.ENTER)) { 
+            if (ke.getCode().equals(KeyCode.ENTER)) {
                 OnOKPressed(grid, inputLabel, input, userLabel, pass, addUser, itemList, items, adminMode);
             }
         });
