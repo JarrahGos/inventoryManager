@@ -65,7 +65,7 @@ public class SQLInterface {
     private static final String COLITEMSETID = "setID";
     private static final int TABITEMCOUNT = 3;
     // Column names TABITEMLOG
-    private static final String COLITEMLOGID = "ID";
+    private static final String COLITEMLOGID = "ID"; // Is this log ID or item, create another for ITEM. 
     private static final String COLITEMLOGOUTDATE = "outDate";
     private static final String COLITEMLOGOUT = "out";
     private static final String COLITEMLOGINDATE = "inDate";
@@ -454,8 +454,8 @@ public class SQLInterface {
         Connection db = getDatabase().get();
         System.out.println("_X_X_X_X_X_X_X_ New DB in addLog2");
         //TODO: Should this check the item as out in the controlled table?
-        String statment = "INSERT INTO " + TABITEMLOG + " (" + COLITEMLOGID + ", " + COLITEMLOGOUTDATE + ", " + COLITEMLOGINDATE + ", " + COLITEMLOGPERSID + ", " + COLITEMLOGCONTROLLED + ") " +
-                "VALUES(?, DATE('now', 'localtime'), \"FALSE\", ?, ?)";
+        String statment = "INSERT INTO " + TABITEMLOG + " (" + COLITEMLOGID + ", " + COLITEMLOGOUTDATE + ", " + COLITEMLOGINDATE + ", " + COLITEMLOGPERSID + ", " + COLITEMLOGCONTROLLED + ", " + COLITEMLOGOUT + ") " +
+                "VALUES(?, DATE('now', 'localtime'), \"FALSE\", ?, ?, 1)";
         try {
             PreparedStatement ps = db.prepareStatement(statment);
             ps.setString(1, itemID);
@@ -686,14 +686,18 @@ public class SQLInterface {
     public static ArrayList<String> getOutItemsLog() {
         Connection db = getDatabase().get();
         System.out.println("_X_X_X_X_X_X_X_ New DB in getOutItemsLog");
-        String statement = "SELECT * FROM " + TABITEMLOG + " WHERE " + COLITEMLOGOUT + " = 1";
+        String statement = "SELECT " + COLITEMNAME + " FROM " + TABITEMLOG + " JOIN " + TABITEM + " ON " + TABITEMLOG + "." + COLITEMLOGID + "=" + TABITEM + "." + COLITEMID + " WHERE " + COLITEMLOGOUT + " = 1";
         ResultSet rs;
         ArrayList<String> ret = new ArrayList<>();
         try {
             PreparedStatement ps = db.prepareStatement(statement);
             rs = ps.executeQuery();
-            while (rs.next()) {
-                ret.add(rs.toString());
+            boolean next = rs.next();
+            System.out.println(next);
+            while (next) {
+                System.out.println(rs.getString(1));
+                ret.add(rs.getString(1));
+                next = rs.next();
             }
             rs.close();
             ps.closeOnCompletion();
