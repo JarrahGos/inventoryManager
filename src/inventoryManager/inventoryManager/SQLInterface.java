@@ -521,7 +521,7 @@ public class SQLInterface {
             case TABPERSONLOG:
                 statement = "SELECT * FROM " + TABPERSONLOG + " ";
                 break;
-            case "item":
+            case TABITEMLOG:
                 statement = "SELECT * FROM " + TABITEMLOG + "";
                 break;
             case "controlled":
@@ -546,7 +546,7 @@ public class SQLInterface {
         ArrayList<String> ret = null;
         try {
             for (int i = 0; rs.next(); i++) {
-                ret.add(rs.getString(i + 1)); // TODO: test this toString
+                ret.add(rs.getString(i + 1)); // TODO: test this toString, tis fucked.
             }
             rs.close();
             ps.closeOnCompletion();
@@ -575,7 +575,7 @@ public class SQLInterface {
                 statement = "SELECT * FROM " + TABPERSONLOG + " " +
                         "WHERE " + COLPERSONLOGPERSID + " = ?";
                 break;
-            case "item":
+            case TABITEMLOG:
                 statement = "SELECT * FROM " + TABITEMLOG + " " +
                         "WHERE " + COLITEMLOGID + " = ?";
                 break;
@@ -631,11 +631,11 @@ public class SQLInterface {
         ResultSet rs = null;
         PreparedStatement ps = null;
         switch (type) {
-            case "person":
+            case TABPERSONLOG:
                 statement = "SELECT * FROM " + TABPERSONLOG + " " +
                         "WHERE " + COLPERSONLOGDATE + " > ?";
                 break;
-            case "item":
+            case TABITEMLOG:
                 statement = "SELECT * FROM " + TABITEMLOG + " " +
                         "WHERE " + COLITEMLOGOUTDATE + " > ?";
                 break;

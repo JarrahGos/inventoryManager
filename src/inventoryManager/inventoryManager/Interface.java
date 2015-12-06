@@ -169,30 +169,32 @@ public class Interface extends Application {
         // create label for input
         Text inputLabel = new Text("Enter your ID");
         inputLabel.setFont(Font.font("Tahoma", FontWeight.NORMAL, textSize));
-        grid.add(inputLabel, 0, 0); // place in top left hand corner
 
         // create input textfield
         TextField input = new TextField();
-        grid.add(input, 1, 0); // place to the right of the input label
-        input.requestFocus(); // make this the focus for the keyboard when the program starts
+        //input.requestFocus(); // make this the focus for the keyboard when the program starts
         Text userLabel = new Text("Error");
 
         // create password textField
         PasswordField pass = new PasswordField();
-        grid.add(pass, 2, 0);
 
 
         // create button to enter data from input
         Button enterBarCode = new Button("OK"); // button linked to action on input text field.
-        grid.add(enterBarCode, 4, 0, 1, 1); // add to the direct right of the input text field
 
         //create product error text
         Text productError = new Text();
-        grid.add(productError, 1, 8);
 
         // Button to add a new user
         Button addUser = new Button("Add User");
 
+        Button cancel = new Button("Cancel");
+
+        // Reset password button
+        Button resetButton = new Button("Reset Password");
+        resetButton.setOnAction((ActionEvent e) -> {
+            AdminInterface.changePassword(WorkingUser.getUserID());
+        });
 
         // create the lists for the checkout.
 
@@ -204,7 +206,6 @@ public class Interface extends Application {
         }
         itemList.setItems(items);
 
-        grid.add(itemList, 0, 1, 8, 7);
         Button adminMode = new Button("Enter Admin Mode");
 
         enterBarCode.setOnAction((ActionEvent e) -> {
@@ -253,7 +254,6 @@ public class Interface extends Application {
         addUser.setOnAction((ActionEvent e) -> {
             AdminInterface.addUser(input.getText());
         });
-        grid.add(addUser, 0, 8);
 
         Button removeProduct = new Button("Remove"); // button which will bring up the admin mode.
         removeProduct.setOnAction((ActionEvent e) -> {
@@ -267,7 +267,6 @@ public class Interface extends Application {
                 flashColour(removeProduct, 1500, Color.AQUAMARINE);
             } else flashColour(removeProduct, 1500, Color.RED);
         });
-        grid.add(removeProduct, 2, 8); // add the button to the bottum left of the screen.
 
         // create and listen on purchase button
         Button purchase = new Button("Sign items out"); // button which will add the cost of the items to the users bill
@@ -280,10 +279,7 @@ public class Interface extends Application {
                 input.clear(); // clear the input ready for a barcode
                 items.setAll(WorkingUser.getCheckOutNames());
                 itemList.setItems(items);
-                input.requestFocus();
-                grid.add(pass, 2, 0);
-                grid.getChildren().remove(adminMode);
-                grid.add(addUser, 0, 8);
+                setUpUI(grid, inputLabel, input, enterBarCode, productError, pass, addUser, removeProduct, resetButton, purchase, itemList, cancel);
                 flashColour(purchase, 1500, Color.AQUAMARINE);
                 privelage = 0;
             } else {
@@ -291,9 +287,8 @@ public class Interface extends Application {
                 flashColour(input, 1500, Color.RED);
             }
         });
-        grid.add(purchase, 4, 8, 2, 1); // add the button to the bottum right corner, next to the total price.
 
-        Button cancel = new Button("Cancel");
+
         cancel.setOnAction((ActionEvent e) -> {
             if (WorkingUser.userLoggedIn()) {
                 privelage = PersonDatabase.USER;
@@ -302,26 +297,18 @@ public class Interface extends Application {
                 inputLabel.setText("Enter your barcode"); // set the input label to something appropriate.
                 items.setAll(WorkingUser.getCheckOutNames());
                 itemList.setItems(items);
-                input.requestFocus();
-                grid.add(pass, 2, 0);
-                grid.getChildren().remove(adminMode);
-                grid.add(addUser, 0, 8);
+                setUpUI(grid, inputLabel, input, enterBarCode, productError, pass, addUser, removeProduct, resetButton, purchase, itemList, cancel);
             }
         });
-        grid.add(cancel, 5, 0, 3, 1); // add the button to the right of the user name.
 
-        // Reset password button
-        Button resetButton = new Button("Reset Password");
-        resetButton.setOnAction((ActionEvent e) -> {
-            AdminInterface.changePassword(WorkingUser.getUserID());
-        });
-        grid.add(resetButton, 3, 8);
+
 
         Platform.setImplicitExit(false);
         primaryStage.setOnCloseRequest((WindowEvent event) -> {
             event.consume();
             input.requestFocus();
         });
+        setUpUI(grid, inputLabel, input, enterBarCode, productError, pass, addUser, removeProduct, resetButton, purchase, itemList, cancel);
         Scene primaryScene = new Scene(grid, horizontalSize, verticalSize); // create the scene at the given size
         primaryStage.setScene(primaryScene);
 
@@ -329,6 +316,21 @@ public class Interface extends Application {
     }
 
 
+    private void setUpUI(GridPane grid, Text inputLabel, TextField input, Button enterBarCode, Text productError, PasswordField pass, Button addUser, Button removeProduct, Button resetButton, Button purchase, ListView itemList, Button cancel) {
+        grid.getChildren().clear();
+        grid.add(inputLabel, 0, 0); // place in top left hand corner
+        grid.add(input, 1, 0); // place to the right of the input label
+        input.requestFocus();
+        grid.add(pass, 2, 0);
+        grid.add(productError, 1, 8);
+        grid.add(enterBarCode, 4, 0, 1, 1); // add to the direct right of the input text field
+        grid.add(cancel, 5, 0, 3, 1); // add the button to the right of the user name.
+        grid.add(itemList, 0, 1, 8, 7);
+        grid.add(addUser, 0, 8);
+        grid.add(removeProduct, 2, 8); // add the button to the bottum left of the screen.
+        grid.add(resetButton, 3, 8);
+        grid.add(purchase, 4, 8, 2, 1); // add the button to the bottum right corner, next to the total price.
+    }
     private void OnOKPressed(GridPane grid, Text inputLabel, TextField input, Text userLabel, PasswordField pass, Button addUser, ListView<String> itemList, ObservableList<String> items, Button adminMode) {
         if (pass.getText() == null || pass.getText().isEmpty()) {
             pass.requestFocus();

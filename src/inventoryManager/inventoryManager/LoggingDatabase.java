@@ -1,5 +1,6 @@
 package inventoryManager;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -18,6 +19,10 @@ public class LoggingDatabase implements Database {
 
     public static ArrayList<String> getPasswordLog() {
         return SQLInterface.getLog(SQLInterface.TABPERSONLOG);
+    }
+
+    public static ArrayList<String> getPasswordLog(LocalDate date) {
+        return SQLInterface.getLog(SQLInterface.TABPERSONLOG, date);
     }
 
     public ArrayList<String> getOutItems() {
