@@ -71,6 +71,7 @@ public class SQLInterface {
     private static final String COLITEMLOGPERSID = "persID";
     private static final String COLITEMLOGCONTROLLED = "controlled";
     private static final String COLITEMLOGADMINNAME = "adminName";
+    private static final String COLITEMLOGITEMID = "itemID";
     private static final int TABITEMLOGCOUNT = 7;
     // Column names TABPERSON
     private static final String COLPERSONID = "ID";
@@ -453,14 +454,14 @@ public class SQLInterface {
         Connection db = getDatabase().get();
         System.out.println("_X_X_X_X_X_X_X_ New DB in addLog2");
         //TODO: Should this check the item as out in the controlled table?
-        String statment = "INSERT INTO " + TABITEMLOG + " (" + COLITEMLOGID + ", " + COLITEMLOGOUTDATE + ", " + COLITEMLOGINDATE + ", " + COLITEMLOGPERSID + ", " + COLITEMLOGCONTROLLED + ", " + COLITEMLOGOUT + ") " +
+        String statment = "INSERT INTO " + TABITEMLOG + " (" + COLITEMLOGITEMID + ", " + COLITEMLOGOUTDATE + ", " + COLITEMLOGINDATE + ", " + COLITEMLOGPERSID + ", " + COLITEMLOGCONTROLLED + ", " + COLITEMLOGOUT + ") " +
                 "VALUES(?, DATE('now', 'localtime'), \"FALSE\", ?, ?, 1)";
         try {
             PreparedStatement ps = db.prepareStatement(statment);
             ps.setString(1, itemID);
             ps.setString(2, persID);
             ps.setBoolean(3, controlled);
-            ps.execute(); //TODO: Why is database locked at this point.
+            ps.execute(); 
             ps.closeOnCompletion();
             db.close();
             System.out.println("_X_X_X_X_X_X_X_ DB closed in addLog2");
@@ -685,7 +686,7 @@ public class SQLInterface {
     public static ArrayList<String> getOutItemsLog() {
         Connection db = getDatabase().get();
         System.out.println("_X_X_X_X_X_X_X_ New DB in getOutItemsLog");
-        String statement = "SELECT " + COLITEMNAME + " FROM " + TABITEMLOG + " JOIN " + TABITEM + " ON " + TABITEMLOG + "." + COLITEMLOGID + "=" + TABITEM + "." + COLITEMID + " WHERE " + COLITEMLOGOUT + " = 1";
+        String statement = "SELECT " + COLITEMNAME + " FROM " + TABITEMLOG + " JOIN " + TABITEM + " ON " + TABITEMLOG + "." + COLITEMLOGITEMID + "=" + TABITEM + "." + COLITEMID + " WHERE " + COLITEMLOGOUT + " = 1";
         ResultSet rs;
         ArrayList<String> ret = new ArrayList<>();
         try {

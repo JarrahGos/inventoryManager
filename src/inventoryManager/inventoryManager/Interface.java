@@ -81,7 +81,6 @@ public class Interface extends Application {
 //        horizontalSize = Integer.parseInt(settings[0]);
 //        verticalSize = Integer.parseInt(settings[1]);
         textSize = Integer.parseInt(settings[2]);
-        //initalize the variables created above
 
     }
 

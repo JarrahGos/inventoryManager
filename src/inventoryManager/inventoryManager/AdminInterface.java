@@ -780,7 +780,7 @@ public class AdminInterface extends Interface {
             }
         });
         adminPass.setOnKeyPressed((KeyEvent ke) -> {
-            int success = 0;
+            int success = 0; //TODO: This needs to be updated with the result of setPassword
             if (ke.getCode().equals(KeyCode.ENTER)) {
                 if (firstInput.getText().equals(secondInput.getText()) && IDInput != adminID) {
                     new Thread(() -> {
