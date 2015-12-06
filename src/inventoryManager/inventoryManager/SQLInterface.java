@@ -640,7 +640,7 @@ public class SQLInterface {
      * @param date The date that you would like to get the log for.
      * @return An arrayList of each record within the log.
      */
-    public static ArrayList<String> getLog(String type, LocalDate date) {
+    public static ArrayList<String> getLog(String type, LocalDate from, LocalDate to) {
         Connection db = getDatabase().get();
         System.out.println("_X_X_X_X_X_X_X_ New DB in getLog3");
         String statement;
@@ -672,7 +672,7 @@ public class SQLInterface {
         }
         try {
             ps = db.prepareStatement(statement);
-            ps.setDate(1, java.sql.Date.valueOf(date));
+            ps.setDate(1, java.sql.Date.valueOf(from));
             rs = ps.executeQuery();
         } catch (SQLException e) {
             Log.print(e);

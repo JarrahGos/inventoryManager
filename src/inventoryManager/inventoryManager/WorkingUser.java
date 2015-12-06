@@ -11,6 +11,7 @@ import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Optional;
@@ -579,6 +580,14 @@ public final class WorkingUser {
 
     public static ArrayList<String> getPasswordLog() {
         return LoggingDatabase.getPasswordLog();
+    }
+
+    public static ArrayList<String> getPasswordLog(LocalDate from, LocalDate to) {
+        return LoggingDatabase.getPasswordLog(from, to);
+    }
+
+    public static ArrayList<String> getItemLog(LocalDate from, LocalDate to) {
+        return LoggingDatabase.getItemLog(from, to);
     }
 
     public static ArrayList<String> getItemLog() {

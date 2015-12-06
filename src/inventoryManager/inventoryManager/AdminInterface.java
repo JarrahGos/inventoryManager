@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -149,9 +150,12 @@ public class AdminInterface extends Interface {
                             break;
                         case "Item Logs":
                             showItemLog(grid);
+                            split.setDividerPositions(0.2f);
                             break;
                         case "Password Logs":
                             showPasswordLog(grid);
+                            split.setDividerPositions(0.2f);
+
                             break;
                         default:
                             changePerson(grid);
@@ -646,22 +650,38 @@ public class AdminInterface extends Interface {
 
     public static void showPasswordLog(GridPane grid) { //TODO: Repeatedly opening and closing this will remove the left menu.
         grid.getChildren().clear();
+        DatePicker dpTo = new DatePicker(LocalDate.now());
+        DatePicker dpFrom = new DatePicker(LocalDate.now()); //TODO: Add a listener for changes in these.
         ListView<String> productList = new ListView<>();
         ObservableList<String> product = FXCollections.observableArrayList();
-        product.setAll(WorkingUser.getPasswordLog());
+        if (dpTo.getValue().equals(dpFrom.getValue())) {
+            product.setAll(WorkingUser.getPasswordLog());
+        } else {
+            product.setAll(WorkingUser.getPasswordLog(dpFrom.getValue(), dpTo.getValue()));
+        }
         productList.setItems(product);
         productList.setMinWidth(grid.getWidth());
-        grid.add(productList, 0, 0, 5, 10);
+        grid.add(dpFrom, 0, 0);
+        grid.add(dpTo, 1, 0);
+        grid.add(productList, 0, 1, 5, 10);
     }
 
-    public static void showItemLog(GridPane grid) { //TODO: headings and formatting. 
+    public static void showItemLog(GridPane grid) { //TODO: headings and formatting.
         grid.getChildren().clear();
+        DatePicker dpTo = new DatePicker(LocalDate.now());
+        DatePicker dpFrom = new DatePicker(LocalDate.now());
         ListView<String> productList = new ListView<>();
         ObservableList<String> product = FXCollections.observableArrayList();
-        product.setAll(WorkingUser.getItemLog());
+        if (dpTo.getValue().equals(dpFrom.getValue())) {
+            product.setAll(WorkingUser.getItemLog());
+        } else {
+            product.setAll(WorkingUser.getItemLog(dpFrom.getValue(), dpTo.getValue()));
+        }
         productList.setItems(product);
         productList.setMinWidth(grid.getWidth());
-        grid.add(productList, 0, 0, 5, 10);
+        grid.add(dpFrom, 0, 0);
+        grid.add(dpTo, 1, 0);
+        grid.add(productList, 0, 1, 5, 10);
     }
     public static void addUser(String userID) {
         Stage AddStage = new Stage();

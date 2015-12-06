@@ -21,8 +21,12 @@ public class LoggingDatabase implements Database {
         return SQLInterface.getLog(SQLInterface.TABPERSONLOG);
     }
 
-    public static ArrayList<String> getPasswordLog(LocalDate date) {
-        return SQLInterface.getLog(SQLInterface.TABPERSONLOG, date);
+    public static ArrayList<String> getPasswordLog(LocalDate from, LocalDate to) {
+        return SQLInterface.getLog(SQLInterface.TABPERSONLOG, from, to);
+    }
+
+    public static ArrayList<String> getItemLog(LocalDate from, LocalDate to) {
+        return SQLInterface.getLog(SQLInterface.TABITEMLOG, from, to);
     }
 
     public static ArrayList<String> getItemLog() {
