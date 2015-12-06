@@ -461,7 +461,7 @@ public class SQLInterface {
             ps.setString(1, itemID);
             ps.setString(2, persID);
             ps.setBoolean(3, controlled);
-            ps.execute(); 
+            ps.execute();
             ps.closeOnCompletion();
             db.close();
             System.out.println("_X_X_X_X_X_X_X_ DB closed in addLog2");
@@ -518,12 +518,15 @@ public class SQLInterface {
         String statement;
         ResultSet rs = null;
         PreparedStatement ps = null;
+        int noOfResults = 0;
         switch (type) {
             case TABPERSONLOG:
                 statement = "SELECT * FROM " + TABPERSONLOG + " ";
+                noOfResults = TABPERSONLOGCOUNT;
                 break;
             case TABITEMLOG:
                 statement = "SELECT * FROM " + TABITEMLOG + "";
+                noOfResults = TABITEMLOGCOUNT;
                 break;
             case "controlled":
                 statement = "SELECT * FROM " + TABITEMLOG + " " +
@@ -544,11 +547,9 @@ public class SQLInterface {
             Log.print(e);
             System.exit(32);
         }
-        ArrayList<String> ret = null;
+        ArrayList<String> ret = new ArrayList<>();
         try {
-            for (int i = 0; rs.next(); i++) {
-                ret.add(rs.getString(i + 1)); // TODO: test this toString, tis fucked.
-            }
+            ret = rsToString(rs, noOfResults);
             rs.close();
             ps.closeOnCompletion();
             db.close();
@@ -566,19 +567,22 @@ public class SQLInterface {
      * @param ID   The ID to get the log for.
      * @return An arraylist of the records in the log file.
      */
-    public static ArrayList<String> getLog(String type, String ID) {
+    public static ArrayList<String> getLog(String type, String ID) { //TODO: Need a way to generate headings.
         Connection db = getDatabase().get();
         System.out.println("_X_X_X_X_X_X_X_ New DB in getLog2");
         String statement;
         ResultSet rs = null;
+        int noOfResults = 0;
         switch (type) {
             case TABPERSONLOG:
                 statement = "SELECT * FROM " + TABPERSONLOG + " " +
                         "WHERE " + COLPERSONLOGPERSID + " = ?";
+                noOfResults = TABPERSONLOGCOUNT;
                 break;
             case TABITEMLOG:
                 statement = "SELECT * FROM " + TABITEMLOG + " " +
                         "WHERE " + COLITEMLOGID + " = ?";
+                noOfResults = TABITEMLOGCOUNT;
                 break;
             case "controlled":
                 statement = "SELECT * FROM " + TABITEMLOG + " " +
@@ -606,14 +610,25 @@ public class SQLInterface {
             Log.print(e);
             System.exit(32);
         }
-        ArrayList<String> ret = null;
+        ArrayList<String> ret = new ArrayList<>();
         try {
-            for (int i = 0; rs.next(); i++) {
-                ret.add(rs.toString()); // TODO: test this toString.
-            }
+            ret = rsToString(rs, noOfResults);
             rs.close();
         } catch (SQLException e) {
             Log.print(e);
+        }
+        return ret;
+    }
+
+    private static ArrayList<String> rsToString(ResultSet rs, int noOfResults) throws SQLException {
+        ArrayList<String> ret = new ArrayList<>();
+        while (rs.next()) {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 1; i <= noOfResults; i++) {
+                sb.append(rs.getString(i));
+                sb.append("\t");
+            }
+            ret.add(sb.toString());
         }
         return ret;
     }

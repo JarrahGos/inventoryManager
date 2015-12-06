@@ -148,6 +148,9 @@ public class AdminInterface extends Interface {
                             createAdmins(grid);
                             break;
                         case "Item Logs":
+                            showItemLog(grid);
+                            break;
+                        case "Password Logs":
                             showPasswordLog(grid);
                             break;
                         default:
@@ -641,13 +644,24 @@ public class AdminInterface extends Interface {
         grid.add(save, 3, 0);
     }
 
-    public static void showPasswordLog(GridPane grid) {
+    public static void showPasswordLog(GridPane grid) { //TODO: Repeatedly opening and closing this will remove the left menu.
         grid.getChildren().clear();
         ListView<String> productList = new ListView<>();
         ObservableList<String> product = FXCollections.observableArrayList();
         product.setAll(WorkingUser.getPasswordLog());
         productList.setItems(product);
-        grid.add(productList, 0, 0, 1, 4);
+        productList.setMinWidth(grid.getWidth());
+        grid.add(productList, 0, 0, 5, 10);
+    }
+
+    public static void showItemLog(GridPane grid) { //TODO: headings and formatting. 
+        grid.getChildren().clear();
+        ListView<String> productList = new ListView<>();
+        ObservableList<String> product = FXCollections.observableArrayList();
+        product.setAll(WorkingUser.getItemLog());
+        productList.setItems(product);
+        productList.setMinWidth(grid.getWidth());
+        grid.add(productList, 0, 0, 5, 10);
     }
     public static void addUser(String userID) {
         Stage AddStage = new Stage();

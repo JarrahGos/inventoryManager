@@ -580,4 +580,8 @@ public final class WorkingUser {
     public static ArrayList<String> getPasswordLog() {
         return LoggingDatabase.getPasswordLog();
     }
+
+    public static ArrayList<String> getItemLog() {
+        return LoggingDatabase.getItemLog();
+    }
 }

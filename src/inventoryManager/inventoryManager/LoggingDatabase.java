@@ -25,6 +25,10 @@ public class LoggingDatabase implements Database {
         return SQLInterface.getLog(SQLInterface.TABPERSONLOG, date);
     }
 
+    public static ArrayList<String> getItemLog() {
+        return SQLInterface.getLog(SQLInterface.TABITEMLOG);
+    }
+
     public ArrayList<String> getOutItems() {
         return SQLInterface.getOutItemsLog();
     }
