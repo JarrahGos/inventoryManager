@@ -33,7 +33,7 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Random;
 
-
+//TODO: All closes need to be in finally blocks as they may not be hit otherwise.
 public class SQLInterface {
     // Table names:
     public static final String TABCONTROLLED = "controlled";
@@ -103,10 +103,8 @@ public class SQLInterface {
     private SQLInterface() {
         try {
             Class.forName("org.sqlite.JDBC").newInstance();
-        } catch (ClassNotFoundException e) {
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
 //            Log.print("could not find driver class\n" + e.toString());
-        } catch (InstantiationException | IllegalAccessException e) {
-//            Log.print("could not create instance\n" + e.toString());
         }
         String[] settings = new String[0];
         try {
@@ -119,8 +117,7 @@ public class SQLInterface {
 
     }
 
-    private static Optional<Connection> getDatabase()
-    {
+    private static Optional<Connection> getDatabase() {
 
         try {
             Connection db = DriverManager.getConnection(URL);
@@ -141,6 +138,7 @@ public class SQLInterface {
      */
     public static void deleteEntry(String type, String barcode) {
         Connection db = getDatabase().get();
+        System.out.println("_X_X_X_X_X_X_X_ New DB in deleteEntry");
         String statement = "";
         switch (type) {
             case "person":
@@ -158,8 +156,10 @@ public class SQLInterface {
             ps.execute();
             ps.closeOnCompletion();
             db.close();
+            System.out.println("_X_X_X_X_X_X_X_ DB closed in deleteEntry");
         } catch (SQLException e) {
             e.printStackTrace();
+            System.exit(32);
         }
     }
 
@@ -175,7 +175,8 @@ public class SQLInterface {
     public static void addEntry(String ID, String name, int admin, String password, String salt) { // add a new person
         String statement = "INSERT INTO " + TABPERSON + " (" + COLPERSONID + ", " + COLPERSONNAME + ", " + COLPERSONADMIN + ", " + COLPERSONPASSOWRD + ", " + COLPERSONSALT + ")" +
                 "VALUES(?, ?, ?, ?, ?)";
-        Connection db = getDatabase().get(); 
+        Connection db = getDatabase().get();
+        System.out.println("_X_X_X_X_X_X_X_ New DB in addEntry1");
         System.out.println(statement + ID + name + admin + password + salt);
         try {
             PreparedStatement ps = db.prepareStatement(statement);
@@ -187,8 +188,10 @@ public class SQLInterface {
             ps.execute();
             ps.closeOnCompletion();
             db.close();
+            System.out.println("_X_X_X_X_X_X_X_ DB closed in addEntry1");
         } catch (SQLException e) {
             Log.print(e);
+            System.exit(32);
         }
     }
 
@@ -200,6 +203,7 @@ public class SQLInterface {
     public static void addEntry(String name) // add new set
     {
         Connection db = getDatabase().get();
+        System.out.println("_X_X_X_X_X_X_X_ New DB in addEntry2");
         String statement = "INSERT INTO " + TABSET + " (" + COLSETNAME + ") VALUES(?)";
         try {
             PreparedStatement ps = db.prepareStatement(statement);
@@ -207,8 +211,10 @@ public class SQLInterface {
             ps.execute();
             ps.closeOnCompletion();
             db.close();
+            System.out.println("_X_X_X_X_X_X_X_ DB closed in addEntry2");
         } catch (SQLException e) {
             Log.print(e);
+            System.exit(32);
         }
     }
 
@@ -236,6 +242,7 @@ public class SQLInterface {
 //            Log.print(e);
 //        }
         Connection db = getDatabase().get();
+        System.out.println("_X_X_X_X_X_X_X_ New DB in addEntry3");
         String statement = "INSERT INTO " + TABGENERAL + " (" + COLGENERALID + ", " + COLGENERALDESCRIPTION + ", " + COLGENERALQUANTITY + ")" +
                 "VALUES(?, ?, ?, ?, ?)";
         try {
@@ -245,26 +252,34 @@ public class SQLInterface {
             ps.setLong(3, Quantity);
             ps.execute();
             ps.closeOnCompletion();
+            db.close();
+            System.out.println("_X_X_X_X_X_X_X_ DB closed in addEntry3");
         } catch (SQLException e) {
             Log.print(e);
+            System.exit(32);
         }
         if (setName != null && !setName.isEmpty()) {
+            db = getDatabase().get();
+            System.out.println("_X_X_X_X_X_X_X_ New DB in addEntry3");
             statement = "SELECT " + COLSETID + " FROM " + TABSET + " WHERE " + COLSETNAME + " = ?";
             ResultSet rs = null;
             try {
                 PreparedStatement ps = db.prepareStatement(statement);
                 ps.setString(1, setName);
                 rs = ps.executeQuery();
-                ps.closeOnCompletion();
+
                 if (rs.next()) {
                     statement = ""; // TODO: List of items is fucked.
                     ps = db.prepareStatement(statement);
                     ps.setString(1, name);
                 }
                 rs.close();
+                ps.closeOnCompletion();
                 db.close();
+                System.out.println("_X_X_X_X_X_X_X_ DB closed in addEntry3");
             } catch (SQLException e) {
                 Log.print(e);
+                System.exit(32);
             }
 
 
@@ -296,6 +311,7 @@ public class SQLInterface {
 //            Log.print(e);
 //        }
         Connection db = getDatabase().get();
+        System.out.println("_X_X_X_X_X_X_X_ New DB in addEntry4");
         String statement;
         if (type != null && !type.isEmpty()) {
             statement = "SELECT " + COLCONTROLLEDTYPEID + " FROM " + TABCONTROLLEDTYPE + " WHERE " + COLCONTROLLEDTYPENAME + " = ?";
@@ -305,8 +321,10 @@ public class SQLInterface {
                 ps.setString(1, type);
                 rs = ps.executeQuery();
                 ps.closeOnCompletion();
-
+                db.close();
+                System.out.println("_X_X_X_X_X_X_X_ DB closed in X");
                 if (!rs.next()) {
+                    db = getDatabase().get();
                     statement = "INSERT INTO " + TABCONTROLLEDTYPE + "(" + COLCONTROLLEDTYPE + ") VALUES (?)";
                     ps = db.prepareStatement(statement);
                     ps.setString('1', type);
@@ -317,12 +335,16 @@ public class SQLInterface {
                     ps.setString(1, type);
                     rs = ps.executeQuery();
                     ps.closeOnCompletion();
+                    db.close();
+                    System.out.println("_X_X_X_X_X_X_X_ DB closed in addEntry4");
                 }
                 rs.close();
 
                 statement = "INSERT INTO " + TABCONTROLLED + " (" + COLCONTROLLEDID + ", " + COLCONTROLLEDTAGNO + ", State)" + // TODO: DAFAQ is state
                         "VALUES(?, ?, ?, ?, ?)";
                 try {
+                    db = getDatabase().get();
+                    System.out.println("_X_X_X_X_X_X_X_ New DB in addEntry4");
                     ps = db.prepareStatement(statement);
                     ps.setString(1, ID);
                     ps.setString(2, tagpos);
@@ -331,31 +353,40 @@ public class SQLInterface {
                     ps.execute();
                     ps.closeOnCompletion();
                     db.close();
+                    System.out.println("_X_X_X_X_X_X_X_ DB closed in addEntry4");
                 } catch (SQLException e) {
                     Log.print(e);
+                    System.exit(32);
                 }
             } catch (SQLException e) {
                 Log.print(e);
+                System.exit(32);
             }
         }
         if (setName != null && !setName.isEmpty()) {
             statement = "SELECT " + COLSETID + " FROM " + TABSET + "s WHERE " + COLSETNAME + " = ?";
             ResultSet rs = null;
             try {
+                db = getDatabase().get();
                 PreparedStatement ps = db.prepareStatement(statement);
                 ps.setString(1, setName);
                 rs = ps.executeQuery();
                 ps.closeOnCompletion();
+                db.close();
                 if (rs.next()) {
+                    db = getDatabase().get();
                     statement = ""; // TODO: List of items is fucked.
                     ps = db.prepareStatement(statement);
                     ps.setString(1, name);
                     ps.execute();
                     ps.closeOnCompletion();
+                    db.close();
+                    System.out.println("_X_X_X_X_X_X_X_ DB closed in addEntry4");
                 }
                 rs.close();
             } catch (SQLException e) {
                 Log.print(e);
+                System.exit(32);
             }
 
         }
@@ -363,11 +394,13 @@ public class SQLInterface {
 
     /**
      * Add a new item to the database.
-     * @param ID The ID of the item.
+     *
+     * @param ID   The ID of the item.
      * @param name The name of the item.
      */
-    public static  void addEntry(String ID, String name) {
+    public static void addEntry(String ID, String name) {
         Connection db = getDatabase().get();
+        System.out.println("_X_X_X_X_X_X_X_ New DB in addEntry5");
         String statement = "INSERT INTO " + TABITEM + " (" + COLITEMID + ", " + COLITEMNAME + ") " +
                 "VALUES(?, ?)";
         try {
@@ -377,8 +410,10 @@ public class SQLInterface {
             ps.execute();
             ps.closeOnCompletion();
             db.close();
+            System.out.println("_X_X_X_X_X_X_X_ DB closed in addEntry5");
         } catch (SQLException e) {
             Log.print(e);
+            System.exit(32);
         }
     }
 
@@ -388,8 +423,9 @@ public class SQLInterface {
      * @param persID  The ID of the person to log.
      * @param adminID The ID of the admin who allowed the change.
      */
-    public static  void addLog(String persID, String adminID) { // add to change password log.
+    public static void addLog(String persID, String adminID) { // add to change password log.
         Connection db = getDatabase().get();
+        System.out.println("_X_X_X_X_X_X_X_ New DB in addLog1");
         String statement = String.format("INSERT INTO %s (%s, %s, %s) VALUES(?, DATE('now', 'localtime'), (SELECT %s FROM %s WHERE %s = ?))",
                 TABPERSONLOG, COLPERSONLOGPERSID, COLPERSONLOGDATE, COLPERSONLOGAUTHNAME, COLPERSONNAME, TABPERSON, COLPERSONID);
         try {
@@ -399,8 +435,10 @@ public class SQLInterface {
             ps.execute();
             ps.closeOnCompletion();
             db.close();
+            System.out.println("_X_X_X_X_X_X_X_ DB closed in addLog1");
         } catch (SQLException e) {
             Log.print(e);
+            System.exit(32);
         }
 
     }
@@ -412,8 +450,9 @@ public class SQLInterface {
      * @param persID     The ID of the person who took the item.
      * @param controlled Whether the item is controlled or not.
      */
-    public static  void addLog(String itemID, String persID, boolean controlled) { // Sign an item out
+    public static void addLog(String itemID, String persID, boolean controlled) { // Sign an item out
         Connection db = getDatabase().get();
+        System.out.println("_X_X_X_X_X_X_X_ New DB in addLog2");
         //TODO: Should this check the item as out in the controlled table?
         String statment = "INSERT INTO " + TABITEMLOG + " (" + COLITEMLOGID + ", " + COLITEMLOGOUTDATE + ", " + COLITEMLOGINDATE + ", " + COLITEMLOGPERSID + ", " + COLITEMLOGCONTROLLED + ") " +
                 "VALUES(?, DATE('now', 'localtime'), \"FALSE\", ?, ?)";
@@ -425,8 +464,10 @@ public class SQLInterface {
             ps.execute(); //TODO: Why is database locked at this point.
             ps.closeOnCompletion();
             db.close();
+            System.out.println("_X_X_X_X_X_X_X_ DB closed in addLog2");
         } catch (SQLException e) {
             Log.print(e);
+            System.exit(32);
         }
     }
 
@@ -436,8 +477,9 @@ public class SQLInterface {
      * @param itemID The ID of the item to return.
      * @param persID The ID of the admin returning the idem.
      */
-    public static  void returnItem(String itemID, String persID) { // Return a general item.
+    public static void returnItem(String itemID, String persID) { // Return a general item.
         Connection db = getDatabase().get();
+        System.out.println("_X_X_X_X_X_X_X_ New DB in returnItem");
         String statement = "UPDATE " + TABITEMLOG + " SET in=TRUE, inDate=DATE('now', 'localtime')" +
                 "WHERE ID=? AND persID=?";
         try {
@@ -447,8 +489,10 @@ public class SQLInterface {
             ps.execute();
             ps.closeOnCompletion();
             db.close();
+            System.out.println("_X_X_X_X_X_X_X_ DB closed in returnItem");
         } catch (SQLException e) {
             Log.print(e);
+            System.exit(32);
         }
     }
 
@@ -464,13 +508,16 @@ public class SQLInterface {
      */
     /**
      * Get the entrire log of a given type.
+     *
      * @param type The type of log you would like. Use the public variables
      * @return
      */
-    public static  ArrayList<String> getLog(String type) {
+    public static ArrayList<String> getLog(String type) {
         Connection db = getDatabase().get();
+        System.out.println("_X_X_X_X_X_X_X_ New DB in getLog1");
         String statement;
         ResultSet rs = null;
+        PreparedStatement ps = null;
         switch (type) {
             case "person":
                 statement = "SELECT * FROM " + TABPERSONLOG + " ";
@@ -491,12 +538,11 @@ public class SQLInterface {
                 break;
         }
         try {
-            PreparedStatement ps = db.prepareStatement(statement);
+            ps = db.prepareStatement(statement);
             rs = ps.executeQuery();
-            ps.closeOnCompletion();
-            db.close();
         } catch (SQLException e) {
             Log.print(e);
+            System.exit(32);
         }
         ArrayList<String> ret = null;
         try {
@@ -504,6 +550,9 @@ public class SQLInterface {
                 ret.add(rs.toString()); // TODO: test this toString
             }
             rs.close();
+            ps.closeOnCompletion();
+            db.close();
+            System.out.println("_X_X_X_X_X_X_X_ DB closed in getLog1");
         } catch (SQLException e) {
             Log.print(e);
         }
@@ -512,12 +561,14 @@ public class SQLInterface {
 
     /**
      * Get the log of a given type for a given ID. Person or all item logs are available.
+     *
      * @param type The table type to get the log for. Use the public static  table strings available in this class.
-     * @param ID The ID to get the log for.
+     * @param ID   The ID to get the log for.
      * @return An arraylist of the records in the log file.
      */
-    public static  ArrayList<String> getLog(String type, String ID) {
+    public static ArrayList<String> getLog(String type, String ID) {
         Connection db = getDatabase().get();
+        System.out.println("_X_X_X_X_X_X_X_ New DB in getLog2");
         String statement;
         ResultSet rs = null;
         switch (type) {
@@ -550,8 +601,10 @@ public class SQLInterface {
             rs = ps.executeQuery();
             ps.closeOnCompletion();
             db.close();
+            System.out.println("_X_X_X_X_X_X_X_ DB closed in getLog2");
         } catch (SQLException e) {
             Log.print(e);
+            System.exit(32);
         }
         ArrayList<String> ret = null;
         try {
@@ -567,14 +620,17 @@ public class SQLInterface {
 
     /**
      * Get logs for person and both items for a given date.
+     *
      * @param type The table to get the log for. Use the public static  Strings available within this class.
      * @param date The date that you would like to get the log for.
      * @return An arrayList of each record within the log.
      */
-    public static  ArrayList<String> getLog(String type, LocalDate date) {
+    public static ArrayList<String> getLog(String type, LocalDate date) {
         Connection db = getDatabase().get();
+        System.out.println("_X_X_X_X_X_X_X_ New DB in getLog3");
         String statement;
         ResultSet rs = null;
+        PreparedStatement ps = null;
         switch (type) {
             case "person":
                 statement = "SELECT * FROM " + TABPERSONLOG + " " +
@@ -600,19 +656,21 @@ public class SQLInterface {
                 break;
         }
         try {
-            PreparedStatement ps = db.prepareStatement(statement);
+            ps = db.prepareStatement(statement);
             ps.setDate(1, java.sql.Date.valueOf(date));
             rs = ps.executeQuery();
-            ps.closeOnCompletion();
-            db.close();
         } catch (SQLException e) {
             Log.print(e);
+            System.exit(32);
         }
         ArrayList<String> ret = null;
         try {
             for (int i = 0; rs.next(); i++) {
                 ret.add(rs.toString()); // TODO: test this toString. see above.
             }
+            ps.closeOnCompletion();
+            db.close();
+            System.out.println("_X_X_X_X_X_X_X_ DB closed in getLog3");
             rs.close();
         } catch (SQLException e) {
             Log.print(e);
@@ -625,35 +683,41 @@ public class SQLInterface {
      *
      * @return An ArrayList of all items that have been logged out.
      */
-    public static  ArrayList<String> getOutItemsLog() {
+    public static ArrayList<String> getOutItemsLog() {
         Connection db = getDatabase().get();
+        System.out.println("_X_X_X_X_X_X_X_ New DB in getOutItemsLog");
         String statement = "SELECT * FROM " + TABITEMLOG + " WHERE " + COLITEMLOGOUT + " = 1";
         ResultSet rs;
         ArrayList<String> ret = new ArrayList<>();
         try {
             PreparedStatement ps = db.prepareStatement(statement);
             rs = ps.executeQuery();
-            ps.closeOnCompletion();
             while (rs.next()) {
                 ret.add(rs.toString());
             }
             rs.close();
+            ps.closeOnCompletion();
             db.close();
+            System.out.println("_X_X_X_X_X_X_X_ DB closed in getOutItemsLog");
         } catch (SQLException e) {
             Log.print(e);
+            System.exit(32);
         }
         return ret;
     }
 
     /**
      * Get an ArrayList of the a given table within the database.
+     *
      * @param type The table type. Use the public static  Strings available within this class.
      * @return An arraylist of every record within the given table.
      */
-    public static  ArrayList<String> getDatabase(String type) {
+    public static ArrayList<String> getDatabase(String type) {
         Connection db = getDatabase().get();
+        System.out.println("_X_X_X_X_X_X_X_ New DB in getDatabase1");
         String statement;
         ResultSet rs = null;
+        PreparedStatement ps = null;
         int count = 0;
         switch (type) {
             case TABPERSON:
@@ -690,12 +754,11 @@ public class SQLInterface {
                 break;
         }
         try {
-            PreparedStatement ps = db.prepareStatement(statement);
+            ps = db.prepareStatement(statement);
             rs = ps.executeQuery();
-            ps.closeOnCompletion();
-            db.close();
         } catch (SQLException e) {
             Log.print(e);
+            System.exit(32);
         }
         ArrayList<String> ret = new ArrayList<>();
         StringBuilder line = new StringBuilder();
@@ -710,6 +773,9 @@ public class SQLInterface {
                 }
             }
             rs.close();
+            ps.closeOnCompletion();
+            db.close();
+            System.out.println("_X_X_X_X_X_X_X_ DB closed in getDatabase1");
         } catch (SQLException e) {
             Log.print(e);
         }
@@ -718,14 +784,17 @@ public class SQLInterface {
 
     /**
      * Get an ArrayList of the given table where the given ID is in place.
+     *
      * @param type The table you would like to get. Use the public static  strings found in this class.
-     * @param ID The user or item ID to search for within the table.
+     * @param ID   The user or item ID to search for within the table.
      * @return An ArrayList of the records within the chosen table which match the given ID.
      */
-    public static  ArrayList<String> getDatabase(String type, String ID) {
+    public static ArrayList<String> getDatabase(String type, String ID) {
         Connection db = getDatabase().get();
+        System.out.println("_X_X_X_X_X_X_X_ New DB in getDatabase2");
         String statement;
         ResultSet rs = null;
+        PreparedStatement ps = null;
         switch (type) {
             case "person":
                 statement = "SELECT * FROM " + TABPERSON + " WHERE ID=?";
@@ -772,13 +841,12 @@ public class SQLInterface {
                 break;
         }
         try {
-            PreparedStatement ps = db.prepareStatement(statement);
+            ps = db.prepareStatement(statement);
             ps.setString(1, ID);
             rs = ps.executeQuery();
-            ps.closeOnCompletion();
-            db.close();
         } catch (SQLException e) {
             Log.print(e);
+            System.exit(32);
         }
         ArrayList<String> ret = null;
         try {
@@ -786,6 +854,9 @@ public class SQLInterface {
                 ret.add(rs.toString()); // TODO: test this toString
             }
             rs.close();
+            ps.closeOnCompletion();
+            db.close();
+            System.out.println("_X_X_X_X_X_X_X_ DB closed in getDatabase2");
         } catch (SQLException e) {
             Log.print(e);
         }
@@ -794,14 +865,17 @@ public class SQLInterface {
 
     /**
      * An ArrayList of every record within the given database that match the given date.
+     *
      * @param type The table type that you would like to get. Use the public static  Strings found within this class.
      * @param date The date to search for within the records.
      * @return An ArrayList containing the records from the given table that match the given date.
      */
-    public static  ArrayList<String> getDatabase(String type, LocalDate date) {
+    public static ArrayList<String> getDatabase(String type, LocalDate date) {
         Connection db = getDatabase().get();
+        System.out.println("_X_X_X_X_X_X_X_ New DB in getDatabase3");
         String statement;
         ResultSet rs = null;
+        PreparedStatement ps = null;
         switch (type) {
             case "person":
                 statement = "SELECT * FROM " + TABPERSON + " WHERE ID=?";
@@ -836,13 +910,12 @@ public class SQLInterface {
                 break;
         }
         try {
-            PreparedStatement ps = db.prepareStatement(statement);
+            ps = db.prepareStatement(statement);
             ps.setDate(1, java.sql.Date.valueOf(date));
             rs = ps.executeQuery();
-            ps.closeOnCompletion();
-            db.close();
         } catch (SQLException e) {
             Log.print(e);
+            System.exit(32);
         }
         ArrayList<String> ret = null;
         try {
@@ -850,6 +923,9 @@ public class SQLInterface {
                 ret.add(rs.toString()); // TODO: test this toString
             }
             rs.close();
+            ps.closeOnCompletion();
+            db.close();
+            System.out.println("_X_X_X_X_X_X_X_ DB closed in getDatabase3");
         } catch (SQLException e) { //TODO: why are there two try catch blocks here. merge.
             Log.print(e);
         }
@@ -858,11 +934,13 @@ public class SQLInterface {
 
     /**
      * Reduce the quantity of a general item.
-     * @param ID The ID of the item to reduce.
+     *
+     * @param ID  The ID of the item to reduce.
      * @param sub The number to subtract from the item.
      */
-    public static  void lowerQuantity(String ID, int sub) {
+    public static void lowerQuantity(String ID, int sub) {
         Connection db = getDatabase().get();
+        System.out.println("_X_X_X_X_X_X_X_ New DB in lowerQuantity");
         String statement = "UPDATE " + TABGENERAL + " SET " + COLGENERALQUANTITY + " = " +
                 "((SELECT " + COLGENERALQUANTITY + " FROM " + TABGENERAL + " WHERE " + COLGENERALID + " = ?) - ?)" +
                 " WHERE " + COLGENERALID + " = ?";
@@ -874,19 +952,23 @@ public class SQLInterface {
             ps.execute();
             ps.closeOnCompletion();
             db.close();
+            System.out.println("_X_X_X_X_X_X_X_ DB closed in lowerQuantity");
         } catch (SQLException e) {
             Log.print(e);
+            System.exit(32);
         }
     }
 
     /**
      * Get the name of a given item or person.
+     *
      * @param type The table name. Use the public static  strings found within this class.
-     * @param ID The ID of the item or person.
+     * @param ID   The ID of the item or person.
      * @return The name of the item or person.
      */
     public static Optional<String> getName(String type, String ID) {
         Connection db = getDatabase().get();
+        System.out.println("_X_X_X_X_X_X_X_ New DB in getName1");
         String statement;
         ResultSet rs;
         String out = null;
@@ -906,25 +988,29 @@ public class SQLInterface {
             PreparedStatement ps = db.prepareStatement(statement);
             ps.setString(1, ID);
             rs = ps.executeQuery();
-            ps.closeOnCompletion();
             if (rs.next()) {
                 out = rs.getString(1);
             }
             rs.close();
+            ps.closeOnCompletion();
             db.close();
+            System.out.println("_X_X_X_X_X_X_X_ DB closed in getName1");
         } catch (SQLException e) {
             Log.print(e);
+            System.exit(32);
         }
         return Optional.ofNullable(out);
     }
 
     /**
      * Get the name every item within a given tabel
+     *
      * @param type The name of the table to use. Use the public static  Strings found within this class.
      * @return An arraylist of every name in the table.
      */
-    public static  ArrayList<String> getName(String type) {
+    public static ArrayList<String> getName(String type) {
         Connection db = getDatabase().get();
+        System.out.println("_X_X_X_X_X_X_X_ New DB in getName2");
         String statement;
         ResultSet rs;
         ArrayList<String> out = new ArrayList<>();
@@ -953,14 +1039,17 @@ public class SQLInterface {
             }
             rs.close();
             db.close();
+            System.out.println("_X_X_X_X_X_X_X_ DB closed in getName2");
         } catch (SQLException e) {
             Log.print(e);
+            System.exit(32);
         }
         return out;
     }
 
     /**
      * Get the ID of an item or person with the given name. Will return the first, not necessarily the only.
+     *
      * @param type The table that you wish to get the name from. Use the public static  Strings found within this class.
      * @param name The name to search for.
      * @return The ID of the first record found which matches the name given.
@@ -968,6 +1057,7 @@ public class SQLInterface {
     @SuppressWarnings("Duplicates")
     public static Optional<String> getID(String type, String name) {
         Connection db = getDatabase().get();
+        System.out.println("_X_X_X_X_X_X_X_ New DB in getID");
         String statement;
         ResultSet rs;
         String out = null;
@@ -987,25 +1077,29 @@ public class SQLInterface {
             PreparedStatement ps = db.prepareStatement(statement);
             ps.setString(1, name);
             rs = ps.executeQuery();
-            ps.closeOnCompletion();
             if (rs.next()) {
                 out = rs.getString(1);
             }
             rs.close();
+            ps.closeOnCompletion();
             db.close();
+            System.out.println("_X_X_X_X_X_X_X_ DB closed in getID");
         } catch (SQLException e) {
             Log.print(e);
+            System.exit(32);
         }
         return Optional.ofNullable(out);
     }
 
     /**
      * Get the password and salt of the member with the given barcode.
+     *
      * @param barcode The barcode of the person to search for.
      * @return A String array with password at 0 and salt at 1
      */
-    public static  String[] getPassword(String barcode) {
+    public static String[] getPassword(String barcode) {
         Connection db = getDatabase().get();
+        System.out.println("_X_X_X_X_X_X_X_ New DB in getPassword1");
         String statement = "SELECT " + COLPERSONPASSOWRD + ", " + COLPERSONSALT + " FROM " + TABPERSON + " WHERE " + COLPERSONID + " = ?";
         ResultSet rs;
         String[] out = new String[2];
@@ -1013,7 +1107,6 @@ public class SQLInterface {
             PreparedStatement ps = db.prepareStatement(statement);
             ps.setString(1, barcode);
             rs = ps.executeQuery();
-            ps.closeOnCompletion();
             if (rs.next()) {
                 out[0] = rs.getString(COLPERSONPASSOWRD);
                 System.out.println("Password: " + out[0]);
@@ -1021,21 +1114,26 @@ public class SQLInterface {
                 System.out.println("Salt: " + out[1]);
             } else System.out.print("userNotFound");
             rs.close();
+            ps.closeOnCompletion();
             db.close();
+            System.out.println("_X_X_X_X_X_X_X_ DB closed in getPassword");
         } catch (SQLException e) {
             Log.print(e);
+            System.exit(32);
         }
         return out;
     }
 
     /**
      * Set the password of the person with the given ID to the password given. Store the salt alongside.
-     * @param ID The ID of the person to change the password for.
+     *
+     * @param ID       The ID of the person to change the password for.
      * @param password The password to enter into the database for this person
-     * @param salt The salt that the password was hashed with to enter into the database.
+     * @param salt     The salt that the password was hashed with to enter into the database.
      */
-    public static  void setPassword(String ID, String password, String salt) {
+    public static void setPassword(String ID, String password, String salt) {
         Connection db = getDatabase().get();
+        System.out.println("_X_X_X_X_X_X_X_ New DB in getPassword2");
         String statement = "UPDATE " + TABPERSON + " SET " + COLPERSONPASSOWRD + " = ?, " + COLPERSONSALT + " = ? WHERE " + COLPERSONID + " = ?";
         try {
             PreparedStatement ps = db.prepareStatement(statement);
@@ -1045,19 +1143,23 @@ public class SQLInterface {
             ps.execute();
             ps.closeOnCompletion();
             db.close();
+            System.out.println("_X_X_X_X_X_X_X_ DB closed in getPassword");
         } catch (SQLException e) {
             Log.print(e);
+            System.exit(32);
         }
 
     }
 
     /**
      * Get the role of the given member. 0 for user, 1 for admin, 2 for root.
+     *
      * @param barcode The barcode of the member to get the role of.
      * @return The role of the user: 0 for user, 1 for admin, 2 for root.
      */
-    public static  int getRole(String barcode) {
+    public static int getRole(String barcode) {
         Connection db = getDatabase().get();
+        System.out.println("_X_X_X_X_X_X_X_ New DB in getRole");
         String statement = "SELECT " + COLPERSONADMIN + " FROM " + TABPERSON + " WHERE " + COLPERSONID + " = ?";
         ResultSet rs;
         int admin = PersonDatabase.USER;
@@ -1065,28 +1167,33 @@ public class SQLInterface {
             PreparedStatement ps = db.prepareStatement(statement);
             ps.setString(1, barcode);
             rs = ps.executeQuery();
-            ps.closeOnCompletion();
             if (rs.next()) {
                 admin = rs.getInt(1);
             }
             rs.close();
+            ps.closeOnCompletion();
             db.close();
+            System.out.println("_X_X_X_X_X_X_X_ DB closed in getRole");
         } catch (SQLException e) {
             Log.print(e);
+            System.exit(32);
         }
         return admin;
     }
 
     /**
      * Check that the entry for the given table and ID exists
+     *
      * @param type The table to check for the given ID.
-     * @param ID The ID to search for.
+     * @param ID   The ID to search for.
      * @return True if the user exists. False otherwise. Multiple users with the same ID will return true.
      */
-    public static  boolean entryExists(String type, String ID) {
+    public static boolean entryExists(String type, String ID) {
         Connection db = getDatabase().get();
+        System.out.println("_X_X_X_X_X_X_X_ New DB in entryExists");
         String statement;
         ResultSet rs;
+        boolean ret = false;
         switch (type) {
             case "person":
                 statement = "SELECT " + COLPERSONID + " FROM " + TABPERSON + " WHERE " + COLPERSONID + " = ?";
@@ -1102,27 +1209,31 @@ public class SQLInterface {
             PreparedStatement ps = db.prepareStatement(statement);
             ps.setString(1, ID);
             rs = ps.executeQuery();
-            ps.closeOnCompletion();
             //System.out.println(rs);
             if (rs.next()) {
-                return rs.getString(COLPERSONID).equals(ID);
+                ret = rs.getString(COLPERSONID).equals(ID);
             }
             rs.close();
+            ps.closeOnCompletion();
             db.close();
+            System.out.println("_X_X_X_X_X_X_X_ DB closed in entryExists");
         } catch (SQLException e) {
             Log.print(e);
+            System.exit(32);
         }
-        return false;
+        return ret;
     }
 
     /**
      * Export the given table to the give path. Item table will be joined with the relevant tables.
+     *
      * @param type The table to export.
      * @param path The location within the filesystem to export the table(s) to.
      */
     @SuppressWarnings("Duplicates")
     public static void export(String type, String path) { //TODO: At least one of these would work in normal SQL.
         Connection db = getDatabase().get();
+        System.out.println("_X_X_X_X_X_X_X_ New DB in export");
         String statement;
         switch (type) {
             case "person":
@@ -1170,43 +1281,52 @@ public class SQLInterface {
             ps.execute();
             ps.closeOnCompletion();
             db.close();
+            System.out.println("_X_X_X_X_X_X_X_ DB closed in export");
         } catch (SQLException e) {
             Log.print(e);
+            System.exit(32);
         }
     }
 
     /**
      * Get the quantity of a given general item.
+     *
      * @param ID The ID of the general item.
      * @return
      */
-    public static  int getQuantity(String ID) {
+    public static int getQuantity(String ID) {
         Connection db = getDatabase().get();
+        System.out.println("_X_X_X_X_X_X_X_ New DB in getQuantity");
         String statement = "SELECT " + COLGENERALQUANTITY + " FROM " + TABGENERAL + " WHERE " + COLGENERALID + " = ?";
         ResultSet rs = null;
+        int ret = 0;
         try {
             PreparedStatement ps = db.prepareStatement(statement);
             ps.setString(1, ID);
             rs = ps.executeQuery();
-            ps.closeOnCompletion();
             if (rs.next()) {
-                return rs.getInt(1);
+                ret = rs.getInt(1);
             }
             rs.close();
+            ps.closeOnCompletion();
             db.close();
+            System.out.println("_X_X_X_X_X_X_X_ DB closed in getQuantity");
         } catch (SQLException e) {
             Log.print(e);
+            System.exit(32);
         }
-        return 0;
+        return ret;
     }
 
     /**
      * Set the quantity of the general item given by the ID.
-     * @param ID The ID of the item to set the ID of.
+     *
+     * @param ID       The ID of the item to set the ID of.
      * @param quantity The new quantity. Set to exactly the value given in the parameter.
      */
-    public static  void setQuantity(String ID, int quantity) {
+    public static void setQuantity(String ID, int quantity) {
         Connection db = getDatabase().get();
+        System.out.println("_X_X_X_X_X_X_X_ New DB in setQuantity");
         String statement = "UPDATE " + TABGENERAL + " SET " + COLGENERALQUANTITY + "=?  WHERE " + COLGENERALID + " = ?";
         try {
             PreparedStatement ps = db.prepareStatement(statement);
@@ -1215,19 +1335,23 @@ public class SQLInterface {
             ps.execute();
             ps.closeOnCompletion();
             db.close();
+            System.out.println("_X_X_X_X_X_X_X_ DB closed in setQuantity");
         } catch (SQLException e) {
             Log.print(e);
+            System.exit(32);
         }
     }
 
     /**
      * Update an entry in the item database.
-     * @param ID The ID of the item to change.
-     * @param name The new name of the item.
+     *
+     * @param ID    The ID of the item to change.
+     * @param name  The new name of the item.
      * @param newID The new ID of the item. Re-enter the same ID as above for no change.
      */
-    public static  void updateEntry(String ID, String name, String newID) {
+    public static void updateEntry(String ID, String name, String newID) {
         Connection db = getDatabase().get();
+        System.out.println("_X_X_X_X_X_X_X_ New DB in updateEntry1");
         String statement = "UPDATE " + TABITEM + " SET " + COLITEMNAME + " = ?, set (" + COLITEMID + " = ? )" +
                 " WHERE " + COLITEMID + " = ?";
         try {
@@ -1238,13 +1362,16 @@ public class SQLInterface {
             ps.execute();
             ps.closeOnCompletion();
             db.close();
+            System.out.println("_X_X_X_X_X_X_X_ DB closed in updateEntry1");
         } catch (SQLException e) {
             Log.print(e);
+            System.exit(32);
         }
     }
 
     public static void updateEntry(String ID, int role) {
         Connection db = getDatabase().get();
+        System.out.println("_X_X_X_X_X_X_X_ New DB in updateEntry2");
         String statement = "UPDATE " + TABPERSON + " SET " + COLPERSONADMIN + " = ? WHERE " + COLPERSONID + "= ?;";
 
         try {
@@ -1254,34 +1381,41 @@ public class SQLInterface {
             ps.execute();
             ps.closeOnCompletion();
             db.close();
+            System.out.println("_X_X_X_X_X_X_X_ DB closed in updateEntry2");
         } catch (SQLException e) {
             Log.print(e);
+            System.exit(32);
         }
     }
 
     /**
      * Will return the boolean check as to whether the item is controlled.
+     *
      * @param ID The ID of the item to check.
      * @return True if item is controlled, false otherwise.
      */
-    public static  boolean isItemControlled(String ID) {
+    public static boolean isItemControlled(String ID) {
         Connection db = getDatabase().get();
+        System.out.println("_X_X_X_X_X_X_X_ New DB in isItemControlled");
         String statement = "SELECT " + COLCONTROLLEDID + " FROM " + TABCONTROLLED + " WHERE " + COLCONTROLLEDID + " = ?";
         ResultSet rs;
+        boolean ret = false;
         try {
             PreparedStatement ps = db.prepareStatement(statement);
             ps.setString(1, ID);
             rs = ps.executeQuery();
-            ps.closeOnCompletion();
             if (rs.next()) {
-                return true;
+                ret = true;
             }
             rs.close();
+            ps.closeOnCompletion();
             db.close();
+            System.out.println("_X_X_X_X_X_X_X_ DB closed in isItemControlled");
         } catch (SQLException e) {
             Log.print(e);
+            System.exit(32);
         }
-        return false;
+        return ret;
     }
 
 }

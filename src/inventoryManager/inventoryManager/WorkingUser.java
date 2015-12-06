@@ -193,7 +193,7 @@ public final class WorkingUser {
      *
      * @return A string array of the product names
      */
-    public static ArrayList<String> getProductNames(String type) { //TODO: DAFAQ is this. Fix. (Switch?)
+    public static ArrayList<String> getProductNames(String type) {
         return itemDatabase.getNamesOfEntries(type);
     }
 
@@ -422,7 +422,7 @@ public final class WorkingUser {
             case (SQLInterface.TABPERSON):
                 personDatabase.writeDatabaseCSV("adminPersonDatabase.csv");
                 break;
-            case (SQLInterface.TABITEM): //TODO: change all instances of this in interface from product to item.
+            case (SQLInterface.TABITEM):
                 itemDatabase.writeDatabaseCSV(type, "adminItemDatabase.csv");
                 break;
             case (SQLInterface.TABGENERAL):

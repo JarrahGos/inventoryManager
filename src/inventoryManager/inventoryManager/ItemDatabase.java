@@ -53,11 +53,6 @@ class ItemDatabase implements Database {
      */
     public void addEntry(String barcode, String name) // take the products data and pass it to the products constructor
     {
-        /**
-         Class ItemDatabase: Method setDatabase
-         Precondition: augments int productNo, String name, String artist, double size, double duration are input
-         Postcondition: Data for the currant working product in this database will be set.
-         */
         SQLInterface.addEntry(barcode, name);
 
     }

@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Objects;
 
 /**
  * Created by Jarrah on 9/11/2015.
@@ -34,8 +35,6 @@ public class AdminInterface extends Interface {
      *
      * @throws IOException
      */
-
-
     private AdminInterface() throws IOException {
         super();
     }
@@ -198,7 +197,7 @@ public class AdminInterface extends Interface {
             } catch (NumberFormatException e1) {
                 flashColour(ID, 1500, Color.RED);
             }
-            if (IDNew != null && IDNew != "") {
+            if (IDNew != null && !Objects.equals(IDNew, "")) {
                 String name = personList.getSelectionModel().getSelectedItem();
                 WorkingUser.changeDatabasePerson(name, nameEntry.getText(), IDNew, WorkingUser.getPersonID(name).get());
                 nameEntry.clear();
@@ -328,6 +327,7 @@ public class AdminInterface extends Interface {
         TextField BarCodeEntry = new TextField();
         grid.add(BarCodeEntry, 1, 1);
         nameEntry.setOnAction((ActionEvent e) -> BarCodeEntry.requestFocus());
+
         BarCodeEntry.setOnAction((ActionEvent e) -> {
             long barCode = -1;
             try {

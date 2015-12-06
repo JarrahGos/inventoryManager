@@ -130,7 +130,7 @@ public class SQLInterfaceTest {
     public void testGetPassword() throws Exception {
         String[] psswd = SQLInterface.getPassword("123");
         assert psswd[0].equals("�U��m��ڍ��5��<xHpD�e����K��ݫ�ƫ4*�r�4��U[lE���N~�");
-        assert psswd[1].equals("[B@66713fde"); //TODO: Fix this to use the correct salt when salting is fixed.
+        assert psswd[1].equals("[B@66713fde");
         //See https://github.com/jarrah-95/inventoryManager/issues/4
 
         psswd = SQLInterface.getPassword("aseoun");
