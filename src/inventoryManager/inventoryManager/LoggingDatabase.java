@@ -16,9 +16,14 @@ public class LoggingDatabase implements Database {
         SQLInterface.addLog(barcode, adBarcode);
     }
 
+    public static ArrayList<String> getPasswordLog() {
+        return SQLInterface.getLog(SQLInterface.TABPERSONLOG);
+    }
+
     public ArrayList<String> getOutItems() {
         return SQLInterface.getOutItemsLog();
     }
+
     public void signItemsIn(ArrayList<String> items, String persID) {
         for(String item : items) {
             SQLInterface.returnItem(item, persID);

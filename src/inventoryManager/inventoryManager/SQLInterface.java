@@ -33,7 +33,6 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Random;
 
-//TODO: All closes need to be in finally blocks as they may not be hit otherwise.
 public class SQLInterface {
     // Table names:
     public static final String TABCONTROLLED = "controlled";
@@ -65,7 +64,7 @@ public class SQLInterface {
     private static final String COLITEMSETID = "setID";
     private static final int TABITEMCOUNT = 3;
     // Column names TABITEMLOG
-    private static final String COLITEMLOGID = "ID"; // Is this log ID or item, create another for ITEM. 
+    private static final String COLITEMLOGID = "ID"; // Is this log ID or item, create another for ITEM.
     private static final String COLITEMLOGOUTDATE = "outDate";
     private static final String COLITEMLOGOUT = "out";
     private static final String COLITEMLOGINDATE = "inDate";
@@ -519,7 +518,7 @@ public class SQLInterface {
         ResultSet rs = null;
         PreparedStatement ps = null;
         switch (type) {
-            case "person":
+            case TABPERSONLOG:
                 statement = "SELECT * FROM " + TABPERSONLOG + " ";
                 break;
             case "item":
@@ -547,7 +546,7 @@ public class SQLInterface {
         ArrayList<String> ret = null;
         try {
             for (int i = 0; rs.next(); i++) {
-                ret.add(rs.toString()); // TODO: test this toString
+                ret.add(rs.getString(i + 1)); // TODO: test this toString
             }
             rs.close();
             ps.closeOnCompletion();
@@ -572,7 +571,7 @@ public class SQLInterface {
         String statement;
         ResultSet rs = null;
         switch (type) {
-            case "person":
+            case TABPERSONLOG:
                 statement = "SELECT * FROM " + TABPERSONLOG + " " +
                         "WHERE " + COLPERSONLOGPERSID + " = ?";
                 break;
@@ -1120,7 +1119,7 @@ public class SQLInterface {
             rs.close();
             ps.closeOnCompletion();
             db.close();
-            System.out.println("_X_X_X_X_X_X_X_ DB closed in getPassword");
+            System.out.println("_X_X_X_X_X_X_X_ DB closed in getPassword1");
         } catch (SQLException e) {
             Log.print(e);
             System.exit(32);
@@ -1147,7 +1146,7 @@ public class SQLInterface {
             ps.execute();
             ps.closeOnCompletion();
             db.close();
-            System.out.println("_X_X_X_X_X_X_X_ DB closed in getPassword");
+            System.out.println("_X_X_X_X_X_X_X_ DB closed in getPassword2");
         } catch (SQLException e) {
             Log.print(e);
             System.exit(32);

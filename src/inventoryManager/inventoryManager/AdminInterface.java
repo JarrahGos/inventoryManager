@@ -147,6 +147,9 @@ public class AdminInterface extends Interface {
                         case "Create Admins":
                             createAdmins(grid);
                             break;
+                        case "Item Logs":
+                            showPasswordLog(grid);
+                            break;
                         default:
                             changePerson(grid);
 
@@ -638,6 +641,14 @@ public class AdminInterface extends Interface {
         grid.add(save, 3, 0);
     }
 
+    public static void showPasswordLog(GridPane grid) {
+        grid.getChildren().clear();
+        ListView<String> productList = new ListView<>();
+        ObservableList<String> product = FXCollections.observableArrayList();
+        product.setAll(WorkingUser.getPasswordLog());
+        productList.setItems(product);
+        grid.add(productList, 0, 0, 1, 4);
+    }
     public static void addUser(String userID) {
         Stage AddStage = new Stage();
         AddStage.setTitle("Change Your Password");

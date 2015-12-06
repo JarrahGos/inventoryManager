@@ -576,4 +576,8 @@ public final class WorkingUser {
     public static void updateRole(String ID, int role) {
         personDatabase.updateRole(ID, role);
     }
+
+    public static ArrayList<String> getPasswordLog() {
+        return LoggingDatabase.getPasswordLog();
+    }
 }
