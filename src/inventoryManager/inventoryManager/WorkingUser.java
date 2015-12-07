@@ -341,13 +341,9 @@ public final class WorkingUser {
             return false;
         }
         String adding = itemDatabase.getEntryName(tempBarCode).orElse("ERROR"); //TODO: what is the go with these methods.
-        if (adding != null) {
+        if (adding != null && !adding.equals("ERROR")) {
             System.out.println(tempBarCode + "\n" + adding);
             checkOuts.addProduct(tempBarCode, adding); //otherwise, add the product as normal.
-            return true;
-        } else if (userID.equals(tempBarCode)) {
-            adding = "Checking yourself out are you? You can't do that.";
-            checkOuts.addProduct("-1", adding);
             return true;
         }
         return false;

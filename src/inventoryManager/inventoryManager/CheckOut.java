@@ -73,7 +73,7 @@ final class CheckOut {
         if (!alreadyExists) {
             items.add(ID);
             names.add(name);
-            names.add(itemDB.getEntryName(ID).get());
+            //names.add(itemDB.getEntryName(ID).get());
             quantities.add(quantity);
             ++logicalSize;
         } else {
