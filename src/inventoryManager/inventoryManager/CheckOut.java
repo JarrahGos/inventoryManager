@@ -113,11 +113,25 @@ final class CheckOut {
             } else {
                 items.remove(productNo);
                 quantities.remove(productNo);
+                names.remove(productNo);
                 logicalSize--;
             }
         }
     }
 
+    public final void delItem(String name) {
+        if (names.contains(name)) {
+            if (quantities.get(names.indexOf(name)) != 1) {
+                quantities.add(names.indexOf(name), quantities.get(names.indexOf(name) - 1));
+                quantities.remove(names.indexOf(name) + 1);
+            } else {
+                items.remove(names.indexOf(name));
+                quantities.remove(names.indexOf(name));
+                names.remove(name);
+                logicalSize--;
+            }
+        }
+    }
 
     /**
      * Reduce the stock counts for the purchased items and return the product array to be stored

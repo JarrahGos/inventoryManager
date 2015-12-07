@@ -292,7 +292,6 @@ public class Interface extends Application {
             if (WorkingUser.userLoggedIn()) {
                 privelage = PersonDatabase.USER;
                 WorkingUser.logOut(); // set user number to -1 and delete any checkout made.
-                grid.getChildren().remove(userLabel); // make it look like no user is logged in
                 inputLabel.setText("Enter your barcode"); // set the input label to something appropriate.
                 items.setAll(WorkingUser.getCheckOutNames());
                 itemList.setItems(items);
