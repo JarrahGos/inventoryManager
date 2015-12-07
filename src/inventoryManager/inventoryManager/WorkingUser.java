@@ -403,15 +403,13 @@ public final class WorkingUser {
 
     /**
      * Alter a product in the database
-     *
-     * @param OldName       The old name of the person.
      * @param name          The new name of the person
      * @param ID            The new ID of the person
      * @param oldID         The old ID of the person
      */
-    public static void changeDatabasePerson(String OldName, String name, String ID, String oldID) {
-//        personDatabase.changeDatabasePerson(selectedIndex, name, ID, oldID);
-    }
+    public static void changeDatabasePerson(String name, String ID, String oldID) {
+        personDatabase.changeDatabasePerson(name, ID, oldID);
+    } //TODO: When only given the new information, how are we to work out what to change?
 
     /**
      * Write out the CSV version of the database for the admin.

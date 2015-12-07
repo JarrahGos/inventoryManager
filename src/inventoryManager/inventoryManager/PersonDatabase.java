@@ -182,15 +182,9 @@ final class PersonDatabase implements Database {
      * @return An int to determine access. 0 for user, 2 for admin, 3 for root
      */
 
-    //TODO: this needs to be written for SQL
-//    public void changeDatabasePerson(String selectedIndex, String name, long pmkeys, long oldPmkeys)
-//	{
-//		Person oldPerson = readEntry(oldPmkeys);
-//		Person newPerson = new Person(name, pmkeys, (long)oldPerson.totalCostRunning()*100, (long)oldPerson.totalCostWeek() *100,oldPerson.canBuy());
-//
-//		deleteEntry(selectedIndex);
-//		writeDatabaseEntry(newPerson);
-//	}
+    public void changeDatabasePerson(String name, String ID, String oldID) {
+        SQLInterface.updateEntry(oldID, name, ID);
+    }
     public void updateRole(String ID, int role) {
         SQLInterface.updateEntry(ID, role);
     }

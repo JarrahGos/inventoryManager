@@ -185,12 +185,15 @@ public class AdminInterface extends Interface {
         grid.add(IDLabel, 1, 1);
         TextField ID = new TextField();
         grid.add(ID, 2, 1);
+        StringBuilder oldID = new StringBuilder();
         personList.getSelectionModel().selectedItemProperty().addListener(
                 (ObservableValue<? extends String> vo, String oldVal, String selectedPerson) -> {
                     if (selectedPerson != null) {
+                        oldID.substring(0, 0); //TODO: This is hacky as fuck.
                         nameEntry.setText(selectedPerson);
                         String IDVal = WorkingUser.getPersonID(selectedPerson).orElse("ERROR getting ID");
                         ID.setText(IDVal); //TODO: This doesn't work with the same name. returns first ID.
+                        oldID.append(IDVal);
                     }
                 });
         nameEntry.setOnAction((ActionEvent e) -> ID.requestFocus());
@@ -204,7 +207,7 @@ public class AdminInterface extends Interface {
             }
             if (IDNew != null && !Objects.equals(IDNew, "")) {
                 String name = personList.getSelectionModel().getSelectedItem();
-                WorkingUser.changeDatabasePerson(name, nameEntry.getText(), IDNew, WorkingUser.getPersonID(name).get());
+                WorkingUser.changeDatabasePerson(name, nameEntry.getText(), IDNew, oldID.toString());
                 nameEntry.clear();
                 ID.clear();
                 nameEntry.requestFocus();
