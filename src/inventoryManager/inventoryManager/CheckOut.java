@@ -89,7 +89,11 @@ final class CheckOut {
      * @return A String array of all names and quantities
      */
     public final LinkedList<String> getCheckOutNames() {
-        return names;
+        LinkedList<String> ret = new LinkedList<>();
+        for (int i = 0; i < names.size(); i++) {
+            ret.add(names.get(i) + " x " + quantities.get(i));
+        }
+        return ret;
     }
 
 
