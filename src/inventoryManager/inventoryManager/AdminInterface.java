@@ -27,9 +27,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Objects;
 
-/**
- * Created by Jarrah on 9/11/2015.
- */
 public class AdminInterface extends Interface {
     /**
      * Create an interface instance with it's parameters set by the config file
@@ -60,6 +57,7 @@ public class AdminInterface extends Interface {
         final String[] RootSettingsList = {"Create Admins", "Delete Controlled Items"}; //TODO: finish this by looking at the spec.
         items.setAll(PersonSettingsList);
         optionList.setItems(items);
+        optionList.maxWidthProperty().bind(split.widthProperty().multiply(0.2));
 
         grid.add(optionList, 0, 0, 1, 7);
         Button logs = new Button("Logs");
@@ -150,12 +148,9 @@ public class AdminInterface extends Interface {
                             break;
                         case "Item Logs":
                             showItemLog(grid);
-                            split.setDividerPositions(0.2f);
                             break;
                         case "Password Logs":
                             showPasswordLog(grid);
-                            split.setDividerPositions(0.2f);
-
                             break;
                         default:
                             changePerson(grid);
@@ -660,7 +655,7 @@ public class AdminInterface extends Interface {
             product.setAll(WorkingUser.getPasswordLog(dpFrom.getValue(), dpTo.getValue()));
         }
         productList.setItems(product);
-        productList.setMinWidth(grid.getWidth());
+        productList.setMinWidth(grid.getMaxWidth());
         grid.add(dpFrom, 0, 0);
         grid.add(dpTo, 1, 0);
         grid.add(productList, 0, 1, 5, 10);
@@ -678,7 +673,7 @@ public class AdminInterface extends Interface {
             product.setAll(WorkingUser.getItemLog(dpFrom.getValue(), dpTo.getValue()));
         }
         productList.setItems(product);
-        productList.setMinWidth(grid.getWidth());
+        productList.setMinWidth(grid.getMaxWidth());
         grid.add(dpFrom, 0, 0);
         grid.add(dpTo, 1, 0);
         grid.add(productList, 0, 1, 5, 10);
