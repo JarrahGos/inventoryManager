@@ -207,7 +207,7 @@ public class AdminInterface extends Interface {
             }
             if (IDNew != null && !Objects.equals(IDNew, "")) {
                 String name = personList.getSelectionModel().getSelectedItem();
-                WorkingUser.changeDatabasePerson(name, nameEntry.getText(), IDNew, oldID.toString());
+                WorkingUser.changeDatabasePerson(nameEntry.getText(), IDNew, oldID.toString());
                 nameEntry.clear();
                 ID.clear();
                 nameEntry.requestFocus();
@@ -654,10 +654,19 @@ public class AdminInterface extends Interface {
         ObservableList<String> product = FXCollections.observableArrayList();
         if (dpTo.getValue().equals(dpFrom.getValue())) {
             product.setAll(WorkingUser.getPasswordLog());
+            productList.setItems(product);
         } else {
             product.setAll(WorkingUser.getPasswordLog(dpFrom.getValue(), dpTo.getValue()));
+            productList.setItems(product);
         }
-        productList.setItems(product);
+        dpFrom.setOnAction((ActionEvent e) -> {
+            product.setAll(WorkingUser.getPasswordLog(dpFrom.getValue(), dpTo.getValue()));
+            productList.setItems(product);
+        });
+        dpTo.setOnAction((ActionEvent e) -> {
+            product.setAll(WorkingUser.getPasswordLog(dpFrom.getValue(), dpTo.getValue()));
+            productList.setItems(product);
+        });
         productList.setMinWidth(grid.getMaxWidth());
         grid.add(dpFrom, 0, 0);
         grid.add(dpTo, 1, 0);
@@ -672,10 +681,19 @@ public class AdminInterface extends Interface {
         ObservableList<String> product = FXCollections.observableArrayList();
         if (dpTo.getValue().equals(dpFrom.getValue())) {
             product.setAll(WorkingUser.getItemLog());
+            productList.setItems(product);
         } else {
             product.setAll(WorkingUser.getItemLog(dpFrom.getValue(), dpTo.getValue()));
+            productList.setItems(product);
         }
-        productList.setItems(product);
+        dpFrom.setOnAction((ActionEvent e) -> {
+            product.setAll(WorkingUser.getItemLog(dpFrom.getValue(), dpTo.getValue()));
+            productList.setItems(product);
+        });
+        dpTo.setOnAction((ActionEvent e) -> {
+            product.setAll(WorkingUser.getItemLog(dpFrom.getValue(), dpTo.getValue()));
+            productList.setItems(product);
+        });
         productList.setMinWidth(grid.getMaxWidth());
         grid.add(dpFrom, 0, 0);
         grid.add(dpTo, 1, 0);

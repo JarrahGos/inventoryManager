@@ -646,14 +646,17 @@ public class SQLInterface {
         String statement;
         ResultSet rs = null;
         PreparedStatement ps = null;
+        int noOfResults = 0;
         switch (type) {
             case TABPERSONLOG:
                 statement = "SELECT * FROM " + TABPERSONLOG + " " +
                         "WHERE " + COLPERSONLOGDATE + " > ?";
+                noOfResults = TABPERSONLOGCOUNT;
                 break;
             case TABITEMLOG:
                 statement = "SELECT * FROM " + TABITEMLOG + " " +
                         "WHERE " + COLITEMLOGOUTDATE + " > ?";
+                noOfResults = TABITEMLOGCOUNT;
                 break;
             case "controlled":
                 statement = "SELECT * FROM " + TABITEMLOG + " " +
@@ -680,9 +683,7 @@ public class SQLInterface {
         }
         ArrayList<String> ret = null;
         try {
-            for (int i = 0; rs.next(); i++) {
-                ret.add(rs.toString()); // TODO: test this toString. see above.
-            }
+            ret = rsToString(rs, noOfResults);
             ps.closeOnCompletion();
             db.close();
             System.out.println("_X_X_X_X_X_X_X_ DB closed in getLog3");
