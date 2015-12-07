@@ -218,7 +218,7 @@ public class Interface extends Application {
                 boolean correct = productEntered(input.getText());
                 System.out.println(correct);
                 if (correct) {
-                    productError.setText("");
+                    grid.getChildren().remove(productError);
                     items.setAll(WorkingUser.getCheckOutNames());
                     itemList.setItems(items);
                     input.clear();
@@ -226,6 +226,7 @@ public class Interface extends Application {
                     flashColour(input, 500, Color.AQUAMARINE);
                 } else {
                     productError.setText("Could not read that product");
+                    if (!grid.getChildren().contains(productError)) grid.add(productError, 1, 8);
                     input.clear();
                     input.requestFocus();
                     flashColour(input, 500, Color.RED);
