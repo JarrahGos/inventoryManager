@@ -327,6 +327,14 @@ public final class WorkingUser {
         return loggingDatabase.getOutItems();
     }
 
+    public static ArrayList<String> getOutItemIDs() {
+        return loggingDatabase.getOutItemIDs();
+    }
+
+    public static ArrayList<String> getOutItemPersIDs() {
+        return loggingDatabase.getOutItemPersIDs();
+    }
+
     /**
      * Takes the barcode for a product and adds it to the checkout
      *
@@ -580,11 +588,11 @@ public final class WorkingUser {
         return LoggingDatabase.getPasswordLog(from, to);
     }
 
-    public static ArrayList<String> getItemLog(LocalDate from, LocalDate to) {
-        return LoggingDatabase.getItemLog(from, to);
+    public static ArrayList<String> getItemLog(boolean outOnly, LocalDate from, LocalDate to) {
+        return LoggingDatabase.getItemLog(outOnly, from, to);
     }
 
-    public static ArrayList<String> getItemLog() {
-        return LoggingDatabase.getItemLog();
+    public static ArrayList<String> getItemLog(boolean outOnly) {
+        return LoggingDatabase.getItemLog(outOnly);
     }
 }

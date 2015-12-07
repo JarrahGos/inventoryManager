@@ -18,23 +18,31 @@ public class LoggingDatabase implements Database {
     }
 
     public static ArrayList<String> getPasswordLog() {
-        return SQLInterface.getLog(SQLInterface.TABPERSONLOG);
+        return SQLInterface.getLog(SQLInterface.TABPERSONLOG, true);
     }
 
     public static ArrayList<String> getPasswordLog(LocalDate from, LocalDate to) {
-        return SQLInterface.getLog(SQLInterface.TABPERSONLOG, from, to);
+        return SQLInterface.getLog(SQLInterface.TABPERSONLOG, true, from, to);
     }
 
-    public static ArrayList<String> getItemLog(LocalDate from, LocalDate to) {
-        return SQLInterface.getLog(SQLInterface.TABITEMLOG, from, to);
+    public static ArrayList<String> getItemLog(boolean outOnly, LocalDate from, LocalDate to) {
+        return SQLInterface.getLog(SQLInterface.TABITEMLOG, outOnly, from, to);
     }
 
-    public static ArrayList<String> getItemLog() {
-        return SQLInterface.getLog(SQLInterface.TABITEMLOG);
+    public static ArrayList<String> getItemLog(boolean outOnly) {
+        return SQLInterface.getLog(SQLInterface.TABITEMLOG, outOnly);
     }
 
     public ArrayList<String> getOutItems() {
         return SQLInterface.getOutItemsLog();
+    }
+
+    public ArrayList<String> getOutItemIDs() {
+        return SQLInterface.getOutItemsLog(SQLInterface.COLITEMLOGITEMID);
+    }
+
+    public ArrayList<String> getOutItemPersIDs() {
+        return SQLInterface.getOutItemsLog(SQLInterface.COLITEMLOGPERSID);
     }
 
     public void signItemsIn(ArrayList<String> items, String persID) {

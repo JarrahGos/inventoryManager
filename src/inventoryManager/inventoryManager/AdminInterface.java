@@ -25,6 +25,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Objects;
 
 public class AdminInterface extends Interface {
@@ -278,13 +279,21 @@ public class AdminInterface extends Interface {
 
         SplitPane inOut = new SplitPane();
         ObservableList<String> outItems = FXCollections.observableArrayList();
-        outItems.setAll(WorkingUser.getOutItems());
+        LinkedList<String> out = new LinkedList<>();
+        ArrayList<String> names = WorkingUser.getOutItems();
+        ArrayList<String> itemID = WorkingUser.getOutItemIDs();
+        ArrayList<String> persID = WorkingUser.getOutItemPersIDs();
+        for (int i = 0; i < names.size(); i++) {
+            out.add(itemID.get(i) + "\t" + names.get(i) + "\t" + persID.get(i)); //TODO: Formatting, create columns within listview.
+        }
+        outItems.setAll(out);
         ListView<String> outList = new ListView<>();
         outList.setItems(outItems);
 
         ObservableList<String> inItems = FXCollections.observableArrayList();
         ListView<String> inList = new ListView<>();
         inList.setItems(inItems);
+        LinkedList<String> barcodesIn = new LinkedList<>();
 
         barcodeEntry.setOnKeyPressed((KeyEvent ke) -> {
             if (ke.getCode().equals(KeyCode.ENTER)) {
@@ -302,7 +311,7 @@ public class AdminInterface extends Interface {
         grid.add(barcodeLabel, 0, 0);
         grid.add(barcodeEntry, 1, 0);
 
-        inOut.getItems().addAll(outList, inList);
+        inOut.getItems().addAll(outList, inList); //TODO: Headings for this list.
         inOut.setDividerPositions(0.5f);
         grid.add(inOut, 0, 1, 2, 1);
 
@@ -317,8 +326,11 @@ public class AdminInterface extends Interface {
 
         Button signIn = new Button("Sign In Items");
         signIn.setOnAction((ActionEvent e) -> {
-            WorkingUser.signItemsIn((ArrayList<String>) inItems);
-            //TODO: This requires the barcodes as the names may not be unique.
+            ArrayList<String> in = new ArrayList<>();
+            for (String item : inItems) {
+                in.add(item);
+            }
+            WorkingUser.signItemsIn(in);
         });
         grid.add(signIn, 1, 2);
     }
@@ -674,34 +686,45 @@ public class AdminInterface extends Interface {
     }
 
     public static void showItemLog(GridPane grid) { //TODO: headings and formatting.
-        grid.getChildren().clear();
+        grid.getChildren().clear(); //TODO: Add out checkbox
         DatePicker dpTo = new DatePicker(LocalDate.now());
         DatePicker dpFrom = new DatePicker(LocalDate.now());
+        CheckBox cb = new CheckBox("Only out items");
         ListView<String> productList = new ListView<>();
         ObservableList<String> product = FXCollections.observableArrayList();
         if (dpTo.getValue().equals(dpFrom.getValue())) {
-            product.setAll(WorkingUser.getItemLog());
+            product.setAll(WorkingUser.getItemLog(cb.isSelected()));
             productList.setItems(product);
         } else {
-            product.setAll(WorkingUser.getItemLog(dpFrom.getValue(), dpTo.getValue()));
+            product.setAll(WorkingUser.getItemLog(cb.isSelected(), dpFrom.getValue(), dpTo.getValue()));
             productList.setItems(product);
         }
         dpFrom.setOnAction((ActionEvent e) -> {
-            product.setAll(WorkingUser.getItemLog(dpFrom.getValue(), dpTo.getValue()));
+            product.setAll(WorkingUser.getItemLog(cb.isSelected(), dpFrom.getValue(), dpTo.getValue()));
             productList.setItems(product);
         });
         dpTo.setOnAction((ActionEvent e) -> {
-            product.setAll(WorkingUser.getItemLog(dpFrom.getValue(), dpTo.getValue()));
+            product.setAll(WorkingUser.getItemLog(cb.isSelected(), dpFrom.getValue(), dpTo.getValue()));
             productList.setItems(product);
+        });
+        cb.setOnAction((ActionEvent e) -> {
+            if (dpTo.getValue().equals(dpFrom.getValue())) {
+                product.setAll(WorkingUser.getItemLog(cb.isSelected()));
+            } else {
+                product.setAll(WorkingUser.getItemLog(cb.isSelected(), dpFrom.getValue(), dpTo.getValue()));
+                productList.setItems(product);
+            }
         });
         productList.setMinWidth(grid.getMaxWidth());
         grid.add(dpFrom, 0, 0);
         grid.add(dpTo, 1, 0);
+        grid.add(cb, 2, 0);
         grid.add(productList, 0, 1, 5, 10);
     }
     public static void addUser(String userID) {
+
         Stage AddStage = new Stage();
-        AddStage.setTitle("Change Your Password");
+        AddStage.setTitle("Add User");
         GridPane grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
         grid.setHgap(10);
@@ -752,13 +775,13 @@ public class AdminInterface extends Interface {
                         flashColour(new Node[]{firstInput, secondInput}, 1500, Color.RED);
                         grid.getChildren().remove(error);
                         error.setText("Passwords do not match");
-                        grid.add(error, 2, 3);
+                        grid.add(error, 0, 5, 2, 1);
                     }
                 } else {
                     flashColour(IDInput, 1500, Color.RED);
                     grid.getChildren().remove(error);
-                    error.setText("ID already exists, contact the LOGO to change your password.");
-                    grid.add(error, 2, 0);
+                    error.setText("ID already exists, contact the LOGO to reset your password");
+                    grid.add(error, 0, 5, 2, 1);
                 }
             }
         });

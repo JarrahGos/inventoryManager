@@ -43,6 +43,8 @@ public class SQLInterface {
     public static final String TABPERSON = "person";
     public static final String TABPERSONLOG = "personLog";
     public static final String TABSET = "itemSet";
+    public static final String COLITEMLOGPERSID = "persID";
+    public static final String COLITEMLOGITEMID = "itemID";
     // column names TABCONTROLLED
     private static final String COLCONTROLLEDID = "ID";
     private static final String COLCONTROLLEDTAGNO = "tagno";
@@ -68,10 +70,8 @@ public class SQLInterface {
     private static final String COLITEMLOGOUTDATE = "outDate";
     private static final String COLITEMLOGOUT = "out";
     private static final String COLITEMLOGINDATE = "inDate";
-    private static final String COLITEMLOGPERSID = "persID";
     private static final String COLITEMLOGCONTROLLED = "controlled";
     private static final String COLITEMLOGADMINNAME = "adminName";
-    private static final String COLITEMLOGITEMID = "itemID";
     private static final int TABITEMLOGCOUNT = 7;
     // Column names TABPERSON
     private static final String COLPERSONID = "ID";
@@ -152,7 +152,7 @@ public class SQLInterface {
         }
         try {
             PreparedStatement ps = db.prepareStatement(statement);
-            ps.setString(1, barcode);
+            ps.setString(1, barcode); //TODO: statement not executing, due to not having controlled and general set properly.
             ps.execute();
             ps.closeOnCompletion();
             db.close();
@@ -454,8 +454,8 @@ public class SQLInterface {
         Connection db = getDatabase().get();
         System.out.println("_X_X_X_X_X_X_X_ New DB in addLog2");
         //TODO: Should this check the item as out in the controlled table?
-        String statment = "INSERT INTO " + TABITEMLOG + " (" + COLITEMLOGITEMID + ", " + COLITEMLOGOUTDATE + ", " + COLITEMLOGINDATE + ", " + COLITEMLOGPERSID + ", " + COLITEMLOGCONTROLLED + ", " + COLITEMLOGOUT + ") " +
-                "VALUES(?, DATE('now', 'localtime'), \"FALSE\", ?, ?, 1)";
+        String statment = "INSERT INTO " + TABITEMLOG + " (" + COLITEMLOGITEMID + ", " + COLITEMLOGOUTDATE + ", " + COLITEMLOGINDATE + ", " + COLITEMLOGPERSID + ", " + COLITEMLOGCONTROLLED + ") " +
+                "VALUES(?, DATE('now', 'localtime'), \"FALSE\", ?, ?)";
         try {
             PreparedStatement ps = db.prepareStatement(statment);
             ps.setString(1, itemID);
@@ -480,8 +480,8 @@ public class SQLInterface {
     public static void returnItem(String itemID, String persID) { // Return a general item.
         Connection db = getDatabase().get();
         System.out.println("_X_X_X_X_X_X_X_ New DB in returnItem");
-        String statement = "UPDATE " + TABITEMLOG + " SET in=TRUE, inDate=DATE('now', 'localtime')" +
-                "WHERE ID=? AND persID=?";
+        String statement = "UPDATE " + TABITEMLOG + " SET " + COLITEMLOGINDATE + "=DATE('now', 'localtime')" +
+                "WHERE ID=? AND persID=?"; //TODO: Here be why it isn't working.
         try {
             PreparedStatement ps = db.prepareStatement(statement);
             ps.setString(1, itemID);
@@ -512,7 +512,7 @@ public class SQLInterface {
      * @param type The type of log you would like. Use the public variables
      * @return
      */
-    public static ArrayList<String> getLog(String type) {
+    public static ArrayList<String> getLog(String type, boolean outOnly) {
         Connection db = getDatabase().get();
         System.out.println("_X_X_X_X_X_X_X_ New DB in getLog1");
         String statement;
@@ -525,7 +525,8 @@ public class SQLInterface {
                 noOfResults = TABPERSONLOGCOUNT;
                 break;
             case TABITEMLOG:
-                statement = "SELECT * FROM " + TABITEMLOG + "";
+                if (outOnly) statement = "SELECT * FROM " + TABITEMLOG + " WHERE " + COLITEMLOGINDATE + " = \"FALSE\"";
+                else statement = "SELECT * FROM " + TABITEMLOG + "";
                 noOfResults = TABITEMLOGCOUNT;
                 break;
             case "controlled":
@@ -640,7 +641,7 @@ public class SQLInterface {
      * @param date The date that you would like to get the log for.
      * @return An arrayList of each record within the log.
      */
-    public static ArrayList<String> getLog(String type, LocalDate from, LocalDate to) {
+    public static ArrayList<String> getLog(String type, boolean outOnly, LocalDate from, LocalDate to) {
         Connection db = getDatabase().get();
         System.out.println("_X_X_X_X_X_X_X_ New DB in getLog3");
         String statement;
@@ -654,7 +655,9 @@ public class SQLInterface {
                 noOfResults = TABPERSONLOGCOUNT;
                 break;
             case TABITEMLOG:
-                statement = "SELECT * FROM " + TABITEMLOG + " " +
+                if (outOnly) statement = "SELECT * FROM " + TABITEMLOG +
+                        " WHERE " + COLITEMLOGOUTDATE + " > ? AND " + COLITEMLOGINDATE + " = \"FALSE\"";
+                else statement = "SELECT * FROM " + TABITEMLOG + " " +
                         "WHERE " + COLITEMLOGOUTDATE + " > ?";
                 noOfResults = TABITEMLOGCOUNT;
                 break;
@@ -702,7 +705,44 @@ public class SQLInterface {
     public static ArrayList<String> getOutItemsLog() {
         Connection db = getDatabase().get();
         System.out.println("_X_X_X_X_X_X_X_ New DB in getOutItemsLog");
-        String statement = "SELECT " + COLITEMNAME + " FROM " + TABITEMLOG + " JOIN " + TABITEM + " ON " + TABITEMLOG + "." + COLITEMLOGITEMID + "=" + TABITEM + "." + COLITEMID + " WHERE " + COLITEMLOGOUT + " = 1";
+        String statement = "SELECT " + COLITEMNAME + " FROM " + TABITEMLOG + " JOIN " + TABITEM + " ON " + TABITEMLOG + "." + COLITEMLOGITEMID + "=" + TABITEM + "." + COLITEMID + " WHERE " + COLITEMLOGINDATE + " = \"FALSE\"";
+        ResultSet rs;
+        ArrayList<String> ret = new ArrayList<>();
+        try {
+            PreparedStatement ps = db.prepareStatement(statement);
+            rs = ps.executeQuery();
+            boolean next = rs.next();
+            System.out.println(next);
+            while (next) {
+                System.out.println(rs.getString(1));
+                ret.add(rs.getString(1));
+                next = rs.next();
+            }
+            rs.close();
+            ps.closeOnCompletion();
+            db.close();
+            System.out.println("_X_X_X_X_X_X_X_ DB closed in getOutItemsLog");
+        } catch (SQLException e) {
+            Log.print(e);
+            System.exit(32);
+        }
+        return ret;
+    }
+
+    public static ArrayList<String> getOutItemsLog(String type) {
+        Connection db = getDatabase().get();
+        System.out.println("_X_X_X_X_X_X_X_ New DB in getOutItemsLog");
+        String statement = "";
+        switch (type) {
+            case COLITEMLOGITEMID:
+                statement = "SELECT " + COLITEMLOGITEMID + " FROM " + TABITEMLOG + " WHERE " + COLITEMLOGINDATE + " = \"FALSE\"";
+                break;
+            case COLITEMLOGPERSID:
+                statement = "SELECT " + COLITEMLOGPERSID + " FROM " + TABITEMLOG + " WHERE " + COLITEMLOGINDATE + " = \"FALSE\"";
+                break;
+            default:
+                statement = "SELECT " + COLITEMLOGITEMID + " FROM " + TABITEMLOG + " WHERE " + COLITEMLOGINDATE + " = \"FALSE\"";
+        }
         ResultSet rs;
         ArrayList<String> ret = new ArrayList<>();
         try {
