@@ -331,7 +331,11 @@ public class Interface extends Application {
         grid.add(purchase, 4, 8, 2, 1); // add the button to the bottum right corner, next to the total price.
     }
     private void OnOKPressed(GridPane grid, Text inputLabel, TextField input, Text userLabel, PasswordField pass, Button addUser, ListView<String> itemList, ObservableList<String> items, Button adminMode) {
-        if (pass.getText() == null || pass.getText().isEmpty()) {
+        if (input.getText() == null || input.getText().isEmpty()) {
+            input.requestFocus();
+            flashColour(input, 1500, Color.RED);
+            flashColour(pass, 1500, Color.RED);
+        } else if (pass.getText() == null || pass.getText().isEmpty()) {
             pass.requestFocus();
             flashColour(pass, 1500, Color.RED);
         } else if (!WorkingUser.userLoggedIn()) {

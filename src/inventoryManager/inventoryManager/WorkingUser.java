@@ -414,7 +414,7 @@ public final class WorkingUser {
     public static void changeDatabasePerson(String name, String ID, String oldID) {
         personDatabase.changeDatabasePerson(name, ID, oldID);
     }
-    
+
     /**
      * Write out the CSV version of the database for the admin.
      *
