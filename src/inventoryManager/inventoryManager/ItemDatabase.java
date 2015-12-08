@@ -24,7 +24,6 @@ package inventoryManager;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.Optional;
 
 class ItemDatabase implements Database {
@@ -42,6 +41,16 @@ class ItemDatabase implements Database {
         } catch (FileNotFoundException e) {
             Log.print(e);
         }
+    }
+
+    /**
+     * Determine whether an item is a controlled item.
+     *
+     * @param ID The ID of the item to check
+     * @return True if the item is controlled.
+     */
+    public static boolean isControlled(String ID) {
+        return SQLInterface.isItemControlled(ID);
     }
 
     /**
@@ -80,7 +89,6 @@ class ItemDatabase implements Database {
         return SQLInterface.getDatabase(SQLInterface.TABITEM);
     }
 
-
     /**
      * Deletes the specified product from the database
      * Preconditions: setDatabase has been run
@@ -88,11 +96,10 @@ class ItemDatabase implements Database {
      * @param barcode The barcode of the item you wish to delete
      */
     public void deleteEntry(String barcode) {
-        if (!this.isControlled(barcode)) {
+        if (!isControlled(barcode)) {
             SQLInterface.deleteEntry(SQLInterface.TABGENERAL, barcode);
         }
     }
-
 
     /**
      * Determine Whether a product Exists given only their barcode
@@ -109,8 +116,6 @@ class ItemDatabase implements Database {
     public void writeDatabaseCSV(String path) {
 
     }
-
-
 
     /**
      * Write out a CSV version of the database for future import.
@@ -138,26 +143,6 @@ class ItemDatabase implements Database {
     }
 
     /**
-     * Log a single item out of the database.
-     * @param ID The ID of the item to log out.
-     * @param persID The ID of the person to log the item out to.
-     */
-    public void logItemOut(String ID, String persID) {
-        SQLInterface.addLog(ID, persID, this.isControlled(ID));
-    }
-
-    /**
-     * Log a linked list of items out of the database to a given user.
-     * @param IDs A linked list of IDs to log out in the database.
-     * @param persID The ID of the person to log the items to.
-     */
-    public void logItemsOut(LinkedList<String> IDs, String persID) {
-        for (String ID : IDs) {
-            logItemOut(ID, persID);
-        }
-    }
-
-    /**
      * Get the barcode of an item given it's name.
      * @param name The name of the item to search for.
      * @return The ID of the first item in the database with the given name.
@@ -177,15 +162,6 @@ class ItemDatabase implements Database {
      */
     public void addEntry(String barcode, String name, String setName, String state, String tagPos, String type) {
         SQLInterface.addEntry(barcode, name, setName, state, tagPos, type);
-    }
-
-    /**
-     * Determine whether an item is a controlled item.
-     * @param ID The ID of the item to check
-     * @return True if the item is controlled.
-     */
-    public final boolean isControlled(String ID) {
-        return SQLInterface.isItemControlled(ID);
     }
 
     /**

@@ -193,7 +193,7 @@ public class AdminInterface extends Interface {
                         oldID.substring(0, 0); //TODO: This is hacky as fuck.
                         nameEntry.setText(selectedPerson);
                         String IDVal = WorkingUser.getPersonID(selectedPerson).orElse("ERROR getting ID");
-                        ID.setText(IDVal); //TODO: This doesn't work with the same name. returns first ID.
+                        ID.setText(IDVal);
                         oldID.append(IDVal);
                     }
                 });
@@ -658,10 +658,10 @@ public class AdminInterface extends Interface {
         grid.add(save, 3, 0);
     }
 
-    public static void showPasswordLog(GridPane grid) { //TODO: Repeatedly opening and closing this will remove the left menu.
+    public static void showPasswordLog(GridPane grid) {
         grid.getChildren().clear();
         DatePicker dpTo = new DatePicker(LocalDate.now());
-        DatePicker dpFrom = new DatePicker(LocalDate.now()); //TODO: Add a listener for changes in these.
+        DatePicker dpFrom = new DatePicker(LocalDate.now());
         ListView<String> productList = new ListView<>();
         ObservableList<String> product = FXCollections.observableArrayList();
         if (dpTo.getValue().equals(dpFrom.getValue())) {
@@ -686,7 +686,7 @@ public class AdminInterface extends Interface {
     }
 
     public static void showItemLog(GridPane grid) { //TODO: headings and formatting.
-        grid.getChildren().clear(); //TODO: Add out checkbox
+        grid.getChildren().clear();
         DatePicker dpTo = new DatePicker(LocalDate.now());
         DatePicker dpFrom = new DatePicker(LocalDate.now());
         CheckBox cb = new CheckBox("Only out items");

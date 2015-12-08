@@ -261,7 +261,7 @@ public class Interface extends Application {
             if (index >= 0) {
                 WorkingUser.deleteProduct(index);
                 items.setAll(WorkingUser.getCheckOutNames());
-                itemList.setItems(items); //TODO: add select top.
+                itemList.setItems(items);
                 itemList.scrollTo(index);
                 input.requestFocus();
                 flashColour(removeProduct, 1500, Color.AQUAMARINE);

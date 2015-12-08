@@ -156,7 +156,7 @@ final class PersonDatabase implements Database {
      *
      * @param path The path to the directory you wish to output to
      */
-    public final void writeDatabaseCSV(String path) { //TODO: Ensure this works as a CSV
+    public final void writeDatabaseCSV(String path) {
         SQLInterface.export(SQLInterface.TABPERSON, path); // ensure that this path is the full absolute path rather than a relative one.
     }
 

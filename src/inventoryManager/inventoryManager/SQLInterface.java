@@ -481,7 +481,7 @@ public class SQLInterface {
         Connection db = getDatabase().get();
         System.out.println("_X_X_X_X_X_X_X_ New DB in returnItem");
         String statement = "UPDATE " + TABITEMLOG + " SET " + COLITEMLOGINDATE + "=DATE('now', 'localtime')" +
-                "WHERE ID=? AND persID=?"; //TODO: Here be why it isn't working.
+                "WHERE " + COLITEMLOGITEMID + "=? AND " + COLITEMLOGPERSID + "=?";
         try {
             PreparedStatement ps = db.prepareStatement(statement);
             ps.setString(1, itemID);
@@ -911,7 +911,7 @@ public class SQLInterface {
         ArrayList<String> ret = null;
         try {
             for (int i = 0; rs.next(); i++) {
-                ret.add(rs.toString()); // TODO: test this toString
+                ret.add(rs.toString());
             }
             rs.close();
             ps.closeOnCompletion();

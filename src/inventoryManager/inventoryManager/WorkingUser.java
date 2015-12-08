@@ -276,7 +276,7 @@ public final class WorkingUser {
     /**
      * Log the user out from this class
      */
-    public static void logOut() { //TODO: this will probably have to change.
+    public static void logOut() {
         userName = null;
         userID = null;
         checkOuts = new CheckOut();
@@ -288,7 +288,7 @@ public final class WorkingUser {
      */
     public static void checkOutItems() {
         LinkedList purchased = checkOuts.productBought(); // clear the quantities and checkout
-        itemDatabase.logItemsOut(purchased, userID); //TODO: Make this actually write out the items.
+        LoggingDatabase.logItemsOut(purchased, userID);
         checkOuts = new CheckOut(); // ensure checkout clear
         userName = null;
         userID = null;
@@ -413,8 +413,8 @@ public final class WorkingUser {
      */
     public static void changeDatabasePerson(String name, String ID, String oldID) {
         personDatabase.changeDatabasePerson(name, ID, oldID);
-    } //TODO: When only given the new information, how are we to work out what to change?
-
+    }
+    
     /**
      * Write out the CSV version of the database for the admin.
      *

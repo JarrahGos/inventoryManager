@@ -2,6 +2,7 @@ package inventoryManager;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Optional;
 
 /**
@@ -31,6 +32,28 @@ public class LoggingDatabase implements Database {
 
     public static ArrayList<String> getItemLog(boolean outOnly) {
         return SQLInterface.getLog(SQLInterface.TABITEMLOG, outOnly);
+    }
+
+    /**
+     * Log a single item out of the database.
+     *
+     * @param ID     The ID of the item to log out.
+     * @param persID The ID of the person to log the item out to.
+     */
+    public static void logItemOut(String ID, String persID) {
+        SQLInterface.addLog(ID, persID, ItemDatabase.isControlled(ID));
+    }
+
+    /**
+     * Log a linked list of items out of the database to a given user.
+     *
+     * @param IDs    A linked list of IDs to log out in the database.
+     * @param persID The ID of the person to log the items to.
+     */
+    public static void logItemsOut(LinkedList<String> IDs, String persID) {
+        for (String ID : IDs) {
+            logItemOut(ID, persID);
+        }
     }
 
     public ArrayList<String> getOutItems() {
