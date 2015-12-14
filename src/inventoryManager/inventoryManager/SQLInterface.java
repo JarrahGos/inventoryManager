@@ -26,7 +26,6 @@ package inventoryManager;
  */
 
 
-import java.io.FileNotFoundException;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -90,8 +89,6 @@ public class SQLInterface {
     private static final String COLSETNAME = "name";
     private static final int TABSETCOUNT = 2;
     private static String URL = "jdbc:sqlite:/Users/jarrah/ideaProjects/inventoryManager/inv.db"; // these will be initialised from the file.
-    private static String user = "jarrah"; // when sure it works, remove these.
-    private static String password = "password";
 
     // used to generate a random wait time for database locks.
     private static Random rand = new Random();
@@ -104,15 +101,15 @@ public class SQLInterface {
         try {
             Class.forName("org.sqlite.JDBC").newInstance();
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-//            Log.print("could not find driver class\n" + e.toString());
+            Log.print("could not find driver class\n" + e.toString());
         }
-        String[] settings = new String[0];
-        try {
-            settings = Settings.SQLInterfaceSettings();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-///        URL = settings[0];
+//        String[] settings = new String[0];
+//        try {
+//            settings = Settings.SQLInterfaceSettings();
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//        }
+//        URL = settings[0];
 
 
     }
@@ -153,14 +150,18 @@ public class SQLInterface {
         try {
             PreparedStatement ps = db.prepareStatement(statement);
             ps.setString(1, barcode); //TODO: statement not executing, due to not having controlled and general set properly.
-            ps.execute();
-            ps.closeOnCompletion();
-            db.close();
+            executePS(db, ps);
             System.out.println("_X_X_X_X_X_X_X_ DB closed in deleteEntry");
         } catch (SQLException e) {
             e.printStackTrace();
             System.exit(32);
         }
+    }
+
+    private static void executePS(Connection db, PreparedStatement ps) throws SQLException {
+        ps.execute();
+        ps.closeOnCompletion();
+        db.close();
     }
 
     /**
@@ -185,9 +186,7 @@ public class SQLInterface {
             ps.setInt(3, admin);
             ps.setString(4, password);
             ps.setString(5, salt);
-            ps.execute();
-            ps.closeOnCompletion();
-            db.close();
+            executePS(db, ps);
             System.out.println("_X_X_X_X_X_X_X_ DB closed in addEntry1");
         } catch (SQLException e) {
             Log.print(e);
@@ -208,9 +207,7 @@ public class SQLInterface {
         try {
             PreparedStatement ps = db.prepareStatement(statement);
             ps.setString(1, name);
-            ps.execute();
-            ps.closeOnCompletion();
-            db.close();
+            executePS(db, ps);
             System.out.println("_X_X_X_X_X_X_X_ DB closed in addEntry2");
         } catch (SQLException e) {
             Log.print(e);
@@ -230,29 +227,16 @@ public class SQLInterface {
     public static void addEntry(String ID, String name, String setName, String Description, Long Quantity) { // Add generalItem
         addEntry(ID, name);
 
-//        String statement = "INSERT INTO " + TABITEM + " (" + COLITEMID + ", " + COLITEMNAME + ")" +
-//                "VALUES(?, ?)";
-//        try {
-//            PreparedStatement ps = db.prepareStatement(statement);
-//            ps.setString(1, ID);
-//            ps.setString(2, name);
-//            ps.execute();
-//            ps.closeOnCompletion();
-//        } catch (SQLException e) {
-//            Log.print(e);
-//        }
         Connection db = getDatabase().get();
         System.out.println("_X_X_X_X_X_X_X_ New DB in addEntry3");
         String statement = "INSERT INTO " + TABGENERAL + " (" + COLGENERALID + ", " + COLGENERALDESCRIPTION + ", " + COLGENERALQUANTITY + ")" +
-                "VALUES(?, ?, ?, ?, ?)";
+                "VALUES(?, ?, ?)";
         try {
             PreparedStatement ps = db.prepareStatement(statement);
             ps.setString(1, ID);
             ps.setString(2, Description);
             ps.setLong(3, Quantity);
-            ps.execute();
-            ps.closeOnCompletion();
-            db.close();
+            executePS(db, ps);
             System.out.println("_X_X_X_X_X_X_X_ DB closed in addEntry3");
         } catch (SQLException e) {
             Log.print(e);
@@ -299,17 +283,6 @@ public class SQLInterface {
     public static void addEntry(String ID, String name, String setName, String state, String tagpos, String type) { // add Controlled " + TABITEM + "
         addEntry(ID, name);
 
-//        String statement = "INSERT INTO " + TABITEM + " (" + COLITEMID + ", " + COLITEMNAME + ")" +
-//                "VALUES(?, ?)"; // Sort SetID at the end. There may not be a set ID for every item.
-//        try {
-//            PreparedStatement ps = db.prepareStatement(statement);
-//            ps.setString(1, ID);
-//            ps.setString(2, name);
-//            ps.execute();
-//            ps.closeOnCompletion();
-//        } catch (SQLException e) {
-//            Log.print(e);
-//        }
         Connection db = getDatabase().get();
         System.out.println("_X_X_X_X_X_X_X_ New DB in addEntry4");
         String statement;
@@ -341,7 +314,7 @@ public class SQLInterface {
                 rs.close();
 
                 statement = "INSERT INTO " + TABCONTROLLED + " (" + COLCONTROLLEDID + ", " + COLCONTROLLEDTAGNO + ", State)" + // TODO: DAFAQ is state
-                        "VALUES(?, ?, ?, ?, ?)";
+                        "VALUES(?, ?, ?, ?)";
                 try {
                     db = getDatabase().get();
                     System.out.println("_X_X_X_X_X_X_X_ New DB in addEntry4");
@@ -350,9 +323,7 @@ public class SQLInterface {
                     ps.setString(2, tagpos);
                     ps.setInt(3, rs.getInt("ID"));
                     ps.setString(4, state);
-                    ps.execute();
-                    ps.closeOnCompletion();
-                    db.close();
+                    executePS(db, ps);
                     System.out.println("_X_X_X_X_X_X_X_ DB closed in addEntry4");
                 } catch (SQLException e) {
                     Log.print(e);
@@ -378,9 +349,7 @@ public class SQLInterface {
                     statement = ""; // TODO: List of items is fucked.
                     ps = db.prepareStatement(statement);
                     ps.setString(1, name);
-                    ps.execute();
-                    ps.closeOnCompletion();
-                    db.close();
+                    executePS(db, ps);
                     System.out.println("_X_X_X_X_X_X_X_ DB closed in addEntry4");
                 }
                 rs.close();
@@ -407,9 +376,7 @@ public class SQLInterface {
             PreparedStatement ps = db.prepareStatement(statement);
             ps.setString(1, ID);
             ps.setString(2, name);
-            ps.execute();
-            ps.closeOnCompletion();
-            db.close();
+            executePS(db, ps);
             System.out.println("_X_X_X_X_X_X_X_ DB closed in addEntry5");
         } catch (SQLException e) {
             Log.print(e);
@@ -432,9 +399,7 @@ public class SQLInterface {
             PreparedStatement ps = db.prepareStatement(statement);
             ps.setString(1, persID);
             ps.setString(2, adminID);
-            ps.execute();
-            ps.closeOnCompletion();
-            db.close();
+            executePS(db, ps);
             System.out.println("_X_X_X_X_X_X_X_ DB closed in addLog1");
         } catch (SQLException e) {
             Log.print(e);
@@ -461,9 +426,7 @@ public class SQLInterface {
             ps.setString(1, itemID);
             ps.setString(2, persID);
             ps.setBoolean(3, controlled);
-            ps.execute();
-            ps.closeOnCompletion();
-            db.close();
+            executePS(db, ps);
             System.out.println("_X_X_X_X_X_X_X_ DB closed in addLog2");
         } catch (SQLException e) {
             Log.print(e);
@@ -486,9 +449,7 @@ public class SQLInterface {
             PreparedStatement ps = db.prepareStatement(statement);
             ps.setString(1, itemID);
             ps.setString(2, persID);
-            ps.execute();
-            ps.closeOnCompletion();
-            db.close();
+            executePS(db, ps);
             System.out.println("_X_X_X_X_X_X_X_ DB closed in returnItem");
         } catch (SQLException e) {
             Log.print(e);
@@ -805,10 +766,10 @@ public class SQLInterface {
                 count = TABGENERALCOUNT;
                 break;
             default:
-                statement = "SELECT * FROM " + TABITEM + " i" +
-                        "INNER JOIN " + TABGENERAL + " g" +
+                statement = "SELECT * FROM " + TABITEM + " AS i" +
+                        "INNER JOIN " + TABGENERAL + " AS g" +
                         " ON i.ID = g.ID" +
-                        "INNER JOIN " + TABCONTROLLED + " c " +
+                        "INNER JOIN " + TABCONTROLLED + " AS c " +
                         "ON i.ID = c.ID";
                 count = TABITEMCOUNT; //TODO: this needs to be added to general and item. Work out what the joins will return.
                 break;
@@ -836,7 +797,7 @@ public class SQLInterface {
             ps.closeOnCompletion();
             db.close();
             System.out.println("_X_X_X_X_X_X_X_ DB closed in getDatabase1");
-        } catch (SQLException e) {
+        } catch (SQLException | NullPointerException e) {
             Log.print(e);
         }
         return ret;
@@ -855,29 +816,34 @@ public class SQLInterface {
         String statement;
         ResultSet rs = null;
         PreparedStatement ps = null;
+        int count = 0;
         switch (type) {
-            case "person":
+            case TABPERSON:
                 statement = "SELECT * FROM " + TABPERSON + " WHERE ID=?";
+                count = TABPERSONCOUNT;
                 break;
-            case "item":
+            case TABITEM:
                 statement = "SELECT * FROM " + TABITEM + " i " +
                         "INNER JOIN " + TABGENERAL + " g" +
                         " ON i.ID = g.ID" +
                         "INNER JOIN " + TABCONTROLLED + " c " +
                         "ON i.ID = c.ID" +
                         " WHERE ID = ?";
+                count = TABITEMCOUNT;
                 break;
-            case "controlled":
+            case TABCONTROLLED:
                 statement = "SELECT * FROM " + TABITEM + " i " +
                         "INNER JOIN " + TABCONTROLLED + " c " +
                         "ON i.ID = c.ID" +
                         " WHERE ID = ?";
+                count = TABCONTROLLEDCOUNT;
                 break;
-            case "general":
+            case TABGENERAL:
                 statement = "SELECT * FROM " + TABITEM + " i " +
                         "INNER JOIN " + TABGENERAL + " g " +
                         "ON i.ID = g.ID" +
                         " WHERE ID = ?";
+                count = TABGENERALCOUNT;
                 break;
             case "persGeneral":
                 statement = "SELECT * FROM " + TABITEM + " i " +
@@ -898,6 +864,7 @@ public class SQLInterface {
                         "INNER JOIN " + TABCONTROLLED + " c " +
                         "ON i.ID = c.ID" +
                         " WHERE ID = ?";
+                count = TABITEMCOUNT;
                 break;
         }
         try {
@@ -910,9 +877,7 @@ public class SQLInterface {
         }
         ArrayList<String> ret = null;
         try {
-            for (int i = 0; rs.next(); i++) {
-                ret.add(rs.toString());
-            }
+            ret = rsToString(rs, count);
             rs.close();
             ps.closeOnCompletion();
             db.close();
@@ -936,29 +901,34 @@ public class SQLInterface {
         String statement;
         ResultSet rs = null;
         PreparedStatement ps = null;
+        int count = 0;
         switch (type) {
-            case "person":
+            case TABPERSON:
                 statement = "SELECT * FROM " + TABPERSON + " WHERE ID=?";
+                count = TABPERSONCOUNT;
                 break;
-            case "item":
+            case TABITEM:
                 statement = "SELECT * FROM " + TABITEM + " i " +
                         "INNER JOIN " + TABGENERAL + " g" +
                         " ON i.ID = g.ID" +
                         "INNER JOIN " + TABCONTROLLED + " c " +
                         "ON i.ID = c.ID" +
                         " WHERE date > ?";
+                count = TABITEMCOUNT;
                 break;
-            case "controlled":
+            case TABCONTROLLED:
                 statement = "SELECT * FROM " + TABITEM + " i " +
                         "INNER JOIN " + TABCONTROLLED + " c " +
                         "ON i.ID = c.ID" +
                         " WHERE date > ?";
+                count = TABCONTROLLEDCOUNT;
                 break;
-            case "general":
+            case TABGENERAL:
                 statement = "SELECT * FROM " + TABITEM + " i " +
                         "INNER JOIN " + TABGENERAL + " g " +
                         "ON i.ID = g.ID" +
                         " WHERE date > ?";
+                count = TABGENERALCOUNT;
                 break;
             default:
                 statement = "SELECT * FROM " + TABITEM + " i" +
@@ -979,9 +949,7 @@ public class SQLInterface {
         }
         ArrayList<String> ret = null;
         try {
-            for (int i = 0; rs.next(); i++) {
-                ret.add(rs.toString()); // TODO: test this toString
-            }
+            ret = rsToString(rs, count);
             rs.close();
             ps.closeOnCompletion();
             db.close();
@@ -1009,9 +977,7 @@ public class SQLInterface {
             ps.setString(1, ID);
             ps.setInt(2, sub);
             ps.setString(3, ID);
-            ps.execute();
-            ps.closeOnCompletion();
-            db.close();
+            executePS(db, ps);
             System.out.println("_X_X_X_X_X_X_X_ DB closed in lowerQuantity");
         } catch (SQLException e) {
             Log.print(e);
@@ -1200,9 +1166,7 @@ public class SQLInterface {
             ps.setString(1, password);
             ps.setString(2, salt);
             ps.setString(3, ID);
-            ps.execute();
-            ps.closeOnCompletion();
-            db.close();
+            executePS(db, ps);
             System.out.println("_X_X_X_X_X_X_X_ DB closed in getPassword2");
         } catch (SQLException e) {
             Log.print(e);
@@ -1269,7 +1233,6 @@ public class SQLInterface {
             PreparedStatement ps = db.prepareStatement(statement);
             ps.setString(1, ID);
             rs = ps.executeQuery();
-            //System.out.println(rs);
             if (rs.next()) {
                 ret = rs.getString(COLPERSONID).equals(ID);
             }
@@ -1338,9 +1301,7 @@ public class SQLInterface {
         try {
             PreparedStatement ps = db.prepareStatement(statement);
             ps.setString('1', path);
-            ps.execute();
-            ps.closeOnCompletion();
-            db.close();
+            executePS(db, ps);
             System.out.println("_X_X_X_X_X_X_X_ DB closed in export");
         } catch (SQLException e) {
             Log.print(e);
@@ -1392,9 +1353,7 @@ public class SQLInterface {
             PreparedStatement ps = db.prepareStatement(statement);
             ps.setInt(1, quantity);
             ps.setString(2, ID);
-            ps.execute();
-            ps.closeOnCompletion();
-            db.close();
+            executePS(db, ps);
             System.out.println("_X_X_X_X_X_X_X_ DB closed in setQuantity");
         } catch (SQLException e) {
             Log.print(e);
@@ -1419,9 +1378,7 @@ public class SQLInterface {
             ps.setString(1, name);
             ps.setString(2, newID);
             ps.setString(3, ID);
-            ps.execute();
-            ps.closeOnCompletion();
-            db.close();
+            executePS(db, ps);
             System.out.println("_X_X_X_X_X_X_X_ DB closed in updateEntry1");
         } catch (SQLException e) {
             Log.print(e);
@@ -1438,9 +1395,7 @@ public class SQLInterface {
             PreparedStatement ps = db.prepareStatement(statement);
             ps.setInt(1, role);
             ps.setString(2, ID);
-            ps.execute();
-            ps.closeOnCompletion();
-            db.close();
+            executePS(db, ps);
             System.out.println("_X_X_X_X_X_X_X_ DB closed in updateEntry2");
         } catch (SQLException e) {
             Log.print(e);
