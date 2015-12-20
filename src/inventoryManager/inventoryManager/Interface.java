@@ -171,11 +171,13 @@ public class Interface extends Application {
 
         // create input textfield
         TextField input = new TextField();
+        input.setPromptText("ID");
         //input.requestFocus(); // make this the focus for the keyboard when the program starts
         Text userLabel = new Text("Error");
 
         // create password textField
         PasswordField pass = new PasswordField();
+        pass.setPromptText("Password");
 
 
         // create button to enter data from input

@@ -123,16 +123,16 @@ public class AdminInterface extends Interface {
                         case "Add Items":
                             addItem(grid);
                             break;
-                        case "Remove General Items":
+                        case "Remove General Items": //TODO: Shows people.
                             removeGeneralItem(grid);
                             break;
-                        case "Change a Product":
+                        case "Change a General Item":
                             changeItem(grid);
                             break;
-                        case "Enter Stock Counts":
+                        case "Enter General Item Counts":
                             enterStockCounts(grid);
                             break;
-                        case "Save Product Database":
+                        case "Save Item Database":
                             saveItemDatabase(adminStage, grid);
                             break;
                         case "Change Password":
@@ -147,6 +147,7 @@ public class AdminInterface extends Interface {
                         case "Create Admins":
                             createAdmins(grid);
                             break;
+                        //TODO: Delete controlled items is not implemented. 
                         case "Item Logs":
                             showItemLog(grid);
                             break;
@@ -177,15 +178,17 @@ public class AdminInterface extends Interface {
         personList.setItems(person);
         grid.add(personList, 0, 0, 1, 4);
 
-        Text nameLabel = new Text("Name:");
-        grid.add(nameLabel, 1, 0);
+        //Text nameLabel = new Text("Name:");
+        //grid.add(nameLabel, 1, 0);
         TextField nameEntry = new TextField();
+        nameEntry.setPromptText("Name");
         nameEntry.requestFocus();
-        grid.add(nameEntry, 2, 0);
-        Text IDLabel = new Text("ID:");
-        grid.add(IDLabel, 1, 1);
+        grid.add(nameEntry, 1, 0);
+        //Text IDLabel = new Text("ID:");
+        //grid.add(IDLabel, 1, 1);
         TextField ID = new TextField();
-        grid.add(ID, 2, 1);
+        ID.setPromptText("ID");
+        grid.add(ID, 1, 1);
         StringBuilder oldID = new StringBuilder();
         personList.getSelectionModel().selectedItemProperty().addListener(
                 (ObservableValue<? extends String> vo, String oldVal, String selectedPerson) -> {
@@ -274,8 +277,9 @@ public class AdminInterface extends Interface {
     private static void returnItems(GridPane grid) {
         grid.getChildren().clear();
 
-        Text barcodeLabel = new Text("Enter Barcode");
+        //Text barcodeLabel = new Text("Enter Barcode");
         TextField barcodeEntry = new TextField();
+        barcodeEntry.setPromptText("Barcode");
 
         SplitPane inOut = new SplitPane();
         ObservableList<String> outItems = FXCollections.observableArrayList();
@@ -308,8 +312,8 @@ public class AdminInterface extends Interface {
                 }
             }
         });
-        grid.add(barcodeLabel, 0, 0);
-        grid.add(barcodeEntry, 1, 0);
+        //grid.add(barcodeLabel, 0, 0);
+        grid.add(barcodeEntry, 0, 0);
 
         inOut.getItems().addAll(outList, inList); //TODO: Headings for this list.
         inOut.setDividerPositions(0.5f);
