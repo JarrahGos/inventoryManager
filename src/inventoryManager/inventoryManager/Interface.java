@@ -317,7 +317,7 @@ public class Interface extends Application {
     }
 
 
-    private void setUpUI(GridPane grid, Text inputLabel, TextField input, Button enterBarCode, Text productError, PasswordField pass, Button addUser, Button removeProduct, Button resetButton, Button purchase, ListView itemList, Button cancel) {
+    private void setUpUI(GridPane grid, Text inputLabel, TextField input, Button enterBarCode, Text productError, PasswordField pass, Button addUser, Button removeProduct, Button resetButton, Button purchase, ListView<String> itemList, Button cancel) {
         grid.getChildren().clear();
         grid.add(inputLabel, 0, 0); // place in top left hand corner
         grid.add(input, 1, 0); // place to the right of the input label

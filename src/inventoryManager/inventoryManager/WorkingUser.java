@@ -287,7 +287,7 @@ public final class WorkingUser {
      * taking the number bought from the products in the database and clearing both the user and the checkout
      */
     public static void checkOutItems() {
-        LinkedList purchased = checkOuts.productBought(); // clear the quantities and checkout
+        LinkedList<String> purchased = checkOuts.productBought(); // clear the quantities and checkout
         LoggingDatabase.logItemsOut(purchased, userID);
         checkOuts = new CheckOut(); // ensure checkout clear
         userName = null;

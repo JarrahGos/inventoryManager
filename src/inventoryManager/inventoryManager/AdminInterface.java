@@ -52,7 +52,7 @@ public class AdminInterface extends Interface {
         ListView<String> optionList = new ListView<>();
         ObservableList<String> items = FXCollections.observableArrayList();
         final String[] PersonSettingsList = {"Change a Person", "Save Person Database"};
-        final String[] itemSettingsList = {"Return Items", "Add Items", "Remove General Items", "Change a General Item", "Enter General Item Counts", "List Items", "Save Item Database"};
+        final String[] itemSettingsList = {"Return Items", "Add Items", "Remove General Items", "Change a General Item", "Enter General Item Counts", "Save Item Database"};
         final String[] AdminSettingsList = {"Change Password", "Save Databases To USB", "Close The Program"};
         final String[] LogSettingsList = {"Item Logs", "Password Logs"};
         final String[] RootSettingsList = {"Create Admins", "Delete Controlled Items"}; //TODO: finish this by looking at the spec.
@@ -124,7 +124,7 @@ public class AdminInterface extends Interface {
                             addItem(grid);
                             break;
                         case "Remove General Items": //TODO: Shows people.
-                            removeGeneralItem(grid);
+                            removeItem(grid, SQLInterface.TABGENERAL);
                             break;
                         case "Change a General Item":
                             changeItem(grid);
@@ -138,7 +138,7 @@ public class AdminInterface extends Interface {
                         case "Change Password":
                             changeAdminPassword(grid);
                             break;
-                        case "Save Databases To USB":
+                        case "Save Databases To USB": //TODO SQL here is dead.
                             SaveDatabases(adminStage, grid);
                             break;
                         case "Close The Program":
@@ -147,7 +147,9 @@ public class AdminInterface extends Interface {
                         case "Create Admins":
                             createAdmins(grid);
                             break;
-                        //TODO: Delete controlled items is not implemented. 
+                        case "Delete Controlled Items":
+                            removeItem(grid, SQLInterface.TABCONTROLLED); //TODO: Shows people. Probably not implemented properly in SQLInterface.
+                            break;
                         case "Item Logs":
                             showItemLog(grid);
                             break;
@@ -168,6 +170,7 @@ public class AdminInterface extends Interface {
         adminStage.toFront();
 
     }
+
 
     private static void changePerson(GridPane grid) {
         grid.getChildren().clear();
@@ -274,7 +277,7 @@ public class AdminInterface extends Interface {
         });
     }
 
-    private static void returnItems(GridPane grid) {
+    private static void returnItems(GridPane grid) { //TODO: Maybe use a checkout here.
         grid.getChildren().clear();
 
         //Text barcodeLabel = new Text("Enter Barcode");
@@ -370,16 +373,16 @@ public class AdminInterface extends Interface {
         });
     }
 
-    private static void removeGeneralItem(GridPane grid) {
+    private static void removeItem(GridPane grid, String type) {
         grid.getChildren().clear();
 
         Button remove = new Button("Remove");
         ListView<String> productList = new ListView<>();
         ObservableList<String> product = FXCollections.observableArrayList();
-        product.setAll(WorkingUser.getProductNames(SQLInterface.TABGENERAL));
+        product.setAll(WorkingUser.getProductNames(type));
         productList.setItems(product);
         grid.add(productList, 0, 1);
-        product.setAll(WorkingUser.getProductNames(SQLInterface.TABGENERAL));
+        product.setAll(WorkingUser.getProductNames(type));
         productList.setItems(product);
 
         remove.setOnAction((ActionEvent e) -> {
@@ -391,13 +394,13 @@ public class AdminInterface extends Interface {
                 e1.printStackTrace();
                 flashColour(remove, 1500, Color.RED);
             }
-            product.setAll(WorkingUser.getProductNames("Item"));
+            product.setAll(WorkingUser.getProductNames(type));
         });
         grid.add(remove, 1, 0);
-        product.setAll(WorkingUser.getProductNames("Item"));
+        product.setAll(WorkingUser.getProductNames(type));
     }
 
-    private static void changeItem(GridPane grid) {
+    private static void changeItem(GridPane grid) { //TODO: Changing an item does nothing.
         grid.getChildren().clear();
         ListView<String> productList = new ListView<>();
         ObservableList<String> product = FXCollections.observableArrayList();
@@ -448,11 +451,11 @@ public class AdminInterface extends Interface {
         });
     }
 
-    private static void enterStockCounts(GridPane grid) {
+    private static void enterStockCounts(GridPane grid) { //TODO: shows people rather than items.
         grid.getChildren().clear();
         ListView<String> productList = new ListView<>();
         ObservableList<String> product = FXCollections.observableArrayList();
-        product.setAll(WorkingUser.getProductNames("General"));
+        product.setAll(WorkingUser.getProductNames(SQLInterface.TABGENERAL));
         productList.setItems(product);
         grid.add(productList, 0, 0, 1, 4);
         Text numberLabel = new Text("Number:");
@@ -653,6 +656,7 @@ public class AdminInterface extends Interface {
                         break;
                 }
                 WorkingUser.updateRole(ID.getText(), levelInt);
+                flashColour(save, 1500, Color.AQUAMARINE);
             }
         });
 
