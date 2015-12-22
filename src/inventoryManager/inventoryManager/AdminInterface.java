@@ -123,7 +123,7 @@ public class AdminInterface extends Interface {
                         case "Add Items":
                             addItem(grid);
                             break;
-                        case "Remove General Items": //TODO: Shows people.
+                        case "Remove General Items":
                             removeItem(grid, SQLInterface.TABGENERAL);
                             break;
                         case "Change a General Item":
@@ -148,7 +148,7 @@ public class AdminInterface extends Interface {
                             createAdmins(grid);
                             break;
                         case "Delete Controlled Items":
-                            removeItem(grid, SQLInterface.TABCONTROLLED); //TODO: Shows people. Probably not implemented properly in SQLInterface.
+                            removeItem(grid, SQLInterface.TABCONTROLLED);
                             break;
                         case "Item Logs":
                             showItemLog(grid);
@@ -451,7 +451,7 @@ public class AdminInterface extends Interface {
         });
     }
 
-    private static void enterStockCounts(GridPane grid) { //TODO: shows people rather than items.
+    private static void enterStockCounts(GridPane grid) {
         grid.getChildren().clear();
         ListView<String> productList = new ListView<>();
         ObservableList<String> product = FXCollections.observableArrayList();
@@ -470,11 +470,13 @@ public class AdminInterface extends Interface {
                     numberEntry.requestFocus();
 
                 });
-        numberEntry.setOnAction((ActionEvent e) -> {
-            WorkingUser.setNumberOfProducts(productList.getSelectionModel().getSelectedItem(), Integer.parseInt(numberEntry.getText()));
-            productList.getSelectionModel().select(productList.getSelectionModel().getSelectedIndex() + 1);
-            numberEntry.requestFocus();
-            flashColour(numberEntry, 1500, Color.AQUAMARINE);
+        numberEntry.setOnKeyPressed((KeyEvent ke) -> {
+            if (ke.getCode() == KeyCode.ENTER) { //TODO: Next line needs to convert from name to ID before processing.
+                WorkingUser.setNumberOfProducts(productList.getSelectionModel().getSelectedItem(), Integer.parseInt(numberEntry.getText()));
+                productList.getSelectionModel().select(productList.getSelectionModel().getSelectedIndex() + 1);
+                numberEntry.requestFocus();
+                flashColour(numberEntry, 1500, Color.AQUAMARINE);
+            }
         });
     }
 

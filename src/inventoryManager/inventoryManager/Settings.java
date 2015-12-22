@@ -173,32 +173,8 @@ final class Settings {
         output = Compatibility.getFilePath(output);
         return output;
     }
-//TODO: does SQLite even have a user/pass combination
 
-    /**
-     * Get the settings for the SQLite database which will be used by the program.
-     *
-     * @return A string array with the URL, user and password of the database.
-     * @throws FileNotFoundException If the settings file is not in the correct location or does not exist.
-     */
-    public static String[] SQLInterfaceSettings() throws FileNotFoundException {
-        if (inputStream != null) {
-            try {
-                properties.load(inputStream);
-            } catch (IOException e) {
-                System.out.print("property file '" + propFileName + "' not found in the classpath");
-            }
-        } else {
-            throw new FileNotFoundException("property file '" + propFileName + "' not found in the classpath");
-        }
 
-        String[] output = new String[3];
-        output[0] = properties.getProperty("URL");
-        output[1] = properties.getProperty("user");
-        output[2] = properties.getProperty("password");
-
-        return output;
-    }
 
 
 }

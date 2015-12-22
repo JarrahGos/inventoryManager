@@ -313,7 +313,7 @@ public class SQLInterface {
                 }
                 rs.close();
 
-                statement = "INSERT INTO " + TABCONTROLLED + " (" + COLCONTROLLEDID + ", " + COLCONTROLLEDTAGNO + ", State)" + // TODO: DAFAQ is state
+                statement = "INSERT INTO " + TABCONTROLLED + " (" + COLCONTROLLEDID + ", " + COLCONTROLLEDTAGNO + ", State)" + // TODO: DAFAQ is state (servicable or not)
                         "VALUES(?, ?, ?, ?)";
                 try {
                     db = getDatabase().get();
@@ -939,23 +939,19 @@ public class SQLInterface {
                         " WHERE date > ?";
                 break;
         }
+        ArrayList<String> ret = null;
         try {
             ps = db.prepareStatement(statement);
             ps.setDate(1, java.sql.Date.valueOf(date));
             rs = ps.executeQuery();
-        } catch (SQLException e) {
-            Log.print(e);
-            System.exit(32);
-        }
-        ArrayList<String> ret = null;
-        try {
             ret = rsToString(rs, count);
             rs.close();
             ps.closeOnCompletion();
             db.close();
             System.out.println("_X_X_X_X_X_X_X_ DB closed in getDatabase3");
-        } catch (SQLException e) { //TODO: why are there two try catch blocks here. merge.
+        } catch (SQLException e) {
             Log.print(e);
+            System.exit(32);
         }
         return ret;
     }
@@ -1050,6 +1046,11 @@ public class SQLInterface {
             case TABGENERAL:
                 statement = "SELECT " + COLITEMNAME + " FROM " + TABITEM +
                         " JOIN " + TABGENERAL + " ON " + TABGENERAL + "." + COLGENERALID +
+                        " = " + TABITEM + "." + COLITEMID + ";";
+                break;
+            case TABCONTROLLED:
+                statement = "SELECT " + COLITEMNAME + " FROM " + TABITEM +
+                        " JOIN " + TABCONTROLLED + " ON " + TABCONTROLLED + "." + COLCONTROLLEDID +
                         " = " + TABITEM + "." + COLITEMID + ";";
                 break;
             default:
