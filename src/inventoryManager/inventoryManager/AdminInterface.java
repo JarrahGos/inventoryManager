@@ -353,6 +353,35 @@ public class AdminInterface extends Interface {
         grid.add(BarCodeLabel, 0, 1);
         TextField BarCodeEntry = new TextField();
         grid.add(BarCodeEntry, 1, 1);
+        ChoiceBox<String> set = new ChoiceBox<>();
+        ObservableList<String> sets = FXCollections.observableArrayList();
+        sets.setAll(WorkingUser.getSets());
+        set.setItems(sets);
+        CheckBox cb = new CheckBox("Controlled Item?");
+        grid.add(cb, 1, 2);
+
+        cb.setOnAction((ActionEvent e) -> {
+            if (!cb.isSelected()) {
+                // General Item information
+                Text descriptionLabel = new Text("Item Description:");
+                TextField description = new TextField();
+                grid.add(descriptionLabel, 0, 3);
+                grid.add(description, 1, 3);
+
+                Text quantityLabel = new Text("Quantity:");
+                TextField quantity = new TextField();
+                grid.add(quantityLabel, 0, 4);
+                grid.add(quantity, 1, 4);
+
+                Text locationLabel = new Text("Item Location:");
+                TextField location = new TextField();
+                grid.add(locationLabel, 0, 5);
+                grid.add(location, 1, 5);
+            }
+        });
+        cb.setSelected(false);
+
+
         nameEntry.setOnAction((ActionEvent e) -> BarCodeEntry.requestFocus());
 
         BarCodeEntry.setOnAction((ActionEvent e) -> {
