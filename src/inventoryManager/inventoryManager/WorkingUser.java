@@ -595,4 +595,8 @@ public final class WorkingUser {
     public static ArrayList<String> getItemLog(boolean outOnly) {
         return LoggingDatabase.getItemLog(outOnly);
     }
+
+    public static ArrayList<String> getSets() {
+        return itemDatabase.getSets();
+    }
 }

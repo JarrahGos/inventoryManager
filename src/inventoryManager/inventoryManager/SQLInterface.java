@@ -1053,6 +1053,9 @@ public class SQLInterface {
                         " JOIN " + TABCONTROLLED + " ON " + TABCONTROLLED + "." + COLCONTROLLEDID +
                         " = " + TABITEM + "." + COLITEMID + ";";
                 break;
+            case TABSET:
+                statement = "SELECT " + COLSETNAME + " FROM " + TABSET + ";";
+                break;
             default:
                 statement = "SELECT " + COLPERSONNAME + " FROM " + TABPERSON + "";
                 break;

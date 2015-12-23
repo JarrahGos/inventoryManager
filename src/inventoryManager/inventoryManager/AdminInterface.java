@@ -353,6 +353,54 @@ public class AdminInterface extends Interface {
         grid.add(BarCodeLabel, 0, 1);
         TextField BarCodeEntry = new TextField();
         grid.add(BarCodeEntry, 1, 1);
+        ChoiceBox<String> set = new ChoiceBox<>();
+        ObservableList<String> sets = FXCollections.observableArrayList();
+        sets.setAll(WorkingUser.getSets());
+        set.setItems(sets);
+        CheckBox cb = new CheckBox("Controlled Item?");
+        grid.add(cb, 1, 2);
+
+        // General Item information
+        Text descriptionLabel = new Text("Item Description:");
+        TextField description = new TextField();
+        Text quantityLabel = new Text("Quantity:");
+        TextField quantity = new TextField();
+        Text locationLabel = new Text("Item Location:");
+        TextField location = new TextField();
+
+        // Controlled item information.
+        Text type = new Text("Type:");
+        ChoiceBox<String> typeBox = new ChoiceBox<String>();
+        Text tagnoLabel = new Text("Tag/Position number:");
+        TextField tagno = new TextField();
+
+
+        cb.setOnAction((ActionEvent e) -> {
+            if (!cb.isSelected()) {
+                grid.getChildren().removeAll(type, typeBox, tagno, tagnoLabel);
+                grid.add(descriptionLabel, 0, 3);
+                grid.add(description, 1, 3);
+
+                grid.add(quantityLabel, 0, 4);
+                grid.add(quantity, 1, 4);
+
+                grid.add(locationLabel, 0, 5);
+                grid.add(location, 1, 5);
+            } else {
+                grid.getChildren().removeAll(description, descriptionLabel, quantity, quantityLabel, location, locationLabel);
+                ObservableList<String> types = FXCollections.observableArrayList();
+                types.setAll(WorkingUser.getSets());
+                typeBox.setItems(types);
+                grid.add(type, 0, 3);
+                grid.add(typeBox, 1, 3);
+
+                grid.add(tagnoLabel, 0, 4);
+                grid.add(tagno, 1, 4);
+            }
+        });
+        cb.setSelected(false);
+
+
         nameEntry.setOnAction((ActionEvent e) -> BarCodeEntry.requestFocus());
 
         BarCodeEntry.setOnAction((ActionEvent e) -> {

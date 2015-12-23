@@ -217,4 +217,8 @@ class ItemDatabase implements Database {
     public final ArrayList<String> getNamesOfEntries() {
         return SQLInterface.getName(SQLInterface.TABGENERAL);
     }
+
+    public final ArrayList<String> getSets() {
+        return SQLInterface.getName(SQLInterface.TABSET);
+    }
 }
