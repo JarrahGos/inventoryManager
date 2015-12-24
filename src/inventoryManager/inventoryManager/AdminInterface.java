@@ -368,7 +368,7 @@ public class AdminInterface extends Interface {
 
         // Controlled item information.
         Text type = new Text("Type:");
-        ChoiceBox<String> typeBox = new ChoiceBox<String>();
+        ChoiceBox<String> typeBox = new ChoiceBox<>();
         Text tagnoLabel = new Text("Tag/Position number:");
         TextField tagno = new TextField();
         Text stateLabel = new Text("Item State:");
@@ -407,15 +407,16 @@ public class AdminInterface extends Interface {
         nameEntry.setOnAction((ActionEvent e) -> BarCodeEntry.requestFocus());
 
         location.setOnAction((ActionEvent e) -> {
-            long barCode = -1;
+            boolean valid = true;
             try {
-                barCode = Long.parseLong(BarCodeEntry.getText());
+                Long.parseLong(quantity.getText());
             } catch (NumberFormatException e1) {
-                flashColour(1500, Color.RED, BarCodeEntry);
+                flashColour(1500, Color.RED, quantity);
+                valid = false;
             }
-            if (elementsAreNotEmpty(nameEntry, BarCodeEntry, quantity, location)) { //Description may be empty
+            if (elementsAreNotEmpty(nameEntry, BarCodeEntry, quantity, location) && valid) { //Description may be empty
                 WorkingUser.addItemToDatabase(nameEntry.getText(), BarCodeEntry.getText(), description.getText(), Long.parseLong(quantity.getText()), location.getText(), set.getValue());
-                nameEntry.clear(); //TODO: Error check the quantity in the line above. Should ensure that it is a long first.
+                nameEntry.clear(); 
                 BarCodeEntry.clear();
                 description.clear();
                 quantity.clear();
@@ -425,12 +426,6 @@ public class AdminInterface extends Interface {
             }
         });
         state.setOnAction((ActionEvent e) -> {
-            long barCode = -1;
-            try {
-                barCode = Long.parseLong(BarCodeEntry.getText());
-            } catch (NumberFormatException e1) {
-                flashColour(1500, Color.RED, BarCodeEntry);
-            }
             if (nameEntry.getText() != null && !nameEntry.getText().isEmpty() && BarCodeEntry.getText() != null && !BarCodeEntry.getText().isEmpty()) {
                 WorkingUser.addItemToDatabase(nameEntry.getText(), BarCodeEntry.getText(), type.getText(), tagno.getText(), set.getValue(), state.getText());
                 nameEntry.clear();
