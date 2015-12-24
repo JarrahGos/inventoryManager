@@ -188,8 +188,8 @@ class ItemDatabase implements Database {
      * @param description A description of the item.
      * @param quantity The quantity of the item that exists.
      */
-    public void addEntry(String barcode, String name, String setName, String description, long quantity) {
-        SQLInterface.addEntry(barcode, name, setName, description, quantity);
+    public void addEntry(String barcode, String name, String setName, String description, long quantity, String location) {
+        SQLInterface.addEntry(barcode, name, setName, description, quantity, location);
     }
 
     /**

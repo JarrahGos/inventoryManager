@@ -224,18 +224,19 @@ public class SQLInterface {
      * @param Description A description of the item.
      * @param Quantity    The number of the item in stock.
      */
-    public static void addEntry(String ID, String name, String setName, String Description, Long Quantity) { // Add generalItem
+    public static void addEntry(String ID, String name, String setName, String Description, Long Quantity, String location) { // Add generalItem
         addEntry(ID, name);
 
         Connection db = getDatabase().get();
         System.out.println("_X_X_X_X_X_X_X_ New DB in addEntry3");
-        String statement = "INSERT INTO " + TABGENERAL + " (" + COLGENERALID + ", " + COLGENERALDESCRIPTION + ", " + COLGENERALQUANTITY + ")" +
-                "VALUES(?, ?, ?)";
+        String statement = "INSERT INTO " + TABGENERAL + " (" + COLGENERALID + ", " + COLGENERALDESCRIPTION + ", " + COLGENERALQUANTITY + ", " + COLGENERALLOCATION + ")" +
+                "VALUES(?, ?, ?, ?)";
         try {
             PreparedStatement ps = db.prepareStatement(statement);
             ps.setString(1, ID);
             ps.setString(2, Description);
             ps.setLong(3, Quantity);
+            ps.setString(4, location);
             executePS(db, ps);
             System.out.println("_X_X_X_X_X_X_X_ DB closed in addEntry3");
         } catch (SQLException e) {

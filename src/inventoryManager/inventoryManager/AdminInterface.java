@@ -371,11 +371,13 @@ public class AdminInterface extends Interface {
         ChoiceBox<String> typeBox = new ChoiceBox<String>();
         Text tagnoLabel = new Text("Tag/Position number:");
         TextField tagno = new TextField();
+        Text stateLabel = new Text("Item State:");
+        TextField state = new TextField();
 
 
         cb.setOnAction((ActionEvent e) -> {
             if (!cb.isSelected()) {
-                grid.getChildren().removeAll(type, typeBox, tagno, tagnoLabel);
+                grid.getChildren().removeAll(type, typeBox, tagno, tagnoLabel, stateLabel, state);
                 grid.add(descriptionLabel, 0, 3);
                 grid.add(description, 1, 3);
 
@@ -394,6 +396,9 @@ public class AdminInterface extends Interface {
 
                 grid.add(tagnoLabel, 0, 4);
                 grid.add(tagno, 1, 4);
+
+                grid.add(stateLabel, 0, 5);
+                grid.add(state, 1, 5);
             }
         });
         cb.setSelected(false);
@@ -409,8 +414,8 @@ public class AdminInterface extends Interface {
                 flashColour(1500, Color.RED, BarCodeEntry);
             }
             if (elementsAreNotEmpty(nameEntry, BarCodeEntry, quantity, location)) { //Description may be empty
-                WorkingUser.addItemToDatabase(nameEntry.getText(), BarCodeEntry.getText(), description.getText(), quantity.getText(), location.getText());
-                nameEntry.clear();
+                WorkingUser.addItemToDatabase(nameEntry.getText(), BarCodeEntry.getText(), description.getText(), Long.parseLong(quantity.getText()), location.getText(), set.getValue());
+                nameEntry.clear(); //TODO: Error check the quantity in the line above. Should ensure that it is a long first.
                 BarCodeEntry.clear();
                 description.clear();
                 quantity.clear();
@@ -419,7 +424,7 @@ public class AdminInterface extends Interface {
                 flashColour(1500, Color.AQUAMARINE, nameEntry, BarCodeEntry, description, quantity, location);
             }
         });
-        tagno.setOnAction((ActionEvent e) -> {
+        state.setOnAction((ActionEvent e) -> {
             long barCode = -1;
             try {
                 barCode = Long.parseLong(BarCodeEntry.getText());
@@ -427,7 +432,7 @@ public class AdminInterface extends Interface {
                 flashColour(1500, Color.RED, BarCodeEntry);
             }
             if (nameEntry.getText() != null && !nameEntry.getText().isEmpty() && BarCodeEntry.getText() != null && !BarCodeEntry.getText().isEmpty()) {
-                WorkingUser.addItemToDatabase(nameEntry.getText(), BarCodeEntry.getText());
+                WorkingUser.addItemToDatabase(nameEntry.getText(), BarCodeEntry.getText(), type.getText(), tagno.getText(), set.getValue(), state.getText());
                 nameEntry.clear();
                 BarCodeEntry.clear();
                 nameEntry.requestFocus();
