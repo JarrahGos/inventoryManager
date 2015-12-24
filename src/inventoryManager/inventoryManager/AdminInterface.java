@@ -210,7 +210,7 @@ public class AdminInterface extends Interface {
             try {
                 IDNew = ID.getText();
             } catch (NumberFormatException e1) {
-                flashColour(ID, 1500, Color.RED);
+                flashColour(1500, Color.RED, ID);
             }
             if (IDNew != null && !Objects.equals(IDNew, "")) {
                 String name = personList.getSelectionModel().getSelectedItem();
@@ -218,8 +218,7 @@ public class AdminInterface extends Interface {
                 nameEntry.clear();
                 ID.clear();
                 nameEntry.requestFocus();
-                flashColour(nameEntry, 1500, Color.AQUAMARINE);
-                flashColour(ID, 1500, Color.AQUAMARINE);
+                flashColour(1500, Color.AQUAMARINE, nameEntry, ID);
                 //Now need to update the form
                 String selectedIndex = personList.getSelectionModel().getSelectedItem();
                 person.setAll(WorkingUser.getUserNames());
@@ -250,9 +249,9 @@ public class AdminInterface extends Interface {
 
             if (returnVal != null) {
                 filePath.setText(returnVal.getPath());
-                flashColour(saveDirBtn, 1500, Color.AQUAMARINE);
+                flashColour(1500, Color.AQUAMARINE, saveDirBtn);
             } else {
-                flashColour(saveDirBtn, 1500, Color.RED);
+                flashColour(1500, Color.RED, saveDirBtn);
             }
         });
 
@@ -264,15 +263,14 @@ public class AdminInterface extends Interface {
                 if (filePath.getText() != null || !filePath.getText().isEmpty()) {
                     File destPers = new File(filePath.getText() + "/adminPersonDatabase.csv");
                     Files.copy(adminPersonFile.toPath(), destPers.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                    flashColour(saveBtn, 3000, Color.AQUAMARINE);
+                    flashColour(3000, Color.AQUAMARINE, saveBtn);
                 } else {
-                    flashColour(saveBtn, 3000, Color.RED);
-                    flashColour(filePath, 3000, Color.RED);
+                    flashColour(3000, Color.RED, saveBtn, filePath);
                 }
 
             } catch (IOException e1) {
                 Log.print(e1);
-                flashColour(saveBtn, 3000, Color.RED);
+                flashColour(3000, Color.RED, saveBtn);
             }
         });
     }
@@ -306,7 +304,7 @@ public class AdminInterface extends Interface {
             if (ke.getCode().equals(KeyCode.ENTER)) {
                 String toAdd = WorkingUser.getItemName(barcodeEntry.getText());
                 if (toAdd == null) {
-                    flashColour(barcodeEntry, 1500, Color.RED);
+                    flashColour(1500, Color.RED, barcodeEntry);
                 } else {
                     inItems.setAll(toAdd);
                     inList.setItems(inItems);
@@ -403,20 +401,37 @@ public class AdminInterface extends Interface {
 
         nameEntry.setOnAction((ActionEvent e) -> BarCodeEntry.requestFocus());
 
-        BarCodeEntry.setOnAction((ActionEvent e) -> {
+        location.setOnAction((ActionEvent e) -> {
             long barCode = -1;
             try {
                 barCode = Long.parseLong(BarCodeEntry.getText());
             } catch (NumberFormatException e1) {
-                flashColour(BarCodeEntry, 1500, Color.RED);
+                flashColour(1500, Color.RED, BarCodeEntry);
+            }
+            if (elementsAreNotEmpty(nameEntry, BarCodeEntry, quantity, location)) { //Description may be empty
+                WorkingUser.addItemToDatabase(nameEntry.getText(), BarCodeEntry.getText(), description.getText(), quantity.getText(), location.getText());
+                nameEntry.clear();
+                BarCodeEntry.clear();
+                description.clear();
+                quantity.clear();
+                location.clear();
+                nameEntry.requestFocus();
+                flashColour(1500, Color.AQUAMARINE, nameEntry, BarCodeEntry, description, quantity, location);
+            }
+        });
+        tagno.setOnAction((ActionEvent e) -> {
+            long barCode = -1;
+            try {
+                barCode = Long.parseLong(BarCodeEntry.getText());
+            } catch (NumberFormatException e1) {
+                flashColour(1500, Color.RED, BarCodeEntry);
             }
             if (nameEntry.getText() != null && !nameEntry.getText().isEmpty() && BarCodeEntry.getText() != null && !BarCodeEntry.getText().isEmpty()) {
                 WorkingUser.addItemToDatabase(nameEntry.getText(), BarCodeEntry.getText());
                 nameEntry.clear();
                 BarCodeEntry.clear();
                 nameEntry.requestFocus();
-                flashColour(nameEntry, 1500, Color.AQUAMARINE);
-                flashColour(BarCodeEntry, 1500, Color.AQUAMARINE);
+                flashColour(1500, Color.AQUAMARINE, nameEntry, BarCodeEntry);
             }
         });
     }
@@ -437,10 +452,10 @@ public class AdminInterface extends Interface {
             String index = productList.getSelectionModel().getSelectedItem();
             try {
                 WorkingUser.removeItem(index);
-                flashColour(remove, 1500, Color.AQUAMARINE);
+                flashColour(1500, Color.AQUAMARINE, remove);
             } catch (IOException | InterruptedException e1) {
                 e1.printStackTrace();
-                flashColour(remove, 1500, Color.RED);
+                flashColour(1500, Color.RED, remove);
             }
             product.setAll(WorkingUser.getProductNames(type));
         });
@@ -476,17 +491,15 @@ public class AdminInterface extends Interface {
         });
         barCodeEntry.setOnAction((ActionEvent e) -> {
             if (WorkingUser.itemExists(barCodeEntry.getText())) {
-                flashColour(barCodeEntry, 1500, Color.AQUAMARINE);
-            } else flashColour(barCodeEntry, 1500, Color.RED);
+                flashColour(1500, Color.AQUAMARINE, barCodeEntry);
+            } else flashColour(1500, Color.RED, barCodeEntry);
 
 //                            WorkingUser.changeDatabaseProduct(nameEntry.getText(), WorkingUser.getProductName(productList.getSelectionModel().getSelectedItem()), price,
 //                                    barCode, WorkingUser.getProductBarCode(productList.getSelectionModel().getSelectedItem()));
             nameEntry.clear();
             barCodeEntry.clear();
             nameEntry.requestFocus();
-            flashColour(nameEntry, 1500, Color.AQUAMARINE);
-            flashColour(barCodeEntry, 1500, Color.AQUAMARINE);
-
+            flashColour(1500, Color.AQUAMARINE, nameEntry, barCodeEntry);
 
             //Now need to update the form
             String selectedProduct = productList.getSelectionModel().getSelectedItem();
@@ -523,7 +536,7 @@ public class AdminInterface extends Interface {
                 WorkingUser.setNumberOfProducts(productList.getSelectionModel().getSelectedItem(), Integer.parseInt(numberEntry.getText()));
                 productList.getSelectionModel().select(productList.getSelectionModel().getSelectedIndex() + 1);
                 numberEntry.requestFocus();
-                flashColour(numberEntry, 1500, Color.AQUAMARINE);
+                flashColour(1500, Color.AQUAMARINE, numberEntry);
             }
         });
     }
@@ -549,9 +562,9 @@ public class AdminInterface extends Interface {
 
             if (returnVal != null) {
                 filePath.setText(returnVal.getPath());
-                flashColour(saveDirBtn, 1500, Color.AQUAMARINE);
+                flashColour(1500, Color.AQUAMARINE, saveDirBtn);
             } else {
-                flashColour(saveDirBtn, 1500, Color.RED);
+                flashColour(1500, Color.RED, saveDirBtn);
             }
         });
 
@@ -565,10 +578,9 @@ public class AdminInterface extends Interface {
                 } catch (IOException e1) {
                     Log.print(e1);
                 }
-                flashColour(saveBtn, 3000, Color.AQUAMARINE);
+                flashColour(3000, Color.AQUAMARINE, saveBtn);
             } else {
-                flashColour(saveBtn, 3000, Color.RED);
-                flashColour(filePath, 3000, Color.RED);
+                flashColour(3000, Color.RED, saveBtn, filePath);
             }
         });
     }
@@ -607,13 +619,13 @@ public class AdminInterface extends Interface {
                     switch (success) { // In this instance we have checked that the user exists on login. If they have gotten to this point we have a security
                         // risk which flashing a textfield at them will not resolve.
                         case 0:
-                            flashColour(new Node[]{firstInput, secondInput, currentInput}, 1500, Color.AQUAMARINE);
+                            flashColour(1500, Color.AQUAMARINE, firstInput, secondInput, currentInput);
                             break;
                         case 2:
-                            flashColour(currentInput, 1500, Color.RED);
+                            flashColour(1500, Color.RED, currentInput);
                             break;
                         default:
-                            flashColour(new Node[]{firstInput, secondInput, currentInput}, 1500, Color.RED);
+                            flashColour(1500, Color.RED, firstInput, secondInput, currentInput);
                     }
 
                 }
@@ -642,9 +654,9 @@ public class AdminInterface extends Interface {
 
             if (returnVal != null) {
                 filePath.setText(returnVal.getPath());
-                flashColour(saveDirBtn, 1500, Color.AQUAMARINE);
+                flashColour(1500, Color.AQUAMARINE, saveDirBtn);
             } else {
-                flashColour(saveDirBtn, 1500, Color.RED);
+                flashColour(1500, Color.RED, saveDirBtn);
             }
         });
 
@@ -660,25 +672,24 @@ public class AdminInterface extends Interface {
                     File destProd = new File(filePath.getText() + "/adminProductDatabase.csv");
                     Files.copy(adminPersonFile.toPath(), destPers.toPath(), StandardCopyOption.REPLACE_EXISTING);
                     Files.copy(adminProductFile.toPath(), destProd.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                    flashColour(saveBtn, 3000, Color.AQUAMARINE);
+                    flashColour(3000, Color.AQUAMARINE, saveBtn);
                 } else {
-                    flashColour(saveBtn, 3000, Color.RED);
-                    flashColour(filePath, 3000, Color.RED);
+                    flashColour(3000, Color.RED, saveBtn, filePath);
                 }
 
             } catch (IOException e1) {
                 Log.print(e1);
-                flashColour(saveBtn, 3000, Color.RED);
+                flashColour(3000, Color.RED, saveBtn);
             }
         });
     }
 
     private static void CloseProgram(GridPane grid) {
         grid.getChildren().clear();
-        Button save = new Button("Close The Program");
-        grid.add(save, 1, 1);
-        save.setOnAction((ActionEvent e) -> {
-            flashColour(save, 1500, Color.AQUAMARINE);
+        Button exit = new Button("Close The Program");
+        grid.add(exit, 1, 1);
+        exit.setOnAction((ActionEvent e) -> {
+            flashColour(1500, Color.AQUAMARINE, exit);
             System.exit(0);
         });
     }
@@ -692,7 +703,7 @@ public class AdminInterface extends Interface {
         Button save = new Button("Save");
         save.setOnAction((ActionEvent e) -> {
             if (!WorkingUser.personExists(ID.getText())) {
-                flashColour(ID, 1500, Color.RED);
+                flashColour(1500, Color.RED, ID);
             } else {
                 int levelInt = PersonDatabase.USER;
                 switch (level.getSelectionModel().getSelectedItem()) {
@@ -706,7 +717,7 @@ public class AdminInterface extends Interface {
                         break;
                 }
                 WorkingUser.updateRole(ID.getText(), levelInt);
-                flashColour(save, 1500, Color.AQUAMARINE);
+                flashColour(1500, Color.AQUAMARINE, save);
             }
         });
 
@@ -828,15 +839,15 @@ public class AdminInterface extends Interface {
                 if (!WorkingUser.personExists(IDInput.getText())) {
                     if (secondInput.getText().equals(firstInput.getText())) {
                         WorkingUser.addPersonToDatabase(nameInput.getText(), IDInput.getText(), firstInput.getText());
-                        flashColour(new Node[]{IDInput, nameInput, firstInput, secondInput}, 1500, Color.AQUAMARINE);
+                        flashColour(1500, Color.AQUAMARINE, IDInput, nameInput, firstInput, secondInput);
                     } else {
-                        flashColour(new Node[]{firstInput, secondInput}, 1500, Color.RED);
+                        flashColour(1500, Color.RED, firstInput, secondInput);
                         grid.getChildren().remove(error);
                         error.setText("Passwords do not match");
                         grid.add(error, 0, 5, 2, 1);
                     }
                 } else {
-                    flashColour(IDInput, 1500, Color.RED);
+                    flashColour(1500, Color.RED, IDInput);
                     grid.getChildren().remove(error);
                     error.setText("ID already exists, contact the LOGO to reset your password");
                     grid.add(error, 0, 5, 2, 1);
@@ -900,8 +911,7 @@ public class AdminInterface extends Interface {
                 if (firstInput.getText().equals(secondInput.getText())) {
                     adminID.requestFocus();
                 } else {
-                    flashColour(firstInput, 1500, Color.RED);
-                    flashColour(secondInput, 1500, Color.RED);
+                    flashColour(1500, Color.RED, firstInput, secondInput);
                 }
             }
         });
@@ -921,18 +931,18 @@ public class AdminInterface extends Interface {
                 }
 
                 if (success == 0) {
-                    flashColour(new Node[]{IDInput, firstInput, secondInput, adminID, adminPass}, 1500, Color.AQUAMARINE);
+                    flashColour(1500, Color.AQUAMARINE, IDInput, firstInput, secondInput, adminID, adminPass);
                 } else {
                     // Success is an int, 0 = success, 1 = user not found, 2 = admin not found/password issue
                     switch (success) {
                         case 1:
-                            flashColour(IDInput, 1500, Color.RED);
+                            flashColour(1500, Color.RED, IDInput);
                             break;
                         case 2:
-                            flashColour(new Node[]{adminID, adminPass}, 1500, Color.RED);
+                            flashColour(1500, Color.RED, adminID, adminPass);
                             break;
                         default:
-                            flashColour(new Node[]{IDInput, firstInput, secondInput, adminID, adminPass}, 1500, Color.RED);
+                            flashColour(1500, Color.RED, IDInput, firstInput, secondInput, adminID, adminPass);
                     }
                 }
             }
@@ -944,5 +954,13 @@ public class AdminInterface extends Interface {
         PassStage.setScene(PassScene);
         PassStage.show();
         PassStage.toFront();
+    }
+
+    private static boolean elementsAreNotEmpty(Node... nodes) {
+        for (Node node : nodes) {
+            if (node == null) return false;
+            if (node instanceof TextField && ((TextField) node).getText() == "") return false;
+        }
+        return true;
     }
 }

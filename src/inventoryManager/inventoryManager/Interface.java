@@ -91,26 +91,25 @@ public class Interface extends Application {
      * @param duration the duration in ms for the node to be flashed
      * @param colour   The colour (from Color) that you wish to flash.
      */
-    public static void flashColour(Node node, int duration, Color colour) {
-
-        InnerShadow shadow = new InnerShadow();
-        shadow.setRadius(25d);
-        shadow.setColor(colour);
-        node.setEffect(shadow);
-
-        Timeline time = new Timeline();
-
-        time.setCycleCount(1);
-
-        List<KeyFrame> frames = new ArrayList<>();
-        frames.add(new KeyFrame(Duration.ZERO, new KeyValue(shadow.radiusProperty(), 25)));
-        frames.add(new KeyFrame(new Duration(duration), new KeyValue(shadow.radiusProperty(), 0)));
-        time.getKeyFrames().addAll(frames);
-
-        time.playFromStart();
-    }
-
-    public static void flashColour(Node[] node, int duration, Color colour) {
+//    public static void flashColour(Node node, int duration, Color colour) {
+//
+//        InnerShadow shadow = new InnerShadow();
+//        shadow.setRadius(25d);
+//        shadow.setColor(colour);
+//        node.setEffect(shadow);
+//
+//        Timeline time = new Timeline();
+//
+//        time.setCycleCount(1);
+//
+//        List<KeyFrame> frames = new ArrayList<>();
+//        frames.add(new KeyFrame(Duration.ZERO, new KeyValue(shadow.radiusProperty(), 25)));
+//        frames.add(new KeyFrame(new Duration(duration), new KeyValue(shadow.radiusProperty(), 0)));
+//        time.getKeyFrames().addAll(frames);
+//
+//        time.playFromStart();
+//    }
+    public static void flashColour(int duration, Color colour, Node... node) {
 
         InnerShadow shadow = new InnerShadow();
         shadow.setRadius(25d);
@@ -225,13 +224,13 @@ public class Interface extends Application {
                     itemList.setItems(items);
                     input.clear();
                     input.requestFocus();
-                    flashColour(input, 500, Color.AQUAMARINE);
+                    flashColour(500, Color.AQUAMARINE, input);
                 } else {
                     productError.setText("Could not read that product");
                     if (!grid.getChildren().contains(productError)) grid.add(productError, 1, 8);
                     input.clear();
                     input.requestFocus();
-                    flashColour(input, 500, Color.RED);
+                    flashColour(500, Color.RED, input);
                 }
             }
         });
@@ -266,8 +265,8 @@ public class Interface extends Application {
                 itemList.setItems(items);
                 itemList.scrollTo(index);
                 input.requestFocus();
-                flashColour(removeProduct, 1500, Color.AQUAMARINE);
-            } else flashColour(removeProduct, 1500, Color.RED);
+                flashColour(1500, Color.AQUAMARINE, removeProduct);
+            } else flashColour(1500, Color.RED, removeProduct);
         });
 
         // create and listen on purchase button
@@ -282,11 +281,10 @@ public class Interface extends Application {
                 items.setAll(WorkingUser.getCheckOutNames());
                 itemList.setItems(items);
                 setUpUI(grid, inputLabel, input, enterBarCode, productError, pass, addUser, removeProduct, resetButton, purchase, itemList, cancel);
-                flashColour(purchase, 1500, Color.AQUAMARINE);
+                flashColour(1500, Color.AQUAMARINE, purchase);
                 privelage = 0;
             } else {
-                flashColour(purchase, 1500, Color.RED);
-                flashColour(input, 1500, Color.RED);
+                flashColour(1500, Color.RED, purchase, input);
             }
         });
 
@@ -335,11 +333,10 @@ public class Interface extends Application {
     private void OnOKPressed(GridPane grid, Text inputLabel, TextField input, Text userLabel, PasswordField pass, Button addUser, ListView<String> itemList, ObservableList<String> items, Button adminMode) {
         if (input.getText() == null || input.getText().isEmpty()) {
             input.requestFocus();
-            flashColour(input, 1500, Color.RED);
-            flashColour(pass, 1500, Color.RED);
+            flashColour(1500, Color.RED, input, pass);
         } else if (pass.getText() == null || pass.getText().isEmpty()) {
             pass.requestFocus();
-            flashColour(pass, 1500, Color.RED);
+            flashColour(1500, Color.RED, pass);
         } else if (!WorkingUser.userLoggedIn()) {
             int userError = barcodeEntered(input.getText(), pass.getText());
 
@@ -349,8 +346,7 @@ public class Interface extends Application {
                 grid.getChildren().remove(userLabel);
                 grid.add(userLabel, 3, 0);
                 input.clear();
-                flashColour(input, 1500, Color.AQUAMARINE);
-                flashColour(pass, 1500, Color.AQUAMARINE);
+                flashColour(1500, Color.AQUAMARINE, input, pass);
                 input.requestFocus();
                 grid.getChildren().remove(addUser);
                 privelage = WorkingUser.getRole();
@@ -367,8 +363,7 @@ public class Interface extends Application {
                 input.clear();
                 pass.clear();
                 input.requestFocus();
-                flashColour(input, 1500, Color.RED);
-                flashColour(pass, 1500, Color.RED);
+                flashColour(1500, Color.RED, input, pass);
             }
         } else {
             boolean correct = productEntered(input.getText());
@@ -377,11 +372,11 @@ public class Interface extends Application {
                 itemList.setItems(items);
                 input.clear();
                 input.requestFocus();
-                flashColour(input, 500, Color.AQUAMARINE);
+                flashColour(500, Color.AQUAMARINE, input);
             } else {
                 input.clear();
                 input.requestFocus();
-                flashColour(input, 500, Color.RED);
+                flashColour(500, Color.RED, input);
             }
         }
     }
