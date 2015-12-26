@@ -52,7 +52,7 @@ public class AdminInterface extends Interface {
         ListView<String> optionList = new ListView<>();
         ObservableList<String> items = FXCollections.observableArrayList();
         final String[] PersonSettingsList = {"Change a Person", "Save Person Database"};
-        final String[] itemSettingsList = {"Return Items", "Add Items", "Remove General Items", "Change a General Item", "Enter General Item Counts", "Save Item Database"};
+        final String[] itemSettingsList = {"Return Items", "Add Items", "Remove General Items", "Change a General Item", "Enter General Item Counts", "Save Item Database", "Create Set"};
         final String[] AdminSettingsList = {"Change Password", "Save Databases To USB", "Close The Program"};
         final String[] LogSettingsList = {"Item Logs", "Password Logs"};
         final String[] RootSettingsList = {"Create Admins", "Delete Controlled Items"}; //TODO: finish this by looking at the spec.
@@ -155,6 +155,9 @@ public class AdminInterface extends Interface {
                             break;
                         case "Password Logs":
                             showPasswordLog(grid);
+                            break;
+                        case "Create Set":
+                            createSet(grid);
                             break;
                         default:
                             changePerson(grid);
@@ -416,7 +419,7 @@ public class AdminInterface extends Interface {
             }
             if (elementsAreNotEmpty(nameEntry, BarCodeEntry, quantity, location) && valid) { //Description may be empty
                 WorkingUser.addItemToDatabase(nameEntry.getText(), BarCodeEntry.getText(), description.getText(), Long.parseLong(quantity.getText()), location.getText(), set.getValue());
-                nameEntry.clear(); 
+                nameEntry.clear();
                 BarCodeEntry.clear();
                 description.clear();
                 quantity.clear();
@@ -433,6 +436,30 @@ public class AdminInterface extends Interface {
                 nameEntry.requestFocus();
                 flashColour(1500, Color.AQUAMARINE, nameEntry, BarCodeEntry);
             }
+        });
+    }
+
+    private static void createSet(GridPane grid) {
+        grid.getChildren().clear();
+        Text nameLabel = new Text("Name:");
+        grid.add(nameLabel, 0, 0);
+        TextField nameEntry = new TextField();
+        nameEntry.requestFocus();
+        grid.add(nameEntry, 1, 0);
+        Text BarCodeLabel = new Text("Barcode:");
+        grid.add(BarCodeLabel, 0, 1);
+        TextField BarCodeEntry = new TextField();
+        grid.add(BarCodeEntry, 1, 1);
+
+        nameEntry.setOnAction((ActionEvent e) -> BarCodeEntry.requestFocus());
+        BarCodeEntry.setOnAction((ActionEvent e) -> {
+            if (elementsAreNotEmpty(nameEntry, BarCodeEntry)) {
+                WorkingUser.addSet(nameEntry.getText(), BarCodeEntry.getText());
+                flashColour(1500, Color.AQUAMARINE, nameEntry, BarCodeEntry);
+                nameEntry.clear();
+                BarCodeEntry.clear();
+                nameEntry.requestFocus();
+            } else flashColour(1500, Color.RED, nameEntry, BarCodeEntry);
         });
     }
 

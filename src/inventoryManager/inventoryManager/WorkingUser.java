@@ -606,4 +606,8 @@ public final class WorkingUser {
     public static ArrayList<String> getSets() {
         return itemDatabase.getSets();
     }
+
+    public static void addSet(String name, String barcode) {
+        itemDatabase.addSet(barcode, name);
+    }
 }

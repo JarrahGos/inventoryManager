@@ -386,6 +386,29 @@ public class SQLInterface {
     }
 
     /**
+     * Add a new set to the database.
+     *
+     * @param ID   The ID of the item.
+     * @param name The name of the item.
+     */
+    public static void addSet(String ID, String name) {
+        Connection db = getDatabase().get();
+        System.out.println("_X_X_X_X_X_X_X_ New DB in addEntry5");
+        String statement = "INSERT INTO " + TABSET + " (" + COLSETID + ", " + COLSETNAME + ") " +
+                "VALUES(?, ?)";
+        try {
+            PreparedStatement ps = db.prepareStatement(statement);
+            ps.setString(1, ID);
+            ps.setString(2, name);
+            executePS(db, ps);
+            System.out.println("_X_X_X_X_X_X_X_ DB closed in addEntry5");
+        } catch (SQLException e) {
+            Log.print(e);
+            System.exit(32);
+        }
+    }
+
+    /**
      * Add a new person log to the database.
      *
      * @param persID  The ID of the person to log.

@@ -60,7 +60,7 @@ class ItemDatabase implements Database {
      * @param name The name of the new product
      * @param barcode The barcode of the new product
      */
-    public void addEntry(String barcode, String name) // take the products data and pass it to the products constructor
+    public void addEntry(String barcode, String name)
     {
         SQLInterface.addEntry(barcode, name);
 
@@ -74,7 +74,7 @@ class ItemDatabase implements Database {
      * @param ID The old barcode of the product
      * @param name The old name of the product
      */
-    public final void changeItem(String name, String newID, String ID) // take the products data and pass it to the products constructor
+    public final void changeItem(String name, String newID, String ID)
     {
         SQLInterface.updateEntry(ID, name, newID);
     }
@@ -220,5 +220,9 @@ class ItemDatabase implements Database {
 
     public final ArrayList<String> getSets() {
         return SQLInterface.getName(SQLInterface.TABSET);
+    }
+
+    public final void addSet(String ID, String name) {
+        SQLInterface.addSet(ID, name);
     }
 }
