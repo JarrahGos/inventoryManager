@@ -6,9 +6,8 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Properties;
 
-/*
-*    TOC19 is a simple program to run TOC payments within a small group. 
-*    Copyright (C) 2014  Jarrah Gosbell
+/***
+ *    Copyright (C) 2015  Jarrah Gosbell
 *
 *    This program is free software: you can redistribute it and/or modify
 *    it under the terms of the GNU General Public License as published by
