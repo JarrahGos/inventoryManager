@@ -75,7 +75,7 @@ class ItemDatabase implements Database {
      */
     public final void changeItem(String name, String newID, String ID)
     {
-        SQLInterface.updateEntry(ID, name, newID);
+        SQLInterface.updateEntry(ID, name, newID, SQLInterface.TABITEM);
     }
 
     /**

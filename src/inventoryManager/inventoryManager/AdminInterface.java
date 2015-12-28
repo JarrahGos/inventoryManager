@@ -196,7 +196,7 @@ public class AdminInterface extends Interface {
 
         ListView<String> personList = new ListView<>();
         ObservableList<String> person = FXCollections.observableArrayList();
-        person.setAll(WorkingUser.getUserNames());
+        person.setAll(WorkingUser.getUserDetails());
         personList.setItems(person);
         grid.add(personList, 0, 0, 1, 4);
 
@@ -211,15 +211,11 @@ public class AdminInterface extends Interface {
         TextField ID = new TextField();
         ID.setPromptText("ID");
         grid.add(ID, 1, 1);
-        StringBuilder oldID = new StringBuilder();
         personList.getSelectionModel().selectedItemProperty().addListener(
                 (ObservableValue<? extends String> vo, String oldVal, String selectedPerson) -> {
                     if (selectedPerson != null) {
-                        oldID.substring(0, 0); //TODO: This is hacky as fuck.
-                        nameEntry.setText(selectedPerson);
-                        String IDVal = WorkingUser.getPersonID(selectedPerson).orElse("ERROR getting ID");
-                        ID.setText(IDVal);
-                        oldID.append(IDVal);
+                        nameEntry.setText(selectedPerson.split("\t")[1]);
+                        ID.setText(selectedPerson.split("\t")[0]);
                     }
                 });
         nameEntry.setOnAction((ActionEvent e) -> ID.requestFocus());
@@ -233,16 +229,16 @@ public class AdminInterface extends Interface {
             }
             if (IDNew != null && !Objects.equals(IDNew, "")) {
                 String name = personList.getSelectionModel().getSelectedItem();
-                WorkingUser.changeDatabasePerson(nameEntry.getText(), IDNew, oldID.toString());
+                WorkingUser.changeDatabasePerson(nameEntry.getText(), IDNew, personList.getSelectionModel().getSelectedItem().split("\t")[0]);
                 nameEntry.clear();
                 ID.clear();
                 nameEntry.requestFocus();
                 flashColour(1500, Color.AQUAMARINE, nameEntry, ID);
                 //Now need to update the form
                 String selectedIndex = personList.getSelectionModel().getSelectedItem();
-                person.setAll(WorkingUser.getUserNames());
+                person.setAll(WorkingUser.getUserDetails());
                 personList.setItems(person);
-                personList.getSelectionModel().select(selectedIndex);
+                personList.getSelectionModel().select(personList.getSelectionModel().getSelectedIndex() + 1);
             }
         });
     }

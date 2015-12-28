@@ -188,6 +188,9 @@ public final class WorkingUser {
         return personDatabase.getNamesOfEntries();
     }
 
+    public static ArrayList<String> getUserDetails() {
+        return personDatabase.getEntryDetails();
+    }
     /**
      * Get a list of the names of all products in the database
      *

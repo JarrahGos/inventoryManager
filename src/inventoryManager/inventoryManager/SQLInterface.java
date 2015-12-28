@@ -1107,6 +1107,56 @@ public class SQLInterface {
         return out;
     }
 
+    public static ArrayList<String> getDetails(String type) {
+        Connection db = getDatabase().get();
+        System.out.println("_X_X_X_X_X_X_X_ New DB in getName2");
+        String statement;
+        ResultSet rs;
+        ArrayList<String> out = new ArrayList<>();
+        switch (type) {
+            case TABPERSON:
+                statement = "SELECT " + COLPERSONNAME + ", " + COLPERSONID + " FROM " + TABPERSON + "";
+                break;
+            case TABITEM:
+                statement = "SELECT " + COLITEMNAME + ", " + COLITEMID + " FROM " + TABITEM + "";
+                break;
+            case TABGENERAL:
+                statement = "SELECT " + COLITEMNAME + " FROM " + TABITEM +
+                        " JOIN " + TABGENERAL + " ON " + TABGENERAL + "." + COLGENERALID +
+                        " = " + TABITEM + "." + COLITEMID + ";";
+                break;
+            case TABCONTROLLED:
+                statement = "SELECT " + COLITEMNAME + " FROM " + TABITEM +
+                        " JOIN " + TABCONTROLLED + " ON " + TABCONTROLLED + "." + COLCONTROLLEDID +
+                        " = " + TABITEM + "." + COLITEMID + ";";
+                break;
+            case TABSET:
+                statement = "SELECT " + COLSETNAME + ", " + COLSETID + " FROM " + TABSET + ";";
+                break;
+            case TABCONTROLLEDTYPE:
+                statement = "SELECT " + COLCONTROLLEDTYPENAME + ", " + COLCONTROLLEDTYPEID + " FROM " + TABCONTROLLEDTYPE + ";";
+                break;
+            default:
+                statement = "SELECT " + COLPERSONNAME + " FROM " + TABPERSON + "";
+                break;
+        }
+        try {
+            PreparedStatement ps = db.prepareStatement(statement);
+            rs = ps.executeQuery();
+            ps.closeOnCompletion();
+            while (rs.next()) {
+                out.add(rs.getString(2) + "\t" + rs.getString(1));
+            }
+            rs.close();
+            db.close();
+            System.out.println("_X_X_X_X_X_X_X_ DB closed in getName2");
+        } catch (SQLException e) {
+            Log.print(e);
+            System.exit(32);
+        }
+        return out;
+    }
+
     /**
      * Get the ID of an item or person with the given name. Will return the first, not necessarily the only.
      *
@@ -1405,11 +1455,23 @@ public class SQLInterface {
      * @param name  The new name of the item.
      * @param newID The new ID of the item. Re-enter the same ID as above for no change.
      */
-    public static void updateEntry(String ID, String name, String newID) {
+    public static void updateEntry(String ID, String name, String newID, String type) {
         Connection db = getDatabase().get();
         System.out.println("_X_X_X_X_X_X_X_ New DB in updateEntry1");
-        String statement = "UPDATE " + TABITEM + " SET " + COLITEMNAME + " = ?, " + COLITEMID + " = ?" +
-                " WHERE " + COLITEMID + " = ?";
+        String statement;
+        switch (type) {
+            case TABITEM:
+                statement = "UPDATE " + TABITEM + " SET " + COLITEMNAME + " = ?, " + COLITEMID + " = ?" +
+                        " WHERE " + COLITEMID + " = ?";
+                break;
+            case TABPERSON:
+                statement = "UPDATE " + TABPERSON + " SET " + COLPERSONNAME + " = ?, " + COLPERSONID + " =?" +
+                        " WHERE " + COLPERSONID + " =?;";
+                break;
+            default:
+                statement = "UPDATE " + TABPERSON + " SET " + COLPERSONNAME + " = ?, " + COLPERSONID + " =?" +
+                        " WHERE " + COLPERSONID + " =?;";
+        }
         try {
             PreparedStatement ps = db.prepareStatement(statement);
             ps.setString(1, name);

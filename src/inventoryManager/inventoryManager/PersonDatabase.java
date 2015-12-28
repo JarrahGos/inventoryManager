@@ -138,6 +138,9 @@ final class PersonDatabase implements Database {
         return SQLInterface.getName(SQLInterface.TABPERSON);
     }
 
+    public final ArrayList<String> getEntryDetails() {
+        return SQLInterface.getDetails(SQLInterface.TABPERSON);
+    }
 
     /**
      * Determine Whether a person Exists given only their barcode
@@ -178,12 +181,12 @@ final class PersonDatabase implements Database {
 
     /**
      * Determine whether the person should be given admin access to the program
-     * @param barcode The barcode of the member to check permissions for.
+     * @param ID The barcode of the member to check permissions for.
      * @return An int to determine access. 0 for user, 2 for admin, 3 for root
      */
 
     public void changeDatabasePerson(String name, String ID, String oldID) {
-        SQLInterface.updateEntry(oldID, name, ID);
+        SQLInterface.updateEntry(oldID, name, ID, SQLInterface.TABPERSON);
     }
     public void updateRole(String ID, int role) {
         SQLInterface.updateEntry(ID, role);

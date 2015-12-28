@@ -35,4 +35,4 @@ If you would like further information, feel free to contact me through github or
 
 Licence
 -------
-This project is licenced under the GPL v3. For more information, see the LICENCE file in the main directory of this project. 
+This project is licenced under the GPL v3. For more information, see the LICENCE file in the main directory of this project.
