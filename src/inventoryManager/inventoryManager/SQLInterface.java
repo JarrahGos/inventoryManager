@@ -1,8 +1,7 @@
 package inventoryManager;
 
 /***
- * TOC19 is a simple program to run TOC payments within a small group.
- * Copyright (C) 2014  Jarrah Gosbell
+ * Copyright (C) 2015  Jarrah Gosbell
  * <p>
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General public static  License as published by
@@ -1409,7 +1408,7 @@ public class SQLInterface {
     public static void updateEntry(String ID, String name, String newID) {
         Connection db = getDatabase().get();
         System.out.println("_X_X_X_X_X_X_X_ New DB in updateEntry1");
-        String statement = "UPDATE " + TABITEM + " SET " + COLITEMNAME + " = ?, set (" + COLITEMID + " = ? )" +
+        String statement = "UPDATE " + TABITEM + " SET " + COLITEMNAME + " = ?, " + COLITEMID + " = ?" +
                 " WHERE " + COLITEMID + " = ?";
         try {
             PreparedStatement ps = db.prepareStatement(statement);

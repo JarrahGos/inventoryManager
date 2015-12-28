@@ -1,6 +1,5 @@
 package inventoryManager;
-/*
-*    TOC19 is a simple program to run TOC payments within a small group.
+/***
 *    Copyright (C) 2015 Michael Brock
 *
 *    This program is free software: you can redistribute it and/or modify
