@@ -214,7 +214,7 @@ public class AdminInterface extends Interface {
         personList.getSelectionModel().selectedItemProperty().addListener(
                 (ObservableValue<? extends String> vo, String oldVal, String selectedPerson) -> {
                     if (selectedPerson != null) {
-                        nameEntry.setText(selectedPerson.split("\t")[1]);
+                        nameEntry.setText(selectedPerson.split("\t")[2]);
                         ID.setText(selectedPerson.split("\t")[0]);
                     }
                 });
@@ -544,6 +544,8 @@ public class AdminInterface extends Interface {
             if (WorkingUser.itemExists(barCodeEntry.getText())) {
                 flashColour(1500, Color.AQUAMARINE, barCodeEntry);
             } else flashColour(1500, Color.RED, barCodeEntry);
+
+            // WorkingUser.changeDatabaseProduct(nameEntry.getText(), personList.getSelectionModel().getSelectedItem().split("\t")[0]);
 
 //                            WorkingUser.changeDatabaseProduct(nameEntry.getText(), WorkingUser.getProductName(productList.getSelectionModel().getSelectedItem()), price,
 //                                    barCode, WorkingUser.getProductBarCode(productList.getSelectionModel().getSelectedItem()));

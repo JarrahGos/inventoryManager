@@ -507,26 +507,32 @@ public class SQLInterface {
         ResultSet rs = null;
         PreparedStatement ps = null;
         int noOfResults = 0;
+        String headings;
         switch (type) {
             case TABPERSONLOG:
                 statement = "SELECT * FROM " + TABPERSONLOG + " ";
                 noOfResults = TABPERSONLOGCOUNT;
+                headings = "ID\t\tDate\tAuth ID";
                 break;
             case TABITEMLOG:
                 if (outOnly) statement = "SELECT * FROM " + TABITEMLOG + " WHERE " + COLITEMLOGINDATE + " = \"FALSE\"";
                 else statement = "SELECT * FROM " + TABITEMLOG + "";
                 noOfResults = TABITEMLOGCOUNT;
+                headings = "ID\tOut Date\tIn Date\tPerson ID\tControlled\tReturned By\tItemID";
                 break;
             case "controlled":
                 statement = "SELECT * FROM " + TABITEMLOG + " " +
                         "WHERE " + COLITEMLOGCONTROLLED + "=TRUE";
+                headings = "";
                 break;
             case "general":
                 statement = "SELECT * FROM " + TABITEMLOG + " " +
                         "WHERE " + COLITEMLOGCONTROLLED + "=FALSE";
+                headings = "";
                 break;
             default:
                 statement = "SELECT * FROM " + TABITEMLOG + "";
+                headings = "ID\tOut Date\tIn Date\tPerson ID\tControlled\tReturned By\tItemID";
                 break;
         }
         try {
@@ -539,6 +545,7 @@ public class SQLInterface {
         ArrayList<String> ret = new ArrayList<>();
         try {
             ret = rsToString(rs, noOfResults);
+            ret.add(0, headings);
             rs.close();
             ps.closeOnCompletion();
             db.close();
@@ -1145,7 +1152,7 @@ public class SQLInterface {
             rs = ps.executeQuery();
             ps.closeOnCompletion();
             while (rs.next()) {
-                out.add(rs.getString(2) + "\t" + rs.getString(1));
+                out.add(rs.getString(2) + "\t\t" + rs.getString(1));
             }
             rs.close();
             db.close();
