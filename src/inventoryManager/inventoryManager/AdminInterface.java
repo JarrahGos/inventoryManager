@@ -439,7 +439,7 @@ public class AdminInterface extends Interface {
                 set.setValue("");
                 state.clear();
                 nameEntry.requestFocus();
-                flashColour(1500, Color.AQUAMARINE, nameEntry, BarCodeEntry);
+                flashColour(1500, Color.AQUAMARINE, nameEntry, BarCodeEntry, typeBox, set, tagno, state);
             }
         });
     }

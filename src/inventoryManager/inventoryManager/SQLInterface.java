@@ -315,8 +315,8 @@ public class SQLInterface {
                 }
                 rs.close();
 
-                statement = "INSERT INTO " + TABCONTROLLED + " (" + COLCONTROLLEDID + ", " + COLCONTROLLEDTAGNO + ", " + COLCONTROLLEDSTATE + ")" + // TODO: DAFAQ is state (servicable or not)
-                        "VALUES(?, ?, ?)";
+                statement = "INSERT INTO " + TABCONTROLLED + " (" + COLCONTROLLEDID + ", " + COLCONTROLLEDTAGNO + ", " + COLCONTROLLEDSTATE + ", " + COLCONTROLLEDTYPE + ")" + // TODO: DAFAQ is state (servicable or not)
+                        "VALUES(?, ?, ?, ?)";
                 try {
                     db = getDatabase().get();
                     System.out.println("_X_X_X_X_X_X_X_ New DB in addEntry4");
@@ -325,6 +325,7 @@ public class SQLInterface {
                     ps.setString(2, tagpos);
                     //ps.setInt(3, rs.getInt("ID"));
                     ps.setString(3, state);
+                    ps.setString(4, getID(TABCONTROLLEDTYPE, type).orElse("null"));
                     executePS(db, ps);
                     System.out.println("_X_X_X_X_X_X_X_ DB closed in addEntry4");
                 } catch (SQLException e) {
@@ -1126,6 +1127,9 @@ public class SQLInterface {
             case TABITEM:
                 statement = "SELECT " + COLITEMID + " FROM " + TABITEM + "" +
                         " WHERE " + COLITEMNAME + " = ?";
+                break;
+            case TABCONTROLLEDTYPE:
+                statement = "SELECT " + COLCONTROLLEDTYPEID + " FROM " + TABCONTROLLEDTYPE + " WHERE " + COLCONTROLLEDTYPENAME + " = ?;";
                 break;
             default:
                 statement = "SELECT " + COLPERSONID + " FROM " + TABPERSON + " WHERE " + COLPERSONNAME + " = ?";
