@@ -378,6 +378,15 @@ public class AdminInterface extends Interface {
         Text stateLabel = new Text("Item State:");
         TextField state = new TextField();
 
+        grid.add(descriptionLabel, 0, 4);
+        grid.add(description, 1, 4);
+
+        grid.add(quantityLabel, 0, 5);
+        grid.add(quantity, 1, 5);
+
+        grid.add(locationLabel, 0, 6);
+        grid.add(location, 1, 6);
+
 
         cb.setOnAction((ActionEvent e) -> {
             if (!cb.isSelected()) {
@@ -405,8 +414,6 @@ public class AdminInterface extends Interface {
                 grid.add(state, 1, 6);
             }
         });
-        cb.setSelected(false);
-
 
         nameEntry.setOnAction((ActionEvent e) -> BarCodeEntry.requestFocus());
 

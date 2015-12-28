@@ -146,7 +146,7 @@ public class SQLInterface {
                 statement = "DELETE FROM " + TABGENERAL + " WHERE " + COLGENERALID + " = ?";
                 break;
             case "controlledItem":
-                statement = "DELETE FROM " + TABCONTROLLED + " WHERE " + COLCONTROLLEDID + " = ?"; // TODO: this will delete controlled but not item. Use the key and a delete on cascade.
+                statement = "DELETE FROM " + TABCONTROLLED + " WHERE " + COLCONTROLLEDID + " = ?"; // TODO: this will delete controlled but not item. Use the key and a cascade on delete.
         }
         try {
             PreparedStatement ps = db.prepareStatement(statement);
@@ -225,6 +225,8 @@ public class SQLInterface {
      * @param Description A description of the item.
      * @param Quantity    The number of the item in stock.
      */
+
+    //TODO: Completly rewrite this from scratch. Section on sets is fucked.
     public static void addEntry(String ID, String name, String setName, String Description, Long Quantity, String location) { // Add generalItem
         addEntry(ID, name);
 

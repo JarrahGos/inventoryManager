@@ -226,11 +226,11 @@ public class Interface extends Application {
                     input.requestFocus();
                     flashColour(500, Color.AQUAMARINE, input);
                 } else {
-                    productError.setText("Could not read that product");
+                    productError.setText("Could not find that product");
                     if (!grid.getChildren().contains(productError)) grid.add(productError, 1, 8);
                     input.clear();
                     input.requestFocus();
-                    flashColour(500, Color.RED, input);
+                    flashColour(500, Color.RED, input, productError);
                 }
             }
         });
