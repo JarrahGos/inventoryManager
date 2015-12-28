@@ -48,6 +48,7 @@ public class SQLInterface {
     private static final String COLCONTROLLEDID = "ID";
     private static final String COLCONTROLLEDTAGNO = "tagno";
     private static final String COLCONTROLLEDTYPE = "type";
+    private static final String COLCONTROLLEDSTATE = "state";
     private static final int TABCONTROLLEDCOUNT = 3;
     // column names TABCONTROLLEDTYPE
     private static final String COLCONTROLLEDTYPEID = "ID";
@@ -299,9 +300,9 @@ public class SQLInterface {
                 System.out.println("_X_X_X_X_X_X_X_ DB closed in X");
                 if (!rs.next()) {
                     db = getDatabase().get();
-                    statement = "INSERT INTO " + TABCONTROLLEDTYPE + "(" + COLCONTROLLEDTYPE + ") VALUES (?)";
+                    statement = "INSERT INTO " + TABCONTROLLEDTYPE + "(" + COLCONTROLLEDTYPENAME + ") VALUES (?)";
                     ps = db.prepareStatement(statement);
-                    ps.setString('1', type);
+                    ps.setString(1, type);
                     ps.execute();
                     ps.closeOnCompletion();
                     statement = "SELECT " + COLCONTROLLEDTYPEID + " FROM " + TABCONTROLLEDTYPE + " WHERE " + COLCONTROLLEDTYPENAME + " = ?";
@@ -314,16 +315,16 @@ public class SQLInterface {
                 }
                 rs.close();
 
-                statement = "INSERT INTO " + TABCONTROLLED + " (" + COLCONTROLLEDID + ", " + COLCONTROLLEDTAGNO + ", State)" + // TODO: DAFAQ is state (servicable or not)
-                        "VALUES(?, ?, ?, ?)";
+                statement = "INSERT INTO " + TABCONTROLLED + " (" + COLCONTROLLEDID + ", " + COLCONTROLLEDTAGNO + ", " + COLCONTROLLEDSTATE + ")" + // TODO: DAFAQ is state (servicable or not)
+                        "VALUES(?, ?, ?)";
                 try {
                     db = getDatabase().get();
                     System.out.println("_X_X_X_X_X_X_X_ New DB in addEntry4");
                     ps = db.prepareStatement(statement);
                     ps.setString(1, ID);
                     ps.setString(2, tagpos);
-                    ps.setInt(3, rs.getInt("ID"));
-                    ps.setString(4, state);
+                    //ps.setInt(3, rs.getInt("ID"));
+                    ps.setString(3, state);
                     executePS(db, ps);
                     System.out.println("_X_X_X_X_X_X_X_ DB closed in addEntry4");
                 } catch (SQLException e) {
@@ -1079,6 +1080,9 @@ public class SQLInterface {
                 break;
             case TABSET:
                 statement = "SELECT " + COLSETNAME + " FROM " + TABSET + ";";
+                break;
+            case TABCONTROLLEDTYPE:
+                statement = "SELECT " + COLCONTROLLEDTYPENAME + " FROM " + TABCONTROLLEDTYPE + ";";
                 break;
             default:
                 statement = "SELECT " + COLPERSONNAME + " FROM " + TABPERSON + "";

@@ -358,8 +358,9 @@ public class AdminInterface extends Interface {
         ObservableList<String> sets = FXCollections.observableArrayList();
         sets.setAll(WorkingUser.getSets());
         set.setItems(sets);
+        grid.add(set, 1, 2);
         CheckBox cb = new CheckBox("Controlled Item?");
-        grid.add(cb, 1, 2);
+        grid.add(cb, 1, 3);
 
         // General Item information
         Text descriptionLabel = new Text("Item Description:");
@@ -381,27 +382,27 @@ public class AdminInterface extends Interface {
         cb.setOnAction((ActionEvent e) -> {
             if (!cb.isSelected()) {
                 grid.getChildren().removeAll(type, typeBox, tagno, tagnoLabel, stateLabel, state);
-                grid.add(descriptionLabel, 0, 3);
-                grid.add(description, 1, 3);
+                grid.add(descriptionLabel, 0, 4);
+                grid.add(description, 1, 4);
 
-                grid.add(quantityLabel, 0, 4);
-                grid.add(quantity, 1, 4);
+                grid.add(quantityLabel, 0, 5);
+                grid.add(quantity, 1, 5);
 
-                grid.add(locationLabel, 0, 5);
-                grid.add(location, 1, 5);
+                grid.add(locationLabel, 0, 6);
+                grid.add(location, 1, 6);
             } else {
                 grid.getChildren().removeAll(description, descriptionLabel, quantity, quantityLabel, location, locationLabel);
                 ObservableList<String> types = FXCollections.observableArrayList();
-                types.setAll(WorkingUser.getSets());
+                types.setAll(WorkingUser.getTypes());
                 typeBox.setItems(types);
-                grid.add(type, 0, 3);
-                grid.add(typeBox, 1, 3);
+                grid.add(type, 0, 4);
+                grid.add(typeBox, 1, 4);
 
-                grid.add(tagnoLabel, 0, 4);
-                grid.add(tagno, 1, 4);
+                grid.add(tagnoLabel, 0, 5);
+                grid.add(tagno, 1, 5);
 
-                grid.add(stateLabel, 0, 5);
-                grid.add(state, 1, 5);
+                grid.add(stateLabel, 0, 6);
+                grid.add(state, 1, 6);
             }
         });
         cb.setSelected(false);
@@ -430,9 +431,13 @@ public class AdminInterface extends Interface {
         });
         state.setOnAction((ActionEvent e) -> {
             if (nameEntry.getText() != null && !nameEntry.getText().isEmpty() && BarCodeEntry.getText() != null && !BarCodeEntry.getText().isEmpty()) {
-                WorkingUser.addItemToDatabase(nameEntry.getText(), BarCodeEntry.getText(), type.getText(), tagno.getText(), set.getValue(), state.getText());
+                WorkingUser.addItemToDatabase(nameEntry.getText(), BarCodeEntry.getText(), typeBox.getValue(), tagno.getText(), set.getValue(), state.getText());
                 nameEntry.clear();
                 BarCodeEntry.clear();
+                typeBox.setValue("");
+                tagno.clear();
+                set.setValue("");
+                state.clear();
                 nameEntry.requestFocus();
                 flashColour(1500, Color.AQUAMARINE, nameEntry, BarCodeEntry);
             }

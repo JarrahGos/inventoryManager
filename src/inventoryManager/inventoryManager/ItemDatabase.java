@@ -222,6 +222,10 @@ class ItemDatabase implements Database {
         return SQLInterface.getName(SQLInterface.TABSET);
     }
 
+    public final ArrayList<String> getTypes() {
+        return SQLInterface.getName(SQLInterface.TABCONTROLLEDTYPE);
+    }
+
     public final void addSet(String ID, String name) {
         SQLInterface.addSet(ID, name);
     }
