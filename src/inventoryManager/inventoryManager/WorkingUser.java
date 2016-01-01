@@ -593,11 +593,11 @@ public final class WorkingUser {
         return LoggingDatabase.getPasswordLog();
     }
 
-    public static ArrayList<String> getPasswordLog(LocalDate from, LocalDate to) {
+    public static ArrayList<PasswordLog> getPasswordLog(LocalDate from, LocalDate to) {
         return LoggingDatabase.getPasswordLog(from, to);
     }
 
-    public static ArrayList<String> getItemLog(boolean outOnly, LocalDate from, LocalDate to) {
+    public static ArrayList<ItemLog> getItemLog(boolean outOnly, LocalDate from, LocalDate to) {
         return LoggingDatabase.getItemLog(outOnly, from, to);
     }
 

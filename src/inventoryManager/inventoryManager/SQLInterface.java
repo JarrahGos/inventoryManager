@@ -580,6 +580,34 @@ public class SQLInterface {
         return new ArrayList<>();
     }
 
+    public static ArrayList<PasswordLog> getPasswordLog(LocalDate from, LocalDate to) {
+        Connection db = getDatabase().get();
+        System.out.println("_X_X_X_X_X_X_X_ New DB in getLog4");
+        ResultSet rs = null;
+        ArrayList<PasswordLog> ret = new ArrayList();
+        try {
+            PreparedStatement ps = db.prepareStatement("SELECT * FROM " + TABPERSONLOG + " WHERE " + COLPERSONLOGDATE + " >= ? AND " +
+                    COLPERSONLOGDATE + " <= ?;");
+            ps.setString(1, from.toString());
+            ps.setString(2, to.toString());
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                ret.add(new PasswordLog(rs.getString(COLPERSONLOGPERSID), rs.getString(COLPERSONLOGDATE), rs.getString(COLPERSONLOGAUTHNAME)));
+            }
+            rs.close();
+            ps.closeOnCompletion();
+            for (PasswordLog entry : ret) {
+                System.out.println(entry.getID());
+            }
+            db.close();
+            System.out.println("_X_X_X_X_X_X_X_ DB closed in getLog4");
+            return ret;
+        } catch (SQLException e) {
+            Log.print(e);
+        }
+        return new ArrayList<>();
+    }
+
     public static ArrayList<ItemLog> getItemLog(boolean outOnly) {
         //                 headings = "ID\tOut Date\tIn Date\tPerson ID\tControlled\tReturned By\tItemID";
         Connection db = getDatabase().get();
@@ -591,6 +619,40 @@ public class SQLInterface {
             if (outOnly)
                 ps = db.prepareStatement("SELECT * FROM " + TABITEMLOG + " WHERE " + COLITEMLOGINDATE + " = \"FALSE\"");
             else ps = db.prepareStatement("SELECT * FROM " + TABITEMLOG);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                ret.add(new ItemLog(rs.getString(COLITEMLOGID), rs.getString(COLITEMLOGOUTDATE), rs.getString(COLITEMLOGINDATE),
+                        rs.getString(COLITEMLOGPERSID), rs.getString(COLITEMLOGCONTROLLED), rs.getString(COLITEMLOGADMINNAME), rs.getString(COLITEMLOGITEMID)));
+            }
+            rs.close();
+            ps.closeOnCompletion();
+            for (ItemLog entry : ret) {
+                System.out.println(entry.getID());
+            }
+            db.close();
+            System.out.println("_X_X_X_X_X_X_X_ DB closed in getLog4");
+            return ret;
+        } catch (SQLException e) {
+            Log.print(e);
+        }
+        return new ArrayList<>();
+    }
+
+    public static ArrayList<ItemLog> getItemLog(boolean outOnly, LocalDate from, LocalDate to) {
+        //                 headings = "ID\tOut Date\tIn Date\tPerson ID\tControlled\tReturned By\tItemID";
+        Connection db = getDatabase().get();
+        System.out.println("_X_X_X_X_X_X_X_ New DB in getLog4");
+        ResultSet rs = null;
+        ArrayList<ItemLog> ret = new ArrayList();
+        try {
+            PreparedStatement ps;
+            if (outOnly)
+                ps = db.prepareStatement("SELECT * FROM " + TABITEMLOG + " WHERE " + COLITEMLOGINDATE + " = \"FALSE\" AND" +
+                        COLITEMLOGOUTDATE + " <= ? AND " + COLITEMLOGINDATE + " >= ?;");
+            else ps = db.prepareStatement("SELECT * FROM " + TABITEMLOG + " WHERE " +
+                    COLITEMLOGOUTDATE + " <= ? AND " + COLITEMLOGINDATE + " >= ?;");
+            ps.setString(1, from.toString());
+            ps.setString(2, to.toString());
             rs = ps.executeQuery();
             while (rs.next()) {
                 ret.add(new ItemLog(rs.getString(COLITEMLOGID), rs.getString(COLITEMLOGOUTDATE), rs.getString(COLITEMLOGINDATE),

@@ -793,20 +793,25 @@ public class AdminInterface extends Interface {
         productTable.getColumns().addAll(IDCol, dateCol, authCol);
 
         ObservableList<PasswordLog> product = FXCollections.observableArrayList();
-        if (dpTo.getValue().equals(dpFrom.getValue())) {
-            product.setAll(WorkingUser.getPasswordLog());
-            productTable.setItems(product);
-        } else {
-            product.setAll(WorkingUser.getPasswordLog());
-            productTable.setItems(product);
-        }
+        product.setAll(WorkingUser.getPasswordLog());
+        productTable.setItems(product);
         dpFrom.setOnAction((ActionEvent e) -> {
-            product.setAll(WorkingUser.getPasswordLog());
-            productTable.setItems(product);
+            if (dpTo.getValue().equals(dpFrom.getValue())) {
+                product.setAll(WorkingUser.getPasswordLog());
+                productTable.setItems(product);
+            } else {
+                product.setAll(WorkingUser.getPasswordLog(dpFrom.getValue(), dpTo.getValue()));
+                productTable.setItems(product);
+            }
         });
         dpTo.setOnAction((ActionEvent e) -> {
-            product.setAll(WorkingUser.getPasswordLog());
-            productTable.setItems(product);
+            if (dpTo.getValue().equals(dpFrom.getValue())) {
+                product.setAll(WorkingUser.getPasswordLog());
+                productTable.setItems(product);
+            } else {
+                product.setAll(WorkingUser.getPasswordLog(dpFrom.getValue(), dpTo.getValue()));
+                productTable.setItems(product);
+            }
         });
         IDCol.setCellValueFactory(
                 new PropertyValueFactory<PasswordLog, String>("ID")
@@ -841,20 +846,25 @@ public class AdminInterface extends Interface {
 
 
         ObservableList<ItemLog> product = FXCollections.observableArrayList();
-        if (dpTo.getValue().equals(dpFrom.getValue())) {
-            product.setAll(WorkingUser.getItemLog(cb.isSelected()));
-            productTable.setItems(product);
-        } else {
-            product.setAll(WorkingUser.getItemLog(cb.isSelected()));
-            productTable.setItems(product);
-        }
+        product.setAll(WorkingUser.getItemLog(cb.isSelected()));
+        productTable.setItems(product);
         dpFrom.setOnAction((ActionEvent e) -> {
-            product.setAll(WorkingUser.getItemLog(cb.isSelected()));
-            productTable.setItems(product);
+            if (dpTo.getValue().equals(dpFrom.getValue())) {
+                product.setAll(WorkingUser.getItemLog(cb.isSelected()));
+                productTable.setItems(product);
+            } else {
+                product.setAll(WorkingUser.getItemLog(cb.isSelected(), dpFrom.getValue(), dpTo.getValue()));
+                productTable.setItems(product);
+            }
         });
         dpTo.setOnAction((ActionEvent e) -> {
-            product.setAll(WorkingUser.getItemLog(cb.isSelected()));
-            productTable.setItems(product);
+            if (dpTo.getValue().equals(dpFrom.getValue())) {
+                product.setAll(WorkingUser.getItemLog(cb.isSelected()));
+                productTable.setItems(product);
+            } else {
+                product.setAll(WorkingUser.getItemLog(cb.isSelected(), dpFrom.getValue(), dpTo.getValue()));
+                productTable.setItems(product);
+            }
         });
         cb.setOnAction((ActionEvent e) -> {
             if (dpTo.getValue().equals(dpFrom.getValue())) {

@@ -21,9 +21,6 @@ import java.util.Optional;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
- * Created by jarrah on 4/09/15.
- */
 
 public class LoggingDatabase implements Database {
     /**
@@ -38,12 +35,12 @@ public class LoggingDatabase implements Database {
         return SQLInterface.getPasswordLog();
     }
 
-    public static ArrayList<String> getPasswordLog(LocalDate from, LocalDate to) {
-        return SQLInterface.getLog(SQLInterface.TABPERSONLOG, true, from, to);
+    public static ArrayList<PasswordLog> getPasswordLog(LocalDate from, LocalDate to) {
+        return SQLInterface.getPasswordLog(from, to);
     }
 
-    public static ArrayList<String> getItemLog(boolean outOnly, LocalDate from, LocalDate to) {
-        return SQLInterface.getLog(SQLInterface.TABITEMLOG, outOnly, from, to);
+    public static ArrayList<ItemLog> getItemLog(boolean outOnly, LocalDate from, LocalDate to) {
+        return SQLInterface.getItemLog(outOnly, from, to);
     }
 
     public static ArrayList<ItemLog> getItemLog(boolean outOnly) {
