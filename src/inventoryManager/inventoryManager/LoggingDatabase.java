@@ -35,7 +35,7 @@ public class LoggingDatabase implements Database {
     }
 
     public static ArrayList<PasswordLog> getPasswordLog() {
-        return SQLInterface.getLog();
+        return SQLInterface.getPasswordLog();
     }
 
     public static ArrayList<String> getPasswordLog(LocalDate from, LocalDate to) {
@@ -46,8 +46,8 @@ public class LoggingDatabase implements Database {
         return SQLInterface.getLog(SQLInterface.TABITEMLOG, outOnly, from, to);
     }
 
-    public static ArrayList<String> getItemLog(boolean outOnly) {
-        return SQLInterface.getLog(SQLInterface.TABITEMLOG, outOnly);
+    public static ArrayList<ItemLog> getItemLog(boolean outOnly) {
+        return SQLInterface.getItemLog(outOnly);
     }
 
     /**

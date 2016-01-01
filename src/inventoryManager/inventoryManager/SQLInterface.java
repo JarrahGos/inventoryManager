@@ -518,7 +518,6 @@ public class SQLInterface {
                 if (outOnly) statement = "SELECT * FROM " + TABITEMLOG + " WHERE " + COLITEMLOGINDATE + " = \"FALSE\"";
                 else statement = "SELECT * FROM " + TABITEMLOG + "";
                 noOfResults = TABITEMLOGCOUNT;
-                headings = "ID\tOut Date\tIn Date\tPerson ID\tControlled\tReturned By\tItemID";
                 break;
             case "controlled":
                 statement = "SELECT * FROM " + TABITEMLOG + " " +
@@ -545,7 +544,7 @@ public class SQLInterface {
         ArrayList<String> ret = new ArrayList<>();
         try {
             ret = rsToString(rs, noOfResults);
-            ret.add(0, headings);
+            //ret.add(0, headings);
             rs.close();
             ps.closeOnCompletion();
             db.close();
@@ -556,7 +555,7 @@ public class SQLInterface {
         return ret;
     }
 
-    public static ArrayList<PasswordLog> getLog() {
+    public static ArrayList<PasswordLog> getPasswordLog() {
         Connection db = getDatabase().get();
         System.out.println("_X_X_X_X_X_X_X_ New DB in getLog4");
         ResultSet rs = null;
@@ -578,7 +577,37 @@ public class SQLInterface {
         } catch (SQLException e) {
             Log.print(e);
         }
-        return new ArrayList<PasswordLog>();
+        return new ArrayList<>();
+    }
+
+    public static ArrayList<ItemLog> getItemLog(boolean outOnly) {
+        //                 headings = "ID\tOut Date\tIn Date\tPerson ID\tControlled\tReturned By\tItemID";
+        Connection db = getDatabase().get();
+        System.out.println("_X_X_X_X_X_X_X_ New DB in getLog4");
+        ResultSet rs = null;
+        ArrayList<ItemLog> ret = new ArrayList();
+        try {
+            PreparedStatement ps;
+            if (outOnly)
+                ps = db.prepareStatement("SELECT * FROM " + TABITEMLOG + " WHERE " + COLITEMLOGINDATE + " = \"FALSE\"");
+            else ps = db.prepareStatement("SELECT * FROM " + TABITEMLOG);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                ret.add(new ItemLog(rs.getString(COLITEMLOGID), rs.getString(COLITEMLOGOUTDATE), rs.getString(COLITEMLOGINDATE),
+                        rs.getString(COLITEMLOGPERSID), rs.getString(COLITEMLOGCONTROLLED), rs.getString(COLITEMLOGADMINNAME), rs.getString(COLITEMLOGITEMID)));
+            }
+            rs.close();
+            ps.closeOnCompletion();
+            for (ItemLog entry : ret) {
+                System.out.println(entry.getID());
+            }
+            db.close();
+            System.out.println("_X_X_X_X_X_X_X_ DB closed in getLog4");
+            return ret;
+        } catch (SQLException e) {
+            Log.print(e);
+        }
+        return new ArrayList<>();
     }
 
     /**

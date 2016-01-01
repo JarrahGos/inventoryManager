@@ -828,36 +828,68 @@ public class AdminInterface extends Interface {
         DatePicker dpTo = new DatePicker(LocalDate.now());
         DatePicker dpFrom = new DatePicker(LocalDate.now());
         CheckBox cb = new CheckBox("Only out items");
-        ListView<String> productList = new ListView<>();
-        ObservableList<String> product = FXCollections.observableArrayList();
+        TableView productTable = new TableView();
+        productTable.setEditable(false);
+        TableColumn IDCol = new TableColumn("ID");
+        TableColumn outDate = new TableColumn("Out Date");
+        TableColumn inDate = new TableColumn("In Date");
+        TableColumn persID = new TableColumn("Person ID");
+        TableColumn controlled = new TableColumn("Controlled");
+        TableColumn adminName = new TableColumn("Admin Name");
+        TableColumn itemID = new TableColumn("Item ID");
+        productTable.getColumns().addAll(IDCol, outDate, inDate, persID, controlled, adminName, itemID);
+
+
+        ObservableList<ItemLog> product = FXCollections.observableArrayList();
         if (dpTo.getValue().equals(dpFrom.getValue())) {
             product.setAll(WorkingUser.getItemLog(cb.isSelected()));
-            productList.setItems(product);
+            productTable.setItems(product);
         } else {
-            product.setAll(WorkingUser.getItemLog(cb.isSelected(), dpFrom.getValue(), dpTo.getValue()));
-            productList.setItems(product);
+            product.setAll(WorkingUser.getItemLog(cb.isSelected()));
+            productTable.setItems(product);
         }
         dpFrom.setOnAction((ActionEvent e) -> {
-            product.setAll(WorkingUser.getItemLog(cb.isSelected(), dpFrom.getValue(), dpTo.getValue()));
-            productList.setItems(product);
+            product.setAll(WorkingUser.getItemLog(cb.isSelected()));
+            productTable.setItems(product);
         });
         dpTo.setOnAction((ActionEvent e) -> {
-            product.setAll(WorkingUser.getItemLog(cb.isSelected(), dpFrom.getValue(), dpTo.getValue()));
-            productList.setItems(product);
+            product.setAll(WorkingUser.getItemLog(cb.isSelected()));
+            productTable.setItems(product);
         });
         cb.setOnAction((ActionEvent e) -> {
             if (dpTo.getValue().equals(dpFrom.getValue())) {
                 product.setAll(WorkingUser.getItemLog(cb.isSelected()));
             } else {
-                product.setAll(WorkingUser.getItemLog(cb.isSelected(), dpFrom.getValue(), dpTo.getValue()));
-                productList.setItems(product);
+                product.setAll(WorkingUser.getItemLog(cb.isSelected()));
+                productTable.setItems(product);
             }
         });
-        productList.setMinWidth(grid.getMaxWidth());
+        IDCol.setCellValueFactory(
+                new PropertyValueFactory<PasswordLog, String>("ID")
+        );
+        outDate.setCellValueFactory(
+                new PropertyValueFactory<PasswordLog, String>("outDate")
+        );
+        inDate.setCellValueFactory(
+                new PropertyValueFactory<PasswordLog, String>("inDate")
+        );
+        persID.setCellValueFactory(
+                new PropertyValueFactory<PasswordLog, String>("persID")
+        );
+        controlled.setCellValueFactory(
+                new PropertyValueFactory<PasswordLog, String>("controlled")
+        );
+        adminName.setCellValueFactory(
+                new PropertyValueFactory<PasswordLog, String>("returnedBy")
+        );
+        itemID.setCellValueFactory(
+                new PropertyValueFactory<PasswordLog, String>("itemID")
+        );
+        productTable.setMinWidth(grid.getMaxWidth());
         grid.add(dpFrom, 0, 0);
         grid.add(dpTo, 1, 0);
         grid.add(cb, 2, 0);
-        grid.add(productList, 0, 1, 5, 10);
+        grid.add(productTable, 0, 1, 5, 10);
     }
     public static void addUser(String userID) {
 

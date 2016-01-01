@@ -601,7 +601,7 @@ public final class WorkingUser {
         return LoggingDatabase.getItemLog(outOnly, from, to);
     }
 
-    public static ArrayList<String> getItemLog(boolean outOnly) {
+    public static ArrayList<ItemLog> getItemLog(boolean outOnly) {
         return LoggingDatabase.getItemLog(outOnly);
     }
 
