@@ -25,6 +25,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
@@ -780,31 +781,46 @@ public class AdminInterface extends Interface {
         grid.add(save, 3, 0);
     }
 
-    public static void showPasswordLog(GridPane grid) {
+    public static void showPasswordLog(GridPane grid) { //Revise these to use tableviews.
         grid.getChildren().clear();
         DatePicker dpTo = new DatePicker(LocalDate.now());
         DatePicker dpFrom = new DatePicker(LocalDate.now());
-        ListView<String> productList = new ListView<>();
-        ObservableList<String> product = FXCollections.observableArrayList();
+        TableView productTable = new TableView();
+        productTable.setEditable(false);
+        TableColumn IDCol = new TableColumn("ID");
+        TableColumn dateCol = new TableColumn("Date");
+        TableColumn authCol = new TableColumn("Auth Name");
+        productTable.getColumns().addAll(IDCol, dateCol, authCol);
+
+        ObservableList<PasswordLog> product = FXCollections.observableArrayList();
         if (dpTo.getValue().equals(dpFrom.getValue())) {
             product.setAll(WorkingUser.getPasswordLog());
-            productList.setItems(product);
+            productTable.setItems(product);
         } else {
-            product.setAll(WorkingUser.getPasswordLog(dpFrom.getValue(), dpTo.getValue()));
-            productList.setItems(product);
+            product.setAll(WorkingUser.getPasswordLog());
+            productTable.setItems(product);
         }
         dpFrom.setOnAction((ActionEvent e) -> {
-            product.setAll(WorkingUser.getPasswordLog(dpFrom.getValue(), dpTo.getValue()));
-            productList.setItems(product);
+            product.setAll(WorkingUser.getPasswordLog());
+            productTable.setItems(product);
         });
         dpTo.setOnAction((ActionEvent e) -> {
-            product.setAll(WorkingUser.getPasswordLog(dpFrom.getValue(), dpTo.getValue()));
-            productList.setItems(product);
+            product.setAll(WorkingUser.getPasswordLog());
+            productTable.setItems(product);
         });
-        productList.setMinWidth(grid.getMaxWidth());
+        IDCol.setCellValueFactory(
+                new PropertyValueFactory<PasswordLog, String>("ID")
+        );
+        dateCol.setCellValueFactory(
+                new PropertyValueFactory<PasswordLog, String>("date")
+        );
+        authCol.setCellValueFactory(
+                new PropertyValueFactory<PasswordLog, String>("authID")
+        );
+        productTable.setMinWidth(grid.getMaxWidth());
         grid.add(dpFrom, 0, 0);
         grid.add(dpTo, 1, 0);
-        grid.add(productList, 0, 1, 5, 10);
+        grid.add(productTable, 0, 1, 5, 10);
     }
 
     public static void showItemLog(GridPane grid) { //TODO: headings and formatting.

@@ -34,8 +34,8 @@ public class LoggingDatabase implements Database {
         SQLInterface.addLog(barcode, adBarcode);
     }
 
-    public static ArrayList<String> getPasswordLog() {
-        return SQLInterface.getLog(SQLInterface.TABPERSONLOG, true);
+    public static ArrayList<PasswordLog> getPasswordLog() {
+        return SQLInterface.getLog();
     }
 
     public static ArrayList<String> getPasswordLog(LocalDate from, LocalDate to) {

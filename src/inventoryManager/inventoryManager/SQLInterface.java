@@ -510,7 +510,7 @@ public class SQLInterface {
         String headings;
         switch (type) {
             case TABPERSONLOG:
-                statement = "SELECT * FROM " + TABPERSONLOG + " ";
+                statement = "error";
                 noOfResults = TABPERSONLOGCOUNT;
                 headings = "ID\t\tDate\tAuth ID";
                 break;
@@ -554,6 +554,31 @@ public class SQLInterface {
             Log.print(e);
         }
         return ret;
+    }
+
+    public static ArrayList<PasswordLog> getLog() {
+        Connection db = getDatabase().get();
+        System.out.println("_X_X_X_X_X_X_X_ New DB in getLog4");
+        ResultSet rs = null;
+        ArrayList<PasswordLog> ret = new ArrayList();
+        try {
+            PreparedStatement ps = db.prepareStatement("SELECT * FROM " + TABPERSONLOG + " ");
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                ret.add(new PasswordLog(rs.getString(COLPERSONLOGPERSID), rs.getString(COLPERSONLOGDATE), rs.getString(COLPERSONLOGAUTHNAME)));
+            }
+            rs.close();
+            ps.closeOnCompletion();
+            for (PasswordLog entry : ret) {
+                System.out.println(entry.getID());
+            }
+            db.close();
+            System.out.println("_X_X_X_X_X_X_X_ DB closed in getLog4");
+            return ret;
+        } catch (SQLException e) {
+            Log.print(e);
+        }
+        return new ArrayList<PasswordLog>();
     }
 
     /**

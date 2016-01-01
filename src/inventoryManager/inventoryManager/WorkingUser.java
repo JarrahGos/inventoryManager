@@ -589,7 +589,7 @@ public final class WorkingUser {
         personDatabase.updateRole(ID, role);
     }
 
-    public static ArrayList<String> getPasswordLog() {
+    public static ArrayList<PasswordLog> getPasswordLog() {
         return LoggingDatabase.getPasswordLog();
     }
 
