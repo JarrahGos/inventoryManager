@@ -43,7 +43,6 @@ import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.Objects;
 
 public class AdminInterface extends Interface {
     /**
@@ -195,53 +194,68 @@ public class AdminInterface extends Interface {
     private static void changePerson(GridPane grid) {
         grid.getChildren().clear();
 
-        ListView<String> personList = new ListView<>();
-        ObservableList<String> person = FXCollections.observableArrayList();
+        //ListView<String> personList = new ListView<>();
+        TableView<Person> personList = new TableView<>();
+        ObservableList<Person> person = FXCollections.observableArrayList();
         person.setAll(WorkingUser.getUserDetails());
+
+        TableColumn IDCol = new TableColumn("ID");
+        TableColumn nameCol = new TableColumn("name");
+        personList.getColumns().addAll(IDCol, nameCol);
+        IDCol.setCellValueFactory(
+                new PropertyValueFactory<PasswordLog, String>("ID")
+        );
+        nameCol.setCellValueFactory(
+                new PropertyValueFactory<Person, String>("name")
+        );
+        personList.setEditable(true);
         personList.setItems(person);
         grid.add(personList, 0, 0, 1, 4);
 
-        //Text nameLabel = new Text("Name:");
-        //grid.add(nameLabel, 1, 0);
-        TextField nameEntry = new TextField();
-        nameEntry.setPromptText("Name");
-        nameEntry.requestFocus();
-        grid.add(nameEntry, 1, 0);
-        //Text IDLabel = new Text("ID:");
-        //grid.add(IDLabel, 1, 1);
-        TextField ID = new TextField();
-        ID.setPromptText("ID");
-        grid.add(ID, 1, 1);
-        personList.getSelectionModel().selectedItemProperty().addListener(
-                (ObservableValue<? extends String> vo, String oldVal, String selectedPerson) -> {
-                    if (selectedPerson != null) {
-                        nameEntry.setText(selectedPerson.split("\t")[2]);
-                        ID.setText(selectedPerson.split("\t")[0]);
-                    }
-                });
-        nameEntry.setOnAction((ActionEvent e) -> ID.requestFocus());
+        //TODO: Account for editing these cells.
 
-        ID.setOnAction((ActionEvent e) -> {
-            String IDNew = null;
-            try {
-                IDNew = ID.getText();
-            } catch (NumberFormatException e1) {
-                flashColour(1500, Color.RED, ID);
-            }
-            if (IDNew != null && !Objects.equals(IDNew, "")) {
-                String name = personList.getSelectionModel().getSelectedItem();
-                WorkingUser.changeDatabasePerson(nameEntry.getText(), IDNew, personList.getSelectionModel().getSelectedItem().split("\t")[0]);
-                nameEntry.clear();
-                ID.clear();
-                nameEntry.requestFocus();
-                flashColour(1500, Color.AQUAMARINE, nameEntry, ID);
-                //Now need to update the form
-                String selectedIndex = personList.getSelectionModel().getSelectedItem();
-                person.setAll(WorkingUser.getUserDetails());
-                personList.setItems(person);
-                personList.getSelectionModel().select(personList.getSelectionModel().getSelectedIndex() + 1);
-            }
-        });
+
+//        //Text nameLabel = new Text("Name:");
+//        //grid.add(nameLabel, 1, 0);
+//        TextField nameEntry = new TextField();
+//        nameEntry.setPromptText("Name");
+//        nameEntry.requestFocus();
+//        grid.add(nameEntry, 1, 0);
+//        //Text IDLabel = new Text("ID:");
+//        //grid.add(IDLabel, 1, 1);
+//        TextField ID = new TextField();
+//        ID.setPromptText("ID");
+//        grid.add(ID, 1, 1);
+//        personList.getSelectionModel().selectedItemProperty().addListener(
+//                (ObservableValue<? extends String> vo, String oldVal, String selectedPerson) -> {
+//                    if (selectedPerson != null) {
+//                        nameEntry.setText(selectedPerson.split("\t")[2]);
+//                        ID.setText(selectedPerson.split("\t")[0]);
+//                    }
+//                });
+//        nameEntry.setOnAction((ActionEvent e) -> ID.requestFocus());
+//
+//        ID.setOnAction((ActionEvent e) -> {
+//            String IDNew = null;
+//            try {
+//                IDNew = ID.getText();
+//            } catch (NumberFormatException e1) {
+//                flashColour(1500, Color.RED, ID);
+//            }
+//            if (IDNew != null && !Objects.equals(IDNew, "")) {
+//                String name = personList.getSelectionModel().getSelectedItem();
+//                WorkingUser.changeDatabasePerson(nameEntry.getText(), IDNew, personList.getSelectionModel().getSelectedItem().split("\t")[0]);
+//                nameEntry.clear();
+//                ID.clear();
+//                nameEntry.requestFocus();
+//                flashColour(1500, Color.AQUAMARINE, nameEntry, ID);
+//                //Now need to update the form
+//                String selectedIndex = personList.getSelectionModel().getSelectedItem();
+//                person.setAll(WorkingUser.getUserDetails());
+//                personList.setItems(person);
+//                personList.getSelectionModel().select(personList.getSelectionModel().getSelectedIndex() + 1);
+//            }
+//        });
     }
 
     private static void savePersonDatabase(Stage adminStage, GridPane grid) {

@@ -138,8 +138,8 @@ final class PersonDatabase implements Database {
         return SQLInterface.getName(SQLInterface.TABPERSON);
     }
 
-    public final ArrayList<String> getEntryDetails() {
-        return SQLInterface.getDetails(SQLInterface.TABPERSON);
+    public final ArrayList<Person> getEntryDetails() {
+        return SQLInterface.getPersonDetails();
     }
 
     /**

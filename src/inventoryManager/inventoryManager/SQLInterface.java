@@ -1230,6 +1230,28 @@ public class SQLInterface {
         return out;
     }
 
+    public static ArrayList<Person> getPersonDetails() {
+        try {
+            Connection db = getDatabase().get();
+            System.out.println("_X_X_X_X_X_X_X_ New DB in getPersonDetails");
+            ResultSet rs;
+            ArrayList<Person> out = new ArrayList<>();
+            PreparedStatement ps = db.prepareStatement("SELECT " + COLPERSONNAME + ", " + COLPERSONID + " FROM " + TABPERSON);
+            rs = ps.executeQuery();
+            ps.closeOnCompletion();
+            while (rs.next()) {
+                out.add(new Person(rs.getString(2), rs.getString(1)));
+            }
+            rs.close();
+            db.close();
+            System.out.println("_X_X_X_X_X_X_X_ DB closed in getName2");
+            return out;
+        } catch (SQLException e) {
+            Log.print(e);
+            System.exit(32);
+        }
+        return new ArrayList<>();
+    }
     public static ArrayList<String> getDetails(String type) {
         Connection db = getDatabase().get();
         System.out.println("_X_X_X_X_X_X_X_ New DB in getName2");

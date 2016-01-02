@@ -188,7 +188,7 @@ public final class WorkingUser {
         return personDatabase.getNamesOfEntries();
     }
 
-    public static ArrayList<String> getUserDetails() {
+    public static ArrayList<Person> getUserDetails() {
         return personDatabase.getEntryDetails();
     }
     /**
