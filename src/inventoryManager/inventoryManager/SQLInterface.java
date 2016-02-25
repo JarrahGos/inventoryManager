@@ -472,15 +472,18 @@ public class SQLInterface {
      * @param itemID The ID of the item to return.
      * @param persID The ID of the admin returning the idem.
      */
-    public static void returnItem(String itemID, String persID) { // Return a general item.
+    public static void returnItem(String itemID, String persID, String date, String adminName) { // Return a general item.
         Connection db = getDatabase().get();
         System.out.println("_X_X_X_X_X_X_X_ New DB in returnItem");
-        String statement = "UPDATE " + TABITEMLOG + " SET " + COLITEMLOGINDATE + "=DATE('now', 'localtime')" +
-                "WHERE " + COLITEMLOGITEMID + "=? AND " + COLITEMLOGPERSID + "=?";
+        String statement = "UPDATE " + TABITEMLOG + " SET " + COLITEMLOGINDATE + "=DATE('now', 'localtime'), " +
+                COLITEMLOGADMINNAME + "=?" +
+                "WHERE " + COLITEMLOGITEMID + "=? AND " + COLITEMLOGPERSID + "=? AND " + COLITEMLOGOUTDATE + "=?;";
         try {
             PreparedStatement ps = db.prepareStatement(statement);
-            ps.setString(1, itemID);
-            ps.setString(2, persID);
+            ps.setString(1, adminName);
+            ps.setString(2, itemID);
+            ps.setString(3, persID);
+            ps.setString(4, date);
             executePS(db, ps);
             System.out.println("_X_X_X_X_X_X_X_ DB closed in returnItem");
         } catch (SQLException e) {
@@ -821,7 +824,7 @@ public class SQLInterface {
     public static ArrayList<inventoryManager.formatters.ReturnItem> getOutItemsLog() {
         Connection db = getDatabase().get();
         System.out.println("_X_X_X_X_X_X_X_ New DB in getOutItemsLog");
-        String statement = "SELECT " + TABITEM + "." + COLITEMID + ", " + COLITEMNAME + ", " + TABITEMLOG + "." + COLITEMLOGPERSID + " FROM " + TABITEMLOG + " JOIN " + TABITEM + " ON " + TABITEMLOG + "." + COLITEMLOGITEMID + "=" + TABITEM + "." + COLITEMID + " WHERE " + COLITEMLOGINDATE + " = \"FALSE\"";
+        String statement = "SELECT " + TABITEM + "." + COLITEMID + ", " + COLITEMNAME + ", " + TABITEMLOG + "." + COLITEMLOGPERSID + ", " + COLITEMLOGOUTDATE + " FROM " + TABITEMLOG + " JOIN " + TABITEM + " ON " + TABITEMLOG + "." + COLITEMLOGITEMID + "=" + TABITEM + "." + COLITEMID + " WHERE " + COLITEMLOGINDATE + " = \"FALSE\"";
         ResultSet rs;
         ArrayList<inventoryManager.formatters.ReturnItem> ret = new ArrayList<>();
         try {
@@ -830,8 +833,8 @@ public class SQLInterface {
             boolean next = rs.next();
             System.out.println(next);
             while (next) {
-                System.out.println(rs.getString(1));
-                ret.add(new ReturnItem(rs.getString(1), rs.getString(2), rs.getString(3)));
+                System.out.println(rs.getString(1) + rs.getString(4));
+                ret.add(new ReturnItem(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4)));
                 next = rs.next();
             }
             rs.close();
@@ -1166,6 +1169,7 @@ public class SQLInterface {
             ps.setString(1, ID);
             rs = ps.executeQuery();
             if (rs.next()) {
+                System.out.println(rs.getString(1));
                 out = rs.getString(1);
             }
             rs.close();

@@ -1,5 +1,7 @@
 package inventoryManager;
 
+import inventoryManager.formatters.ReturnItem;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -81,9 +83,9 @@ public class LoggingDatabase implements Database {
         return SQLInterface.getOutItemsLog(SQLInterface.COLITEMLOGPERSID);
     }
 
-    public void signItemsIn(ArrayList<String> items, String persID) {
-        for(String item : items) {
-            SQLInterface.returnItem(item, persID);
+    public void signItemsIn(ArrayList<ReturnItem> items, String adminName) {
+        for (ReturnItem item : items) {
+            SQLInterface.returnItem(item.getID(), item.getUserID(), item.getDate(), adminName);
         }
     }
 

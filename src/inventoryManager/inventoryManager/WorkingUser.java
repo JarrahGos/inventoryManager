@@ -17,6 +17,7 @@ package inventoryManager;
 *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+import inventoryManager.formatters.ReturnItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 
@@ -60,6 +61,10 @@ public final class WorkingUser {
      */
     private static LoggingDatabase loggingDatabase = new LoggingDatabase();
 
+    /**
+     * The checkout used for running item returns.
+     */
+    private static ReturnCheckOut returnCheckOut = new ReturnCheckOut();
     /**
      * Create the working user instance with both databases and a checkout.
      */
@@ -186,6 +191,11 @@ public final class WorkingUser {
      */
     public static ArrayList<String> getUserNames() {
         return personDatabase.getNamesOfEntries();
+    }
+
+    public static String getUserName(String UID) {
+        System.out.println(UID);
+        return personDatabase.getEntryName(UID).orElse("Error");
     }
 
     public static ArrayList<Person> getUserDetails() {
@@ -327,6 +337,14 @@ public final class WorkingUser {
 
     public static ArrayList<inventoryManager.formatters.ReturnItem> getOutItems() {
         return loggingDatabase.getOutItems();
+    }
+
+    public static ArrayList<ReturnItem> getReturningItems() {
+        return returnCheckOut.getCheckOutNames();
+    }
+
+    public static void addToReturnCheckout(ReturnItem add) {
+        returnCheckOut.addProduct(add);
     }
 
     public static ArrayList<String> getOutItemIDs() {
@@ -577,8 +595,9 @@ public final class WorkingUser {
         return itemDatabase.getEntryName(barcode).orElse("ERROR");
     }
 
-    public static void signItemsIn(ArrayList<String> items) {
-        loggingDatabase.signItemsIn(items, userID);
+    public static void signItemsIn(ArrayList<ReturnItem> items) {
+        loggingDatabase.signItemsIn(items, getUserName(userID));
+        returnCheckOut = new ReturnCheckOut();
     }
 
     public static boolean itemExists(String barcode) {

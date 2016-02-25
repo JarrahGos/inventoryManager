@@ -41,7 +41,6 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.LinkedList;
 
 public class AdminInterface extends Interface {
     /**
@@ -315,9 +314,10 @@ public class AdminInterface extends Interface {
         retlist.setAll(WorkingUser.getOutItems());
 
         TableColumn IDCol = new TableColumn("ID");
-        TableColumn nameCol = new TableColumn("name");
+        TableColumn nameCol = new TableColumn("Name");
         TableColumn UIDCol = new TableColumn("User ID");
-        outList.getColumns().addAll(IDCol, nameCol, UIDCol);
+        TableColumn dateCol = new TableColumn("Date");
+        outList.getColumns().addAll(IDCol, nameCol, UIDCol, dateCol);
         IDCol.setCellValueFactory(
                 new PropertyValueFactory<PasswordLog, String>("ID")
         );
@@ -327,9 +327,11 @@ public class AdminInterface extends Interface {
         UIDCol.setCellValueFactory(
                 new PropertyValueFactory<Person, String>("userID")
         );
+        dateCol.setCellValueFactory(
+                new PropertyValueFactory<Person, String>("date")
+        );
         outList.setEditable(false);
         outList.setItems(retlist);
-        grid.add(outList, 0, 0, 1, 4);
 
 
         //Text barcodeLabel = new Text("Enter Barcode");
@@ -348,47 +350,63 @@ public class AdminInterface extends Interface {
 //        outItems.setAll(out);
 //        outList.setItems(outItems);
 
-        ObservableList<String> inItems = FXCollections.observableArrayList();
-        ListView<String> inList = new ListView<>();
-        inList.setItems(inItems);
-        LinkedList<String> barcodesIn = new LinkedList<>();
+        TableView<inventoryManager.formatters.ReturnItem> inItems = new TableView<>();
+        ObservableList<ReturnItem> barcodesIn = FXCollections.observableArrayList();
+        barcodesIn.setAll(WorkingUser.getReturningItems());
 
-        barcodeEntry.setOnKeyPressed((KeyEvent ke) -> {
-            if (ke.getCode().equals(KeyCode.ENTER)) {
-                String toAdd = WorkingUser.getItemName(barcodeEntry.getText());
-                if (toAdd == null) {
-                    flashColour(1500, Color.RED, barcodeEntry);
-                } else {
-                    inItems.setAll(toAdd);
-                    inList.setItems(inItems);
+        TableColumn IDColIn = new TableColumn("ID");
+        TableColumn nameColIn = new TableColumn("Name");
+        TableColumn UIDColIn = new TableColumn("User ID");
+        TableColumn dateColIn = new TableColumn("Date");
+        inItems.getColumns().addAll(IDColIn, nameColIn, UIDColIn, dateColIn);
+        IDColIn.setCellValueFactory(
+                new PropertyValueFactory<PasswordLog, String>("ID")
+        );
+        nameColIn.setCellValueFactory(
+                new PropertyValueFactory<Person, String>("name")
+        );
+        UIDColIn.setCellValueFactory(
+                new PropertyValueFactory<Person, String>("userID")
+        );
+        dateColIn.setCellValueFactory(
+                new PropertyValueFactory<Person, String>("date")
+        );
+        inItems.setEditable(false);
+        inItems.setItems(barcodesIn);
+
+//        ObservableList<String> inItems = FXCollections.observableArrayList();
+//        ListView<String> inList = new ListView<>();
+//        inList.setItems(inItems);
+//        LinkedList<String> barcodesIn = new LinkedList<>();
+
+
+//                    inItems.setAll(toAdd);
+//                    inList.setItems(inItems);
 //                    outItems.remove(toAdd);
 //                    outList.setItems(outItems);
-                }
-            }
-        });
-        //grid.add(barcodeLabel, 0, 0);
-        grid.add(barcodeEntry, 0, 0);
 
-        inOut.getItems().addAll(outList, inList); //TODO: Headings for this list.
+        inOut.getItems().addAll(outList, inItems);
         inOut.setDividerPositions(0.5f);
         grid.add(inOut, 0, 1, 2, 1);
 
         Button checkIn = new Button("Check In");
         checkIn.setOnAction((ActionEvent e) -> {
-//            inItems.addAll(outList.getSelectionModel().getSelectedItems());
-//            inList.setItems(inItems);
-//            outItems.removeAll(outList.getSelectionModel().getSelectedItems());
-//            outList.setItems(outItems);
+            WorkingUser.addToReturnCheckout(outList.getSelectionModel().getSelectedItem());
+            barcodesIn.setAll(WorkingUser.getReturningItems());
+            inItems.setItems(barcodesIn);
+            retlist.removeAll(outList.getSelectionModel().getSelectedItems());
+            outList.setItems(retlist);
 
         });
+        grid.add(checkIn, 2, 2);
 
         Button signIn = new Button("Sign In Items");
         signIn.setOnAction((ActionEvent e) -> {
-            ArrayList<String> in = new ArrayList<>();
-            for (String item : inItems) {
-                in.add(item);
-            }
-            WorkingUser.signItemsIn(in);
+            WorkingUser.signItemsIn(new ArrayList<>(barcodesIn));
+            barcodesIn.setAll(WorkingUser.getReturningItems());
+            inItems.setItems(barcodesIn);
+            retlist.removeAll(outList.getSelectionModel().getSelectedItems());
+            outList.setItems(retlist);
         });
         grid.add(signIn, 1, 2);
     }

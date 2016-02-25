@@ -243,11 +243,6 @@ public class Interface extends Application {
 
         // create and listen on admin button
         adminMode.setOnAction((ActionEvent e) -> {
-            WorkingUser.logOut(); // set user number to -1 and delete any checkout made.
-            grid.getChildren().remove(userLabel); // make it look like no user is logged in
-            inputLabel.setText("Enter your barcode"); // set the input label to something appropriate.
-            items.setAll(WorkingUser.getCheckOutNames());
-            itemList.setItems(items);
             input.requestFocus();
             AdminInterface.enterAdminMode(primaryStage, privelage); // method which will work the admin mode features.
         });

@@ -33,11 +33,13 @@ public class ReturnItem {
     private final SimpleStringProperty ID;
     private final SimpleStringProperty name;
     private final SimpleStringProperty userID;
+    private final SimpleStringProperty date;
 
-    public ReturnItem(String extID, String extName, String extUID) {
+    public ReturnItem(String extID, String extName, String extUID, String extDate) {
         this.ID = new SimpleStringProperty(extID);
         this.name = new SimpleStringProperty(extName);
         this.userID = new SimpleStringProperty(extUID);
+        this.date = new SimpleStringProperty(extDate);
     }
 
     public String getID() {
@@ -66,6 +68,18 @@ public class ReturnItem {
 
     public SimpleStringProperty userIDProperty() {
         return userID;
+    }
+
+    public String getDate() {
+        return date.get();
+    }
+
+    public void setDate(String date) {
+        this.date.set(date);
+    }
+
+    public SimpleStringProperty dateProperty() {
+        return date;
     }
 }
 
