@@ -16,6 +16,7 @@ package inventoryManager;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import inventoryManager.formatters.ReturnItem;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -38,8 +39,6 @@ import javafx.stage.WindowEvent;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -286,44 +285,68 @@ public class AdminInterface extends Interface {
         });
 
         saveBtn.setOnAction((ActionEvent e) -> {
-            try {
-                WorkingUser.adminWriteOutDatabase("Person"); //adminPersonDatabase.csv
+            //try {
 
-                File adminPersonFile = new File(Compatibility.getFilePath("adminPersonDatabase.csv"));
+
+//                File adminPersonFile = new File(Compatibility.getFilePath("adminPersonDatabase.csv"));
                 if (filePath.getText() != null || !filePath.getText().isEmpty()) {
-                    File destPers = new File(filePath.getText() + "/adminPersonDatabase.csv");
-                    Files.copy(adminPersonFile.toPath(), destPers.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                    flashColour(3000, Color.AQUAMARINE, saveBtn);
-                } else {
-                    flashColour(3000, Color.RED, saveBtn, filePath);
-                }
+                    WorkingUser.adminWriteOutDatabase(SQLInterface.TABPERSON, Compatibility.getFilePath(filePath.getText() + "/adminPersonDatabase.csv")); //adminPersonDatabase.csv
 
-            } catch (IOException e1) {
-                Log.print(e1);
-                flashColour(3000, Color.RED, saveBtn);
-            }
+                }
+//                    File destPers = new File(filePath.getText() + "/adminPersonDatabase.csv");
+//                    Files.copy(adminPersonFile.toPath(), destPers.toPath(), StandardCopyOption.REPLACE_EXISTING);
+//                    flashColour(3000, Color.AQUAMARINE, saveBtn);
+//                } else {
+//                    flashColour(3000, Color.RED, saveBtn, filePath);
+//                }
+
+            //} //catch (IOException e1) {
+            //Log.print(e1);
+            //flashColour(3000, Color.RED, saveBtn);
+            //}
         });
     }
 
     private static void returnItems(GridPane grid) { //TODO: Maybe use a checkout here.
         grid.getChildren().clear();
 
+        TableView<inventoryManager.formatters.ReturnItem> outList = new TableView<>();
+        ObservableList<ReturnItem> retlist = FXCollections.observableArrayList();
+        retlist.setAll(WorkingUser.getOutItems());
+
+        TableColumn IDCol = new TableColumn("ID");
+        TableColumn nameCol = new TableColumn("name");
+        TableColumn UIDCol = new TableColumn("User ID");
+        outList.getColumns().addAll(IDCol, nameCol, UIDCol);
+        IDCol.setCellValueFactory(
+                new PropertyValueFactory<PasswordLog, String>("ID")
+        );
+        nameCol.setCellValueFactory(
+                new PropertyValueFactory<Person, String>("name")
+        );
+        UIDCol.setCellValueFactory(
+                new PropertyValueFactory<Person, String>("userID")
+        );
+        outList.setEditable(false);
+        outList.setItems(retlist);
+        grid.add(outList, 0, 0, 1, 4);
+
+
         //Text barcodeLabel = new Text("Enter Barcode");
         TextField barcodeEntry = new TextField();
         barcodeEntry.setPromptText("Barcode");
 
         SplitPane inOut = new SplitPane();
-        ObservableList<String> outItems = FXCollections.observableArrayList();
-        LinkedList<String> out = new LinkedList<>();
-        ArrayList<String> names = WorkingUser.getOutItems();
-        ArrayList<String> itemID = WorkingUser.getOutItemIDs();
-        ArrayList<String> persID = WorkingUser.getOutItemPersIDs();
-        for (int i = 0; i < names.size(); i++) {
-            out.add(itemID.get(i) + "\t" + names.get(i) + "\t" + persID.get(i)); //TODO: Formatting, create columns within listview.
-        }
-        outItems.setAll(out);
-        ListView<String> outList = new ListView<>();
-        outList.setItems(outItems);
+//        ObservableList<String> outItems = FXCollections.observableArrayList();
+//        LinkedList<String> out = new LinkedList<>();
+//        ArrayList<String> names = WorkingUser.getOutItems();
+//        ArrayList<String> itemID = WorkingUser.getOutItemIDs();
+//        ArrayList<String> persID = WorkingUser.getOutItemPersIDs();
+//        for (int i = 0; i < names.size(); i++) {
+//            out.add(itemID.get(i) + "\t" + names.get(i) + "\t" + persID.get(i)); //TODO: Formatting, create columns within listview.
+//        }
+//        outItems.setAll(out);
+//        outList.setItems(outItems);
 
         ObservableList<String> inItems = FXCollections.observableArrayList();
         ListView<String> inList = new ListView<>();
@@ -338,8 +361,8 @@ public class AdminInterface extends Interface {
                 } else {
                     inItems.setAll(toAdd);
                     inList.setItems(inItems);
-                    outItems.remove(toAdd);
-                    outList.setItems(outItems);
+//                    outItems.remove(toAdd);
+//                    outList.setItems(outItems);
                 }
             }
         });
@@ -352,10 +375,10 @@ public class AdminInterface extends Interface {
 
         Button checkIn = new Button("Check In");
         checkIn.setOnAction((ActionEvent e) -> {
-            inItems.addAll(outList.getSelectionModel().getSelectedItems());
-            inList.setItems(inItems);
-            outItems.removeAll(outList.getSelectionModel().getSelectedItems());
-            outList.setItems(outItems);
+//            inItems.addAll(outList.getSelectionModel().getSelectedItems());
+//            inList.setItems(inItems);
+//            outItems.removeAll(outList.getSelectionModel().getSelectedItems());
+//            outList.setItems(outItems);
 
         });
 
@@ -637,19 +660,22 @@ public class AdminInterface extends Interface {
         });
 
         saveBtn.setOnAction((ActionEvent e) -> {
-            WorkingUser.adminWriteOutDatabase(SQLInterface.TABITEM); //adminProductDatabase.csv
-            File adminProductFile = new File(Compatibility.getFilePath("adminProductDatabase.csv"));
+//            WorkingUser.adminWriteOutDatabase(SQLInterface.TABITEM); //adminProductDatabase.csv
+//            File adminProductFile = new File(Compatibility.getFilePath("adminProductDatabase.csv"));
             if (filePath.getText() != null || !filePath.getText().isEmpty()) {
-                File destProd = new File(filePath.getText() + "/adminProductDatabase.csv");
-                try {
-                    Files.copy(adminProductFile.toPath(), destProd.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                } catch (IOException e1) {
-                    Log.print(e1);
-                }
-                flashColour(3000, Color.AQUAMARINE, saveBtn);
-            } else {
-                flashColour(3000, Color.RED, saveBtn, filePath);
+                WorkingUser.adminWriteOutDatabase(SQLInterface.TABITEM, Compatibility.getFilePath(filePath.getText() + "/adminItemDatabase.csv")); //adminPersonDatabase.csv
+
             }
+//                File destProd = new File(filePath.getText() + "/adminProductDatabase.csv");
+//                try {
+//                    Files.copy(adminProductFile.toPath(), destProd.toPath(), StandardCopyOption.REPLACE_EXISTING);
+//                } catch (IOException e1) {
+//                    Log.print(e1);
+//                }
+//                flashColour(3000, Color.AQUAMARINE, saveBtn);
+//            } else {
+//                flashColour(3000, Color.RED, saveBtn, filePath);
+//            }
         });
     }
 
@@ -729,26 +755,30 @@ public class AdminInterface extends Interface {
         });
 
         saveBtn.setOnAction((ActionEvent e) -> {
-            try {
-                WorkingUser.adminWriteOutDatabase("Person"); //adminPersonDatabase.csv
-                WorkingUser.adminWriteOutDatabase("Product"); //adminProductDatabase.csv
-
-                File adminPersonFile = new File(Compatibility.getFilePath("adminPersonDatabase.csv"));
-                File adminProductFile = new File(Compatibility.getFilePath("adminProductDatabase.csv"));
+            //try {
+//                WorkingUser.adminWriteOutDatabase("Person"); //adminPersonDatabase.csv
+//                WorkingUser.adminWriteOutDatabase("Product"); //adminProductDatabase.csv
+//
+//                File adminPersonFile = new File(Compatibility.getFilePath("adminPersonDatabase.csv"));
+//                File adminProductFile = new File(Compatibility.getFilePath("adminProductDatabase.csv"));
                 if (filePath.getText() != null || filePath.getText().isEmpty()) {
-                    File destPers = new File(filePath.getText() + "/adminPersonDatabase.csv");
-                    File destProd = new File(filePath.getText() + "/adminProductDatabase.csv");
-                    Files.copy(adminPersonFile.toPath(), destPers.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                    Files.copy(adminProductFile.toPath(), destProd.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                    flashColour(3000, Color.AQUAMARINE, saveBtn);
-                } else {
-                    flashColour(3000, Color.RED, saveBtn, filePath);
-                }
+                    WorkingUser.adminWriteOutDatabase(SQLInterface.TABPERSON, Compatibility.getFilePath(filePath.getText() + "/adminPersonDatabase.csv")); //adminPersonDatabase.csv
+                    WorkingUser.adminWriteOutDatabase(SQLInterface.TABITEM, Compatibility.getFilePath(filePath.getText() + "/adminItemDatabase.csv")); //adminPersonDatabase.csv
 
-            } catch (IOException e1) {
-                Log.print(e1);
-                flashColour(3000, Color.RED, saveBtn);
-            }
+                }
+//                    File destPers = new File(filePath.getText() + "/adminPersonDatabase.csv");
+//                    File destProd = new File(filePath.getText() + "/adminProductDatabase.csv");
+//                    Files.copy(adminPersonFile.toPath(), destPers.toPath(), StandardCopyOption.REPLACE_EXISTING);
+//                    Files.copy(adminProductFile.toPath(), destProd.toPath(), StandardCopyOption.REPLACE_EXISTING);
+//                    flashColour(3000, Color.AQUAMARINE, saveBtn);
+//                } else {
+//                    flashColour(3000, Color.RED, saveBtn, filePath);
+//                }
+//
+//            } catch (IOException e1) {
+//                Log.print(e1);
+//                flashColour(3000, Color.RED, saveBtn);
+//            }
         });
     }
 

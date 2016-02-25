@@ -69,7 +69,7 @@ public class LoggingDatabase implements Database {
         }
     }
 
-    public ArrayList<String> getOutItems() {
+    public ArrayList<inventoryManager.formatters.ReturnItem> getOutItems() {
         return SQLInterface.getOutItemsLog();
     }
 

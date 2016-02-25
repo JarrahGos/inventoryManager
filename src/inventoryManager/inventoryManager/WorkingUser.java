@@ -325,7 +325,7 @@ public final class WorkingUser {
         return userID;
     }
 
-    public static ArrayList<String> getOutItems() {
+    public static ArrayList<inventoryManager.formatters.ReturnItem> getOutItems() {
         return loggingDatabase.getOutItems();
     }
 

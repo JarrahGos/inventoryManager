@@ -25,6 +25,11 @@ package inventoryManager;
  */
 
 
+import inventoryManager.formatters.ReturnItem;
+
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -813,12 +818,12 @@ public class SQLInterface {
      *
      * @return An ArrayList of all items that have been logged out.
      */
-    public static ArrayList<String> getOutItemsLog() {
+    public static ArrayList<inventoryManager.formatters.ReturnItem> getOutItemsLog() {
         Connection db = getDatabase().get();
         System.out.println("_X_X_X_X_X_X_X_ New DB in getOutItemsLog");
-        String statement = "SELECT " + COLITEMNAME + " FROM " + TABITEMLOG + " JOIN " + TABITEM + " ON " + TABITEMLOG + "." + COLITEMLOGITEMID + "=" + TABITEM + "." + COLITEMID + " WHERE " + COLITEMLOGINDATE + " = \"FALSE\"";
+        String statement = "SELECT " + TABITEM + "." + COLITEMID + ", " + COLITEMNAME + ", " + TABITEMLOG + "." + COLITEMLOGPERSID + " FROM " + TABITEMLOG + " JOIN " + TABITEM + " ON " + TABITEMLOG + "." + COLITEMLOGITEMID + "=" + TABITEM + "." + COLITEMID + " WHERE " + COLITEMLOGINDATE + " = \"FALSE\"";
         ResultSet rs;
-        ArrayList<String> ret = new ArrayList<>();
+        ArrayList<inventoryManager.formatters.ReturnItem> ret = new ArrayList<>();
         try {
             PreparedStatement ps = db.prepareStatement(statement);
             rs = ps.executeQuery();
@@ -826,7 +831,7 @@ public class SQLInterface {
             System.out.println(next);
             while (next) {
                 System.out.println(rs.getString(1));
-                ret.add(rs.getString(1));
+                ret.add(new ReturnItem(rs.getString(1), rs.getString(2), rs.getString(3)));
                 next = rs.next();
             }
             rs.close();
@@ -846,7 +851,7 @@ public class SQLInterface {
         String statement = "";
         switch (type) {
             case COLITEMLOGITEMID:
-                statement = "SELECT " + COLITEMLOGITEMID + " FROM " + TABITEMLOG + " WHERE " + COLITEMLOGINDATE + " = \"FALSE\"";
+                statement = "SELECT " + TABITEMLOG + "." + COLITEMLOGITEMID + " FROM " + TABITEMLOG + " WHERE " + COLITEMLOGINDATE + " = \"FALSE\"";
                 break;
             case COLITEMLOGPERSID:
                 statement = "SELECT " + COLITEMLOGPERSID + " FROM " + TABITEMLOG + " WHERE " + COLITEMLOGINDATE + " = \"FALSE\"";
@@ -1490,21 +1495,22 @@ public class SQLInterface {
         Connection db = getDatabase().get();
         System.out.println("_X_X_X_X_X_X_X_ New DB in export");
         String statement;
+        int noCols = 0;
+        String labels = "";
         switch (type) {
             case "person":
-                statement = "SELECT * INTO OUTFILE \'?\' " +
-                        "FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY \'\"\' " +
-                        "LINES TERMINATED BY \'\n\' " +
-                        "FROM " + TABPERSON + "";
+                statement = "SELECT " + COLPERSONID + ", " + COLPERSONNAME + " FROM " + TABPERSON + "";
+                noCols = 2;
+                labels = "ID, Name\n";
                 break;
             case "item":
-                statement = "SELECT * INTO OUTFILE '?' " +
-                        "FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY \'\"\' " +
-                        "LINES TERMINATED BY \'\n\' FROM " + TABITEM + " i " +
-                        "INNER JOIN " + TABGENERAL + " g" +
-                        " ON i.ID = g.ID" +
-                        "INNER JOIN " + TABCONTROLLED + " c " +
-                        "ON i.ID = c.ID";
+                statement = "SELECT *  FROM " + TABITEM;//+ " i " +
+                //"INNER JOIN " + TABGENERAL + " g" +
+                //" ON i.ID = g.ID" +
+                //" INNER JOIN " + TABCONTROLLED + " c " +
+                //"ON i.ID = c.ID";
+                noCols = 3;
+                labels = "guess";
                 break;
             case "controlled":
                 statement = "SELECT *  FROM " + TABITEM + " i " +
@@ -1532,10 +1538,22 @@ public class SQLInterface {
         }
         try {
             PreparedStatement ps = db.prepareStatement(statement);
-            ps.setString('1', path);
-            executePS(db, ps);
+            ResultSet rs = ps.executeQuery();
+            BufferedWriter bw = new BufferedWriter(new FileWriter(path, true));
+            bw.write(labels);
+            while (rs.next()) {
+                for (int i = 1; i <= noCols; i++) {
+                    bw.write(rs.getString(i) + ", ");
+                }
+                bw.newLine();
+            }
+            bw.close();
+            rs.close();
+            ps.closeOnCompletion();
+            db.close();
+            bw.close();
             System.out.println("_X_X_X_X_X_X_X_ DB closed in export");
-        } catch (SQLException e) {
+        } catch (SQLException | IOException e) {
             Log.print(e);
             System.exit(32);
         }
