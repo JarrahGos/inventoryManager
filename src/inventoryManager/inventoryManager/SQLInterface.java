@@ -1495,37 +1495,35 @@ public class SQLInterface {
                 labels = "ID, Name\n";
                 break;
             case "item":
-                statement = "SELECT *  FROM " + TABITEM;//+ " i " +
-                //"INNER JOIN " + TABGENERAL + " g" +
-                //" ON i.ID = g.ID" +
-                //" INNER JOIN " + TABCONTROLLED + " c " +
-                //"ON i.ID = c.ID";
+                statement = "SELECT " + TABITEM + "." + COLITEMID + ", " + TABITEM + "." + COLITEMNAME + ", " + TABSET + "." + COLSETNAME + " FROM " + TABITEM
+                        + " JOIN " + TABSET + " ON " + TABITEM + "." + COLITEMSETID + " = " + TABSET + "." + COLSETID;
                 noCols = 3;
-                labels = "guess";
+                labels = "ID, Name, Set Name";
                 break;
             case "controlled":
-                statement = "SELECT *  FROM " + TABITEM + " i " +
-                        "INNER JOIN " + TABCONTROLLED + " c " +
-                        "ON i.ID = c.ID INTO OUTFILE '?' " + "\n" +
-                        "FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '\"' " +
-                        "LINES TERMINATED BY '\n'";
+                statement = "SELECT " + TABCONTROLLED + "." + COLCONTROLLEDID + ", " + TABITEM + "." + COLITEMNAME + ", " + COLCONTROLLEDTYPENAME + ", " +
+                        ", " + COLSETNAME + " FROM " + TABCONTROLLED + " JOIN " + TABITEM + " ON " + TABCONTROLLED + "." +
+                        COLCONTROLLEDID + " = " + TABITEM + "." + COLITEMID + " JOIN " + TABCONTROLLEDTYPE + " ON " +
+                        TABCONTROLLED + "." + COLCONTROLLEDTYPE + " = " + TABCONTROLLEDTYPE + "." + COLCONTROLLEDTYPEID +
+                        " JOIN " + TABSET + " ON " + TABITEM + "." + COLITEMSETID + " = " + TABSET + "." + COLSETID + ";";
+                noCols = 4;
+                labels = "ID, Name, Type, Set Name";
                 break;
             case "general":
-                statement = "SELECT * INTO OUTFILE '?' " +
-                        "FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY \'\"\' " +
-                        "LINES TERMINATED BY \'\n\' FROM " + TABITEM + " i " +
-                        "INNER JOIN " + TABGENERAL + " g " +
-                        "ON i.ID = g.ID";
+                statement = "SELECT " + TABGENERAL + "." + COLGENERALID + ", " + TABITEM + "." + COLITEMNAME + ", " + COLGENERALLOCATION + ", " +
+                        COLGENERALDESCRIPTION + ", " + COLGENERALQUANTITY +
+                        ", " + TABSET + "." + COLSETNAME + " FROM " + TABGENERAL + " JOIN " + TABITEM + " ON " + TABGENERAL + "." +
+                        COLGENERALID + " = " + TABITEM + "." + COLITEMID +
+                        " JOIN " + TABSET + " ON " + TABITEM + "." + COLITEMSETID + " = " + TABSET + "." + COLSETID + ";";
+                noCols = 6;
+                labels = "ID, Name, Location, Description, Quantity, Set Name";
                 break;
             default:
-                statement = "SELECT * INTO OUTFILE '?' " +
-                        "FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY \'\"\' " +
-                        "LINES TERMINATED BY \'\n\' FROM " + TABITEM + " i " +
-                        "INNER JOIN " + TABGENERAL + " g" +
-                        " ON i.ID = g.ID" +
-                        "INNER JOIN " + TABCONTROLLED + " c " +
-                        "ON i.ID = c.ID";
-                break;
+                statement = "SELECT " + TABITEM + "." + COLITEMID + ", " + TABITEM + "." + COLITEMNAME + TABSET + "." + COLSETNAME + " FROM " + TABITEM
+                        + " JOIN " + TABSET + " ON " + TABITEM + "." + COLITEMSETID + " = " + TABSET + "." + COLSETID;
+                noCols = 3;
+                labels = "ID, Name, Set Name";
+                break; //TODO: Maybe have them all happen here.
         }
         try {
             PreparedStatement ps = db.prepareStatement(statement);
