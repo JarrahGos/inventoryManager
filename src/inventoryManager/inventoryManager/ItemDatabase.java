@@ -21,25 +21,16 @@ package inventoryManager;
  * @author Jarrah Gosbell
  */
 
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Optional;
 
 class ItemDatabase implements Database {
     /**
-     * Stores the path of the database as a string, based on the OS being run.
-     */
-    private String databaseLocation;
-    /**
      * Constructor for ItemDatabase.
      * Will create a Person database with the ability to read and write people to the database location given in the preferences file of Settings
      */
     public ItemDatabase() {
-        try {
-            databaseLocation = Settings.productSettings();
-        } catch (FileNotFoundException e) {
-            Log.print(e);
-        }
+
     }
 
     /**
@@ -107,8 +98,6 @@ class ItemDatabase implements Database {
      */
     public final boolean entryExists(String barcode) {
         return SQLInterface.entryExists(SQLInterface.TABITEM, barcode);
-        // if you are running this, no product was found and therefore it is logical to conclude none exist.
-        // similar to Kiri-Kin-Tha's first law of metaphysics.
     }
 
     @Override

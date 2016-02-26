@@ -84,31 +84,7 @@ public class Interface extends Application {
 
     }
 
-    /**
-     * Flash the given node a given colour for a given time
-     *
-     * @param node     The node to be flashed
-     * @param duration the duration in ms for the node to be flashed
-     * @param colour   The colour (from Color) that you wish to flash.
-     */
-//    public static void flashColour(Node node, int duration, Color colour) {
-//
-//        InnerShadow shadow = new InnerShadow();
-//        shadow.setRadius(25d);
-//        shadow.setColor(colour);
-//        node.setEffect(shadow);
-//
-//        Timeline time = new Timeline();
-//
-//        time.setCycleCount(1);
-//
-//        List<KeyFrame> frames = new ArrayList<>();
-//        frames.add(new KeyFrame(Duration.ZERO, new KeyValue(shadow.radiusProperty(), 25)));
-//        frames.add(new KeyFrame(new Duration(duration), new KeyValue(shadow.radiusProperty(), 0)));
-//        time.getKeyFrames().addAll(frames);
-//
-//        time.playFromStart();
-//    }
+
     public static void flashColour(int duration, Color colour, Node... node) {
 
         InnerShadow shadow = new InnerShadow();
@@ -396,10 +372,5 @@ public class Interface extends Application {
         return WorkingUser.addToCart(input);
     }
 
-    /**
-     * Will open the admin panel of the program.
-     *
-     * @param lastStage The stage which opened this stage
-     */
 
 }

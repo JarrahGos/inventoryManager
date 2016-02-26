@@ -16,11 +16,15 @@ package inventoryManager;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import inventoryManager.formatters.ItemLog;
+import inventoryManager.formatters.PasswordLog;
+import inventoryManager.formatters.Person;
 import inventoryManager.formatters.ReturnItem;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -192,7 +196,6 @@ public class AdminInterface extends Interface {
     private static void changePerson(GridPane grid) {
         grid.getChildren().clear();
 
-        //ListView<String> personList = new ListView<>();
         TableView<Person> personList = new TableView<>();
         ObservableList<Person> person = FXCollections.observableArrayList();
         person.setAll(WorkingUser.getUserDetails());
@@ -207,53 +210,32 @@ public class AdminInterface extends Interface {
                 new PropertyValueFactory<Person, String>("name")
         );
         personList.setEditable(true);
+        IDCol.setOnEditCommit(
+                new EventHandler<TableColumn.CellEditEvent<Person, String>>() {
+                    @Override
+                    public void handle(TableColumn.CellEditEvent<Person, String> t) {
+                        WorkingUser.changeDatabasePerson(personList.getSelectionModel().getSelectedItem().getName(),
+                                t.getNewValue().toString(), t.getOldValue().toString());
+                    }
+                }
+        );
+        nameCol.setOnEditCommit(
+                new EventHandler<TableColumn.CellEditEvent<Person, String>>() {
+                    @Override
+                    public void handle(TableColumn.CellEditEvent<Person, String> t) {
+                        WorkingUser.changeDatabasePerson(t.getNewValue(),
+                                personList.getSelectionModel().getSelectedItem().getID(),
+                                personList.getSelectionModel().getSelectedItem().getID());
+                    }
+                }
+        );
+
         personList.setItems(person);
         grid.add(personList, 0, 0, 1, 4);
 
-        //TODO: Account for editing these cells.
+        //TODO: Edited cells will be saved, however, cells still cannot be edited.
 
 
-//        //Text nameLabel = new Text("Name:");
-//        //grid.add(nameLabel, 1, 0);
-//        TextField nameEntry = new TextField();
-//        nameEntry.setPromptText("Name");
-//        nameEntry.requestFocus();
-//        grid.add(nameEntry, 1, 0);
-//        //Text IDLabel = new Text("ID:");
-//        //grid.add(IDLabel, 1, 1);
-//        TextField ID = new TextField();
-//        ID.setPromptText("ID");
-//        grid.add(ID, 1, 1);
-//        personList.getSelectionModel().selectedItemProperty().addListener(
-//                (ObservableValue<? extends String> vo, String oldVal, String selectedPerson) -> {
-//                    if (selectedPerson != null) {
-//                        nameEntry.setText(selectedPerson.split("\t")[2]);
-//                        ID.setText(selectedPerson.split("\t")[0]);
-//                    }
-//                });
-//        nameEntry.setOnAction((ActionEvent e) -> ID.requestFocus());
-//
-//        ID.setOnAction((ActionEvent e) -> {
-//            String IDNew = null;
-//            try {
-//                IDNew = ID.getText();
-//            } catch (NumberFormatException e1) {
-//                flashColour(1500, Color.RED, ID);
-//            }
-//            if (IDNew != null && !Objects.equals(IDNew, "")) {
-//                String name = personList.getSelectionModel().getSelectedItem();
-//                WorkingUser.changeDatabasePerson(nameEntry.getText(), IDNew, personList.getSelectionModel().getSelectedItem().split("\t")[0]);
-//                nameEntry.clear();
-//                ID.clear();
-//                nameEntry.requestFocus();
-//                flashColour(1500, Color.AQUAMARINE, nameEntry, ID);
-//                //Now need to update the form
-//                String selectedIndex = personList.getSelectionModel().getSelectedItem();
-//                person.setAll(WorkingUser.getUserDetails());
-//                personList.setItems(person);
-//                personList.getSelectionModel().select(personList.getSelectionModel().getSelectedIndex() + 1);
-//            }
-//        });
     }
 
     private static void savePersonDatabase(Stage adminStage, GridPane grid) {
@@ -284,29 +266,15 @@ public class AdminInterface extends Interface {
         });
 
         saveBtn.setOnAction((ActionEvent e) -> {
-            //try {
 
-
-//                File adminPersonFile = new File(Compatibility.getFilePath("adminPersonDatabase.csv"));
                 if (filePath.getText() != null || !filePath.getText().isEmpty()) {
-                    WorkingUser.adminWriteOutDatabase(SQLInterface.TABPERSON, Compatibility.getFilePath(filePath.getText() + "/adminPersonDatabase.csv")); //adminPersonDatabase.csv
+                    WorkingUser.adminWriteOutDatabase(SQLInterface.TABPERSON, Compatibility.getFilePath(filePath.getText() + "/adminPersonDatabase.csv"));
 
                 }
-//                    File destPers = new File(filePath.getText() + "/adminPersonDatabase.csv");
-//                    Files.copy(adminPersonFile.toPath(), destPers.toPath(), StandardCopyOption.REPLACE_EXISTING);
-//                    flashColour(3000, Color.AQUAMARINE, saveBtn);
-//                } else {
-//                    flashColour(3000, Color.RED, saveBtn, filePath);
-//                }
-
-            //} //catch (IOException e1) {
-            //Log.print(e1);
-            //flashColour(3000, Color.RED, saveBtn);
-            //}
         });
     }
 
-    private static void returnItems(GridPane grid) { //TODO: Maybe use a checkout here.
+    private static void returnItems(GridPane grid) { 
         grid.getChildren().clear();
 
         TableView<inventoryManager.formatters.ReturnItem> outList = new TableView<>();
@@ -334,21 +302,10 @@ public class AdminInterface extends Interface {
         outList.setItems(retlist);
 
 
-        //Text barcodeLabel = new Text("Enter Barcode");
         TextField barcodeEntry = new TextField();
         barcodeEntry.setPromptText("Barcode");
 
         SplitPane inOut = new SplitPane();
-//        ObservableList<String> outItems = FXCollections.observableArrayList();
-//        LinkedList<String> out = new LinkedList<>();
-//        ArrayList<String> names = WorkingUser.getOutItems();
-//        ArrayList<String> itemID = WorkingUser.getOutItemIDs();
-//        ArrayList<String> persID = WorkingUser.getOutItemPersIDs();
-//        for (int i = 0; i < names.size(); i++) {
-//            out.add(itemID.get(i) + "\t" + names.get(i) + "\t" + persID.get(i)); //TODO: Formatting, create columns within listview.
-//        }
-//        outItems.setAll(out);
-//        outList.setItems(outItems);
 
         TableView<inventoryManager.formatters.ReturnItem> inItems = new TableView<>();
         ObservableList<ReturnItem> barcodesIn = FXCollections.observableArrayList();
@@ -374,16 +331,6 @@ public class AdminInterface extends Interface {
         inItems.setEditable(false);
         inItems.setItems(barcodesIn);
 
-//        ObservableList<String> inItems = FXCollections.observableArrayList();
-//        ListView<String> inList = new ListView<>();
-//        inList.setItems(inItems);
-//        LinkedList<String> barcodesIn = new LinkedList<>();
-
-
-//                    inItems.setAll(toAdd);
-//                    inList.setItems(inItems);
-//                    outItems.remove(toAdd);
-//                    outList.setItems(outItems);
 
         inOut.getItems().addAll(outList, inItems);
         inOut.setDividerPositions(0.5f);
@@ -601,10 +548,6 @@ public class AdminInterface extends Interface {
                 flashColour(1500, Color.AQUAMARINE, barCodeEntry);
             } else flashColour(1500, Color.RED, barCodeEntry);
 
-            // WorkingUser.changeDatabaseProduct(nameEntry.getText(), personList.getSelectionModel().getSelectedItem().split("\t")[0]);
-
-//                            WorkingUser.changeDatabaseProduct(nameEntry.getText(), WorkingUser.getProductName(productList.getSelectionModel().getSelectedItem()), price,
-//                                    barCode, WorkingUser.getProductBarCode(productList.getSelectionModel().getSelectedItem()));
             nameEntry.clear();
             barCodeEntry.clear();
             nameEntry.requestFocus();
@@ -678,22 +621,10 @@ public class AdminInterface extends Interface {
         });
 
         saveBtn.setOnAction((ActionEvent e) -> {
-//            WorkingUser.adminWriteOutDatabase(SQLInterface.TABITEM); //adminProductDatabase.csv
-//            File adminProductFile = new File(Compatibility.getFilePath("adminProductDatabase.csv"));
             if (filePath.getText() != null || !filePath.getText().isEmpty()) {
                 WorkingUser.adminWriteOutDatabase(SQLInterface.TABITEM, Compatibility.getFilePath(filePath.getText() + "/adminItemDatabase.csv")); //adminPersonDatabase.csv
 
             }
-//                File destProd = new File(filePath.getText() + "/adminProductDatabase.csv");
-//                try {
-//                    Files.copy(adminProductFile.toPath(), destProd.toPath(), StandardCopyOption.REPLACE_EXISTING);
-//                } catch (IOException e1) {
-//                    Log.print(e1);
-//                }
-//                flashColour(3000, Color.AQUAMARINE, saveBtn);
-//            } else {
-//                flashColour(3000, Color.RED, saveBtn, filePath);
-//            }
         });
     }
 
@@ -774,29 +705,11 @@ public class AdminInterface extends Interface {
 
         saveBtn.setOnAction((ActionEvent e) -> {
             //try {
-//                WorkingUser.adminWriteOutDatabase("Person"); //adminPersonDatabase.csv
-//                WorkingUser.adminWriteOutDatabase("Product"); //adminProductDatabase.csv
-//
-//                File adminPersonFile = new File(Compatibility.getFilePath("adminPersonDatabase.csv"));
-//                File adminProductFile = new File(Compatibility.getFilePath("adminProductDatabase.csv"));
                 if (filePath.getText() != null || filePath.getText().isEmpty()) {
                     WorkingUser.adminWriteOutDatabase(SQLInterface.TABPERSON, Compatibility.getFilePath(filePath.getText() + "/adminPersonDatabase.csv")); //adminPersonDatabase.csv
                     WorkingUser.adminWriteOutDatabase(SQLInterface.TABITEM, Compatibility.getFilePath(filePath.getText() + "/adminItemDatabase.csv")); //adminPersonDatabase.csv
 
                 }
-//                    File destPers = new File(filePath.getText() + "/adminPersonDatabase.csv");
-//                    File destProd = new File(filePath.getText() + "/adminProductDatabase.csv");
-//                    Files.copy(adminPersonFile.toPath(), destPers.toPath(), StandardCopyOption.REPLACE_EXISTING);
-//                    Files.copy(adminProductFile.toPath(), destProd.toPath(), StandardCopyOption.REPLACE_EXISTING);
-//                    flashColour(3000, Color.AQUAMARINE, saveBtn);
-//                } else {
-//                    flashColour(3000, Color.RED, saveBtn, filePath);
-//                }
-//
-//            } catch (IOException e1) {
-//                Log.print(e1);
-//                flashColour(3000, Color.RED, saveBtn);
-//            }
         });
     }
 
@@ -843,7 +756,7 @@ public class AdminInterface extends Interface {
         grid.add(save, 3, 0);
     }
 
-    public static void showPasswordLog(GridPane grid) { //Revise these to use tableviews.
+    public static void showPasswordLog(GridPane grid) {
         grid.getChildren().clear();
         DatePicker dpTo = new DatePicker(LocalDate.now());
         DatePicker dpFrom = new DatePicker(LocalDate.now());
@@ -890,7 +803,7 @@ public class AdminInterface extends Interface {
         grid.add(productTable, 0, 1, 5, 10);
     }
 
-    public static void showItemLog(GridPane grid) { //TODO: headings and formatting.
+    public static void showItemLog(GridPane grid) {
         grid.getChildren().clear();
         DatePicker dpTo = new DatePicker(LocalDate.now());
         DatePicker dpFrom = new DatePicker(LocalDate.now());

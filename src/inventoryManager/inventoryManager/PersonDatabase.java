@@ -21,6 +21,8 @@ package inventoryManager;
  * @author Jarrah Gosbell
  */
 
+import inventoryManager.formatters.Person;
+
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Optional;
@@ -149,8 +151,7 @@ final class PersonDatabase implements Database {
      * @return A boolean value of whether the person exists or not
      */
     public final boolean entryExists(String barcode) {
-        return SQLInterface.entryExists(SQLInterface.TABPERSON, barcode); // if you are running this, no person was found and therefore it is logical to conclude none exist.
-        // similar to Kiri-Kin-Tha's first law of metaphysics.
+        return SQLInterface.entryExists(SQLInterface.TABPERSON, barcode);
     }
 
 

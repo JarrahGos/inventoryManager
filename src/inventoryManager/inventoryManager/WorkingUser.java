@@ -1,6 +1,6 @@
 package inventoryManager;
 
-/*
+/**
 *    Copyright (C) 2015  Jarrah Gosbell
 *
 *    This program is free software: you can redistribute it and/or modify
@@ -17,6 +17,9 @@ package inventoryManager;
 *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+import inventoryManager.formatters.ItemLog;
+import inventoryManager.formatters.PasswordLog;
+import inventoryManager.formatters.Person;
 import inventoryManager.formatters.ReturnItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
@@ -34,9 +37,6 @@ import java.util.LinkedList;
 import java.util.Optional;
 
 
-/**
- * @author jarrah
- */
 public final class WorkingUser {
 
     /**
@@ -131,28 +131,6 @@ public final class WorkingUser {
         }
         return ret;
     }
-
-    /**
-     * Take a cleartext password and hash it ready for either checking or storage
-     * @param password The clear text password
-     * @return The hash of the given password.
-     */
-//    public final String getSecurePassword(String passwordToHash) {
-//        String generatedPassword = null;
-//        try {
-//            MessageDigest md = MessageDigest.getInstance("SHA-1");
-//            byte[] bytes = md.digest(passwordToHash.getBytes());
-//            StringBuilder sb = new StringBuilder();
-//            for (byte aByte : bytes) {
-//                sb.append(Integer.toString((aByte & 0xff) + 0x100, 16).substring(1));
-//            }
-//            generatedPassword = sb.toString();
-//        } catch (NoSuchAlgorithmException e) {
-//            inventoryManager.Log.print(e);
-//        }
-//        return generatedPassword;
-//    }
-
 
     /**
      * Take the given PMKeyS and find the user which correlates with it. Then authenticate the user with the given password.

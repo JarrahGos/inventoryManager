@@ -1,5 +1,7 @@
 package inventoryManager;
 
+import inventoryManager.formatters.ItemLog;
+import inventoryManager.formatters.PasswordLog;
 import inventoryManager.formatters.ReturnItem;
 
 import java.time.LocalDate;

@@ -17,14 +17,10 @@ package inventoryManager;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
- * Author: Jarrah Gosbell
- * Student Number: z5012558
- * Class: PersonDatabase
- * Description: This program will allow for the input and retrieval of the person database and will set the limits of the database.
- */
 
-
+import inventoryManager.formatters.ItemLog;
+import inventoryManager.formatters.PasswordLog;
+import inventoryManager.formatters.Person;
 import inventoryManager.formatters.ReturnItem;
 
 import java.io.BufferedWriter;
@@ -108,13 +104,6 @@ public class SQLInterface {
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
             Log.print("could not find driver class\n" + e.toString());
         }
-//        String[] settings = new String[0];
-//        try {
-//            settings = Settings.SQLInterfaceSettings();
-//        } catch (FileNotFoundException e) {
-//            e.printStackTrace();
-//        }
-//        URL = settings[0];
 
 
     }
@@ -617,7 +606,6 @@ public class SQLInterface {
     }
 
     public static ArrayList<ItemLog> getItemLog(boolean outOnly) {
-        //                 headings = "ID\tOut Date\tIn Date\tPerson ID\tControlled\tReturned By\tItemID";
         Connection db = getDatabase().get();
         System.out.println("_X_X_X_X_X_X_X_ New DB in getLog4");
         ResultSet rs = null;
@@ -647,7 +635,6 @@ public class SQLInterface {
     }
 
     public static ArrayList<ItemLog> getItemLog(boolean outOnly, LocalDate from, LocalDate to) {
-        //                 headings = "ID\tOut Date\tIn Date\tPerson ID\tControlled\tReturned By\tItemID";
         Connection db = getDatabase().get();
         System.out.println("_X_X_X_X_X_X_X_ New DB in getLog4");
         ResultSet rs = null;
