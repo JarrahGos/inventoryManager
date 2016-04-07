@@ -89,7 +89,7 @@ public class SQLInterface {
     private static final String COLSETID = "ID";
     private static final String COLSETNAME = "name";
     private static final int TABSETCOUNT = 2;
-    private static String URL = "jdbc:sqlite:/Users/jarrah/ideaProjects/inventoryManager/inv.db"; // these will be initialised from the file.
+    private static String URL = "jdbc:sqlite:./inv.db"; // these will be initialised from the file.
 
     // used to generate a random wait time for database locks.
     private static Random rand = new Random();
