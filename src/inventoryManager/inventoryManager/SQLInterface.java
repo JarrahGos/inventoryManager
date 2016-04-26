@@ -441,7 +441,7 @@ public class SQLInterface {
         System.out.println("_X_X_X_X_X_X_X_ New DB in addLog2");
         //TODO: Should this check the item as out in the controlled table?
         String statment = "INSERT INTO " + TABITEMLOG + " (" + COLITEMLOGITEMID + ", " + COLITEMLOGOUTDATE + ", " + COLITEMLOGINDATE + ", " + COLITEMLOGPERSID + ", " + COLITEMLOGCONTROLLED + ") " +
-                "VALUES(?, DATE('now', 'localtime'), \"FALSE\", ?, ?)";
+                "VALUES(?, DATE('now', 'localtime'), \"Signed Out\", ?, ?)";
         try {
             PreparedStatement ps = db.prepareStatement(statment);
             ps.setString(1, itemID);
@@ -512,7 +512,8 @@ public class SQLInterface {
                 headings = "ID\t\tDate\tAuth ID";
                 break;
             case TABITEMLOG:
-                if (outOnly) statement = "SELECT * FROM " + TABITEMLOG + " WHERE " + COLITEMLOGINDATE + " = \"FALSE\"";
+                if (outOnly)
+                    statement = "SELECT * FROM " + TABITEMLOG + " WHERE " + COLITEMLOGINDATE + " = \"Signed Out\"";
                 else statement = "SELECT * FROM " + TABITEMLOG + "";
                 noOfResults = TABITEMLOGCOUNT;
                 break;
@@ -613,7 +614,7 @@ public class SQLInterface {
         try {
             PreparedStatement ps;
             if (outOnly)
-                ps = db.prepareStatement("SELECT * FROM " + TABITEMLOG + " WHERE " + COLITEMLOGINDATE + " = \"FALSE\"");
+                ps = db.prepareStatement("SELECT * FROM " + TABITEMLOG + " WHERE " + COLITEMLOGINDATE + " = \"Signed Out\"");
             else ps = db.prepareStatement("SELECT * FROM " + TABITEMLOG);
             rs = ps.executeQuery();
             while (rs.next()) {
@@ -642,7 +643,7 @@ public class SQLInterface {
         try {
             PreparedStatement ps;
             if (outOnly)
-                ps = db.prepareStatement("SELECT * FROM " + TABITEMLOG + " WHERE " + COLITEMLOGINDATE + " = \"FALSE\" AND" +
+                ps = db.prepareStatement("SELECT * FROM " + TABITEMLOG + " WHERE " + COLITEMLOGINDATE + " = \"Signed Out\" AND" +
                         COLITEMLOGOUTDATE + " <= ? AND " + COLITEMLOGINDATE + " >= ?;");
             else ps = db.prepareStatement("SELECT * FROM " + TABITEMLOG + " WHERE " +
                     COLITEMLOGOUTDATE + " <= ? AND " + COLITEMLOGINDATE + " >= ?;");
@@ -762,7 +763,7 @@ public class SQLInterface {
                 break;
             case TABITEMLOG:
                 if (outOnly) statement = "SELECT * FROM " + TABITEMLOG +
-                        " WHERE " + COLITEMLOGOUTDATE + " > ? AND " + COLITEMLOGINDATE + " = \"FALSE\"";
+                        " WHERE " + COLITEMLOGOUTDATE + " > ? AND " + COLITEMLOGINDATE + " = \"Signed Out\"";
                 else statement = "SELECT * FROM " + TABITEMLOG + " " +
                         "WHERE " + COLITEMLOGOUTDATE + " > ?";
                 noOfResults = TABITEMLOGCOUNT;
@@ -811,7 +812,7 @@ public class SQLInterface {
     public static ArrayList<inventoryManager.formatters.ReturnItem> getOutItemsLog() {
         Connection db = getDatabase().get();
         System.out.println("_X_X_X_X_X_X_X_ New DB in getOutItemsLog");
-        String statement = "SELECT " + TABITEM + "." + COLITEMID + ", " + COLITEMNAME + ", " + TABITEMLOG + "." + COLITEMLOGPERSID + ", " + COLITEMLOGOUTDATE + " FROM " + TABITEMLOG + " JOIN " + TABITEM + " ON " + TABITEMLOG + "." + COLITEMLOGITEMID + "=" + TABITEM + "." + COLITEMID + " WHERE " + COLITEMLOGINDATE + " = \"FALSE\"";
+        String statement = "SELECT " + TABITEM + "." + COLITEMID + ", " + COLITEMNAME + ", " + TABITEMLOG + "." + COLITEMLOGPERSID + ", " + COLITEMLOGOUTDATE + " FROM " + TABITEMLOG + " JOIN " + TABITEM + " ON " + TABITEMLOG + "." + COLITEMLOGITEMID + "=" + TABITEM + "." + COLITEMID + " WHERE " + COLITEMLOGINDATE + " = \"Signed Out\"";
         ResultSet rs;
         ArrayList<inventoryManager.formatters.ReturnItem> ret = new ArrayList<>();
         try {
@@ -841,13 +842,13 @@ public class SQLInterface {
         String statement = "";
         switch (type) {
             case COLITEMLOGITEMID:
-                statement = "SELECT " + TABITEMLOG + "." + COLITEMLOGITEMID + " FROM " + TABITEMLOG + " WHERE " + COLITEMLOGINDATE + " = \"FALSE\"";
+                statement = "SELECT " + TABITEMLOG + "." + COLITEMLOGITEMID + " FROM " + TABITEMLOG + " WHERE " + COLITEMLOGINDATE + " = \"Signed Out\"";
                 break;
             case COLITEMLOGPERSID:
-                statement = "SELECT " + COLITEMLOGPERSID + " FROM " + TABITEMLOG + " WHERE " + COLITEMLOGINDATE + " = \"FALSE\"";
+                statement = "SELECT " + COLITEMLOGPERSID + " FROM " + TABITEMLOG + " WHERE " + COLITEMLOGINDATE + " = \"Signed Out\"";
                 break;
             default:
-                statement = "SELECT " + COLITEMLOGITEMID + " FROM " + TABITEMLOG + " WHERE " + COLITEMLOGINDATE + " = \"FALSE\"";
+                statement = "SELECT " + COLITEMLOGITEMID + " FROM " + TABITEMLOG + " WHERE " + COLITEMLOGINDATE + " = \"Signed Out\"";
         }
         ResultSet rs;
         ArrayList<String> ret = new ArrayList<>();
