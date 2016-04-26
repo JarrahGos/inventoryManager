@@ -71,9 +71,9 @@ public class AdminInterface extends Interface {
         ObservableList<String> items = FXCollections.observableArrayList();
         final String[] PersonSettingsList = {"Change a Person", "Save Person Database"};
         final String[] itemSettingsList = {"Return Items", "Add Items", "Remove General Items", "Change a General Item", "Enter General Item Counts", "Save Item Database", "Create Set"};
-        final String[] AdminSettingsList = {"Change Password", "Save Databases To USB", "Close The Program"};
+        final String[] AdminSettingsList = {"Change Password", "Save Databases To USB", "Close The Program", "Delete Controlled Items"};
         final String[] LogSettingsList = {"Item Logs", "Password Logs"};
-        final String[] RootSettingsList = {"Create Admins", "Delete Controlled Items"}; //TODO: finish this by looking at the spec.
+        final String[] RootSettingsList = {"Create Admins"}; //TODO: finish this by looking at the spec.
         items.setAll(PersonSettingsList);
         optionList.setItems(items);
         optionList.maxWidthProperty().bind(split.widthProperty().multiply(0.2));
