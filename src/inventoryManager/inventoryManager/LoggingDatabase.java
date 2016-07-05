@@ -76,6 +76,10 @@ public class LoggingDatabase implements Database {
     public ArrayList<inventoryManager.formatters.ReturnItem> getOutItems() {
         return SQLInterface.getOutItemsLog();
     }
+    public ArrayList<inventoryManager.formatters.ReturnItem> getOutItems(String search) {
+        return SQLInterface.getOutItemsLogSearch(search);
+    }
+
 
     public ArrayList<String> getOutItemIDs() {
         return SQLInterface.getOutItemsLog(SQLInterface.COLITEMLOGITEMID);

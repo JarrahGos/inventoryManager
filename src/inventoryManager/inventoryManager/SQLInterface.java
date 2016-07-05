@@ -836,6 +836,37 @@ public class SQLInterface {
         return ret;
     }
 
+    public static ArrayList<inventoryManager.formatters.ReturnItem> getOutItemsLogSearch(String search) {
+        Connection db = getDatabase().get();
+        System.out.println("_X_X_X_X_X_X_X_ New DB in getOutItemsLogSearch");
+        String statement = "SELECT " + TABITEM + "." + COLITEMID + ", " + COLITEMNAME + ", " +
+                TABITEMLOG + "." + COLITEMLOGPERSID + ", " + COLITEMLOGOUTDATE + " FROM " + TABITEMLOG +
+                " JOIN " + TABITEM + " ON " + TABITEMLOG + "." + COLITEMLOGITEMID + "=" + TABITEM + "." +
+                COLITEMID + " WHERE " + COLITEMLOGINDATE + " = \"Signed Out\" AND " + TABITEMLOG + "." +
+                COLITEMLOGITEMID + " LIKE ?";
+        ResultSet rs;
+        ArrayList<inventoryManager.formatters.ReturnItem> ret = new ArrayList<>();
+        try {
+            PreparedStatement ps = db.prepareStatement(statement);
+            ps.setString(1, search);
+            rs = ps.executeQuery();
+            boolean next = rs.next();
+            System.out.println(next);
+            while (next) {
+                System.out.println(rs.getString(1) + rs.getString(4));
+                ret.add(new ReturnItem(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4)));
+                next = rs.next();
+            }
+            rs.close();
+            ps.closeOnCompletion();
+            db.close();
+            System.out.println("_X_X_X_X_X_X_X_ DB closed in getOutItemsLog");
+        } catch (SQLException e) {
+            Log.print(e);
+            System.exit(32);
+        }
+        return ret;
+    }
     public static ArrayList<String> getOutItemsLog(String type) {
         Connection db = getDatabase().get();
         System.out.println("_X_X_X_X_X_X_X_ New DB in getOutItemsLog");

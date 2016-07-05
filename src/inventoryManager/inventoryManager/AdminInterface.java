@@ -301,10 +301,6 @@ public class AdminInterface extends Interface {
         outList.setEditable(false);
         outList.setItems(retlist);
 
-
-        TextField barcodeEntry = new TextField();
-        barcodeEntry.setPromptText("Barcode");
-
         SplitPane inOut = new SplitPane();
 
         TableView<inventoryManager.formatters.ReturnItem> inItems = new TableView<>();
@@ -335,6 +331,20 @@ public class AdminInterface extends Interface {
         inOut.getItems().addAll(outList, inItems);
         inOut.setDividerPositions(0.5f);
         grid.add(inOut, 0, 1, 2, 1);
+
+        TextField barcodeEntry = new TextField();
+        barcodeEntry.setPromptText("Barcode");
+        barcodeEntry.setOnKeyPressed((KeyEvent ke) -> {
+            if (ke.getCode() == KeyCode.ENTER) {
+                if(barcodeEntry.getText().isEmpty()) {
+                    retlist.setAll(WorkingUser.getOutItems());
+                }
+                else {
+                    retlist.setAll(WorkingUser.getOutItems(barcodeEntry.getText()));
+                }
+            }
+        });
+         grid.add(barcodeEntry, 0, 0);
 
         Button checkIn = new Button("Check In");
         checkIn.setOnAction((ActionEvent e) -> {

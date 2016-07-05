@@ -67,6 +67,17 @@ final class ReturnCheckOut {
         return new ArrayList<>(items);
     }
 
+    public final ArrayList<ReturnItem> getCheckOutNames(String search) {
+        ArrayList<ReturnItem> ret = new ArrayList<>();
+        for(ReturnItem item : items) {
+            if(item.getID().equals(search)) {
+                ret.add(item);
+            }
+        }
+        return ret;
+    }
+
+
     /**
      * Delete a product within the checkout.
      *

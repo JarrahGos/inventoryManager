@@ -316,9 +316,15 @@ public final class WorkingUser {
     public static ArrayList<inventoryManager.formatters.ReturnItem> getOutItems() {
         return loggingDatabase.getOutItems();
     }
+    public static ArrayList<inventoryManager.formatters.ReturnItem> getOutItems(String search) {
+        return loggingDatabase.getOutItems(search);
+    }
 
     public static ArrayList<ReturnItem> getReturningItems() {
         return returnCheckOut.getCheckOutNames();
+    }
+    public static ArrayList<ReturnItem> getReturningItems(String search) {
+        return returnCheckOut.getCheckOutNames(search);
     }
 
     public static void addToReturnCheckout(ReturnItem add) {

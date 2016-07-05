@@ -1,4 +1,5 @@
 package inventoryManager;
+//TODO: Why can't this be static
 
 /***
  *    Copyright (C) 2015  Jarrah Gosbell
@@ -138,6 +139,7 @@ class ItemDatabase implements Database {
     public final Optional<String> getBarcode(String name) {
         return SQLInterface.getID(SQLInterface.TABITEM, name);
     }
+
 
     /**
      * Add an entry to the controlled item database
