@@ -132,13 +132,13 @@ public class SQLInterface {
         System.out.println("_X_X_X_X_X_X_X_ New DB in deleteEntry");
         String statement = "";
         switch (type) {
-            case "person":
+            case TABPERSON:
                 statement = "DELETE FROM " + TABPERSON + " WHERE " + COLPERSONID + " = ?";
                 break;
-            case "GeneralItem":
+            case TABGENERAL:
                 statement = "DELETE FROM " + TABGENERAL + " WHERE " + COLGENERALID + " = ?";
                 break;
-            case "controlledItem":
+            case TABCONTROLLED:
                 statement = "DELETE FROM " + TABCONTROLLED + " WHERE " + COLCONTROLLEDID + " = ?"; // TODO: this will delete controlled but not item. Use the key and a cascade on delete.
         }
         try {
