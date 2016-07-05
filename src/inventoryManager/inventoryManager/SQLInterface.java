@@ -1686,10 +1686,37 @@ public class SQLInterface {
             ps.setString(3, ID);
             executePS(db, ps);
             System.out.println("_X_X_X_X_X_X_X_ DB closed in updateEntry1");
+            if(type.equals(TABITEM)) {
+                updateEntry(ID, name, newID, isItemControlled(ID));
+            }
         } catch (SQLException e) {
             Log.print(e);
             System.exit(32);
         }
+    }
+    public static void updateEntry(String ID, String name, String newID, Boolean controlled) {
+        Connection db = getDatabase().get();
+        System.out.println("_X_X_X_X_X_X_X_ New DB in updateEntry1");
+        String statement;
+        if(controlled) {
+            statement = "UPDATE " + TABCONTROLLED + " SET " + COLCONTROLLEDID+ " = ? " +
+                    " WHERE " + COLCONTROLLEDID + " = ?";
+        }
+        else {
+            statement = "UPDATE " + TABGENERAL + " SET " + COLGENERALID + " = ? " +
+                    " WHERE " + COLGENERALID + " = ?";
+        }
+        try {
+            PreparedStatement ps = db.prepareStatement(statement);
+            ps.setString(1, newID);
+            ps.setString(2, ID);
+            executePS(db, ps);
+            System.out.println("_X_X_X_X_X_X_X_ DB closed in updateEntry1");
+        } catch (SQLException e) {
+            Log.print(e);
+            System.exit(32);
+        }
+
     }
 
     public static void updateEntry(String ID, int role) {
