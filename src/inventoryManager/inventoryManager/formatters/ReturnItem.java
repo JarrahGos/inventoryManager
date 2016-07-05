@@ -31,15 +31,29 @@ import javafx.beans.property.SimpleStringProperty;
 
 public class ReturnItem {
     private final SimpleStringProperty ID;
+    private final SimpleStringProperty itemID;
     private final SimpleStringProperty name;
     private final SimpleStringProperty userID;
     private final SimpleStringProperty date;
 
-    public ReturnItem(String extID, String extName, String extUID, String extDate) {
+    public ReturnItem(String extID, String extItemID, String extName, String extUID, String extDate) {
         this.ID = new SimpleStringProperty(extID);
+        this.itemID = new SimpleStringProperty(extItemID);
         this.name = new SimpleStringProperty(extName);
         this.userID = new SimpleStringProperty(extUID);
         this.date = new SimpleStringProperty(extDate);
+    }
+
+    public String getItemID() {
+        return itemID.get();
+    }
+
+    public SimpleStringProperty itemIDProperty() {
+        return itemID;
+    }
+
+    public void setItemID(String itemID) {
+        this.itemID.set(itemID);
     }
 
     public String getID() {

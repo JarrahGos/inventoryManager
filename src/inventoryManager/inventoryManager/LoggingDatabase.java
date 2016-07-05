@@ -91,7 +91,7 @@ public class LoggingDatabase implements Database {
 
     public void signItemsIn(ArrayList<ReturnItem> items, String adminName) {
         for (ReturnItem item : items) {
-            SQLInterface.returnItem(item.getID(), item.getUserID(), item.getDate(), adminName);
+            SQLInterface.returnItem(item.getItemID(), item.getUserID(), item.getDate(), adminName, item.getID());
         }
     }
 

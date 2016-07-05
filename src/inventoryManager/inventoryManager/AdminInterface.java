@@ -286,13 +286,14 @@ public class AdminInterface extends Interface {
         ObservableList<ReturnItem> retlist = FXCollections.observableArrayList();
         retlist.setAll(WorkingUser.getOutItems());
 
-        TableColumn IDCol = new TableColumn("ID");
+        TableColumn itemIDCol = new TableColumn("Item ID");
         TableColumn nameCol = new TableColumn("Name");
         TableColumn UIDCol = new TableColumn("User ID");
         TableColumn dateCol = new TableColumn("Date");
-        outList.getColumns().addAll(IDCol, nameCol, UIDCol, dateCol);
-        IDCol.setCellValueFactory(
-                new PropertyValueFactory<PasswordLog, String>("ID")
+        TableColumn IDCol = new TableColumn("ID");
+        outList.getColumns().addAll(itemIDCol, nameCol, UIDCol, dateCol, IDCol);
+        itemIDCol.setCellValueFactory(
+                new PropertyValueFactory<PasswordLog, String>("itemID")
         );
         nameCol.setCellValueFactory(
                 new PropertyValueFactory<Person, String>("name")
@@ -303,6 +304,9 @@ public class AdminInterface extends Interface {
         dateCol.setCellValueFactory(
                 new PropertyValueFactory<Person, String>("date")
         );
+        IDCol.setCellValueFactory(
+                new PropertyValueFactory<Person, String>("ID")
+        );
         outList.setEditable(false);
         outList.setItems(retlist);
 
@@ -312,13 +316,14 @@ public class AdminInterface extends Interface {
         ObservableList<ReturnItem> barcodesIn = FXCollections.observableArrayList();
         barcodesIn.setAll(WorkingUser.getReturningItems());
 
-        TableColumn IDColIn = new TableColumn("ID");
+        TableColumn itemIDColIn = new TableColumn("Item ID");
         TableColumn nameColIn = new TableColumn("Name");
         TableColumn UIDColIn = new TableColumn("User ID");
         TableColumn dateColIn = new TableColumn("Date");
-        inItems.getColumns().addAll(IDColIn, nameColIn, UIDColIn, dateColIn);
-        IDColIn.setCellValueFactory(
-                new PropertyValueFactory<PasswordLog, String>("ID")
+        TableColumn IDColIn = new TableColumn("ID");
+        inItems.getColumns().addAll(itemIDColIn, nameColIn, UIDColIn, dateColIn, IDColIn);
+        itemIDColIn.setCellValueFactory(
+                new PropertyValueFactory<PasswordLog, String>("itemID")
         );
         nameColIn.setCellValueFactory(
                 new PropertyValueFactory<Person, String>("name")
@@ -328,6 +333,9 @@ public class AdminInterface extends Interface {
         );
         dateColIn.setCellValueFactory(
                 new PropertyValueFactory<Person, String>("date")
+        );
+        IDColIn.setCellValueFactory(
+                new PropertyValueFactory<Person, String>("ID")
         );
         inItems.setEditable(false);
         inItems.setItems(barcodesIn);
@@ -351,7 +359,7 @@ public class AdminInterface extends Interface {
         });
          grid.add(barcodeEntry, 0, 0);
 
-        Button checkIn = new Button("Check In");
+        Button checkIn = new Button("Check In"); // This button moves items to the other pane
         checkIn.setOnAction((ActionEvent e) -> {
             WorkingUser.addToReturnCheckout(outList.getSelectionModel().getSelectedItem());
             barcodesIn.setAll(WorkingUser.getReturningItems());
@@ -362,7 +370,7 @@ public class AdminInterface extends Interface {
         });
         grid.add(checkIn, 1, 2);
 
-        Button signIn = new Button("Sign In Items");
+        Button signIn = new Button("Sign In Items"); // This button signs items in
         signIn.setOnAction((ActionEvent e) -> {
             WorkingUser.signItemsIn(new ArrayList<>(barcodesIn));
             barcodesIn.setAll(WorkingUser.getReturningItems());
