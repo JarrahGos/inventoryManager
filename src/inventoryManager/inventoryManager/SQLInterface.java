@@ -167,7 +167,7 @@ public class SQLInterface {
      * @param password The hashed password of the person.
      * @param salt     The salt used to hash the password.
      */
-    public static void addEntry(String ID, String name, int admin, String password, String salt) { // add a new person
+    public static boolean addEntry(String ID, String name, int admin, String password, String salt) { // add a new person
         String statement = "INSERT INTO " + TABPERSON + " (" + COLPERSONID + ", " + COLPERSONNAME + ", " + COLPERSONADMIN + ", " + COLPERSONPASSOWRD + ", " + COLPERSONSALT + ")" +
                 "VALUES(?, ?, ?, ?, ?)";
         Connection db = getDatabase().get();
@@ -182,9 +182,10 @@ public class SQLInterface {
             ps.setString(5, salt);
             executePS(db, ps);
             System.out.println("_X_X_X_X_X_X_X_ DB closed in addEntry1");
+            return true;
         } catch (SQLException e) {
             Log.print(e);
-            System.exit(32);
+            return false;
         }
     }
 
@@ -193,7 +194,7 @@ public class SQLInterface {
      *
      * @param name The name of the set to add.
      */
-    public static void addEntry(String name) // add new set
+    public static boolean addEntry(String name) // add new set
     {
         Connection db = getDatabase().get();
         System.out.println("_X_X_X_X_X_X_X_ New DB in addEntry2");
@@ -203,9 +204,10 @@ public class SQLInterface {
             ps.setString(1, name);
             executePS(db, ps);
             System.out.println("_X_X_X_X_X_X_X_ DB closed in addEntry2");
+            return true;
         } catch (SQLException e) {
             Log.print(e);
-            System.exit(32);
+            return false;
         }
     }
 
@@ -220,7 +222,7 @@ public class SQLInterface {
      */
 
     //TODO: Completly rewrite this from scratch. Section on sets is fucked.
-    public static void addEntry(String ID, String name, String setName, String Description, Long Quantity, String location) { // Add generalItem
+    public static boolean addEntry(String ID, String name, String setName, String Description, Long Quantity, String location) { // Add generalItem
         addEntry(ID, name);
 
         Connection db = getDatabase().get();
@@ -237,7 +239,7 @@ public class SQLInterface {
             System.out.println("_X_X_X_X_X_X_X_ DB closed in addEntry3");
         } catch (SQLException e) {
             Log.print(e);
-            System.exit(32);
+            return false;
         }
         if (setName != null && !setName.isEmpty()) {
             db = getDatabase().get();
@@ -258,13 +260,15 @@ public class SQLInterface {
                 ps.closeOnCompletion();
                 db.close();
                 System.out.println("_X_X_X_X_X_X_X_ DB closed in addEntry3");
+                return true;
             } catch (SQLException e) {
                 Log.print(e);
-                System.exit(32);
+                return false;
             }
 
 
         }
+        return false;
     }
 
     /**
@@ -277,7 +281,7 @@ public class SQLInterface {
      * @param tagpos  The tag or position number of the item.
      * @param type    The type of the item.
      */
-    public static void addEntry(String ID, String name, String setName, String state, String tagpos, String type) { // add Controlled " + TABITEM + "
+    public static boolean addEntry(String ID, String name, String setName, String state, String tagpos, String type) { // add Controlled " + TABITEM + "
         addEntry(ID, name);
 
         Connection db = getDatabase().get();
@@ -325,7 +329,7 @@ public class SQLInterface {
                     System.out.println("_X_X_X_X_X_X_X_ DB closed in addEntry4");
                 } catch (SQLException e) {
                     Log.print(e);
-                    System.exit(32);
+                    return false;
                 }
             } catch (SQLException e) {
                 Log.print(e);
@@ -349,14 +353,16 @@ public class SQLInterface {
                     ps.setString(1, name);
                     executePS(db, ps);
                     System.out.println("_X_X_X_X_X_X_X_ DB closed in addEntry4");
+                    return true;
                 }
                 rs.close();
             } catch (SQLException e) {
                 Log.print(e);
-                System.exit(32);
+                return false;
             }
 
         }
+        return false;
     }
 
     /**
@@ -365,7 +371,7 @@ public class SQLInterface {
      * @param ID   The ID of the item.
      * @param name The name of the item.
      */
-    public static void addEntry(String ID, String name) {
+    public static boolean addEntry(String ID, String name) {
         Connection db = getDatabase().get();
         System.out.println("_X_X_X_X_X_X_X_ New DB in addEntry5");
         String statement = "INSERT INTO " + TABITEM + " (" + COLITEMID + ", " + COLITEMNAME + ") " +
@@ -376,9 +382,10 @@ public class SQLInterface {
             ps.setString(2, name);
             executePS(db, ps);
             System.out.println("_X_X_X_X_X_X_X_ DB closed in addEntry5");
+            return true;
         } catch (SQLException e) {
             Log.print(e);
-            System.exit(32);
+            return false;
         }
     }
 

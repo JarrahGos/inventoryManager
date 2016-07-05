@@ -46,6 +46,8 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
+import static inventoryManager.WorkingUser.addItemToDatabase;
+
 public class AdminInterface extends Interface {
     /**
      * Create an interface instance with it's parameters set by the config file
@@ -451,27 +453,35 @@ public class AdminInterface extends Interface {
                 valid = false;
             }
             if (elementsAreNotEmpty(nameEntry, BarCodeEntry, quantity, location) && valid) { //Description may be empty
-                WorkingUser.addItemToDatabase(nameEntry.getText(), BarCodeEntry.getText(), description.getText(), Long.parseLong(quantity.getText()), location.getText(), set.getValue());
-                nameEntry.clear();
-                BarCodeEntry.clear();
-                description.clear();
-                quantity.clear();
-                location.clear();
-                nameEntry.requestFocus();
-                flashColour(1500, Color.AQUAMARINE, nameEntry, BarCodeEntry, description, quantity, location);
+                boolean suc = addItemToDatabase(nameEntry.getText(), BarCodeEntry.getText(), description.getText(), Long.parseLong(quantity.getText()), location.getText(), set.getValue());
+                if(suc) {
+                    nameEntry.clear();
+                    BarCodeEntry.clear();
+                    description.clear();
+                    quantity.clear();
+                    location.clear();
+                    nameEntry.requestFocus();
+                    flashColour(1500, Color.AQUAMARINE, nameEntry, BarCodeEntry, description, quantity, location);
+                }
+                else
+                    flashColour(1500, Color.RED, nameEntry, BarCodeEntry, typeBox, set, tagno, state);
             }
         });
         state.setOnAction((ActionEvent e) -> {
             if (nameEntry.getText() != null && !nameEntry.getText().isEmpty() && BarCodeEntry.getText() != null && !BarCodeEntry.getText().isEmpty()) {
-                WorkingUser.addItemToDatabase(nameEntry.getText(), BarCodeEntry.getText(), typeBox.getValue(), tagno.getText(), set.getValue(), state.getText());
-                nameEntry.clear();
-                BarCodeEntry.clear();
-                typeBox.setValue("");
-                tagno.clear();
-                set.setValue("");
-                state.clear();
-                nameEntry.requestFocus();
-                flashColour(1500, Color.AQUAMARINE, nameEntry, BarCodeEntry, typeBox, set, tagno, state);
+                boolean suc = WorkingUser.addItemToDatabase(nameEntry.getText(), BarCodeEntry.getText(), typeBox.getValue(), tagno.getText(), set.getValue(), state.getText());
+                if(suc) {
+                    nameEntry.clear();
+                    BarCodeEntry.clear();
+                    typeBox.setValue("");
+                    tagno.clear();
+                    set.setValue("");
+                    state.clear();
+                    nameEntry.requestFocus();
+                    flashColour(1500, Color.AQUAMARINE, nameEntry, BarCodeEntry, typeBox, set, tagno, state);
+                }
+                else
+                    flashColour(1500, Color.RED, nameEntry, BarCodeEntry, typeBox, set, tagno, state);
             }
         });
     }

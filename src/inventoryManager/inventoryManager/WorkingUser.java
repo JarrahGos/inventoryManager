@@ -393,16 +393,16 @@ public final class WorkingUser {
      * @param name    The name of the product you wish to add
      * @param barcode The barcode for the product you wish to add.
      */
-    public static void addItemToDatabase(String barcode, String name) {
-        itemDatabase.addEntry(barcode, name);
+    public static boolean addItemToDatabase(String barcode, String name) {
+        return itemDatabase.addEntry(barcode, name);
     } //TODO: make this work for general and controlled items
 
-    public static void addItemToDatabase(String name, String barcode, String description, long quantity, String location, String setName) {
-        itemDatabase.addEntry(barcode, name, setName, description, quantity, location);
+    public static boolean addItemToDatabase(String name, String barcode, String description, long quantity, String location, String setName) {
+        return itemDatabase.addEntry(barcode, name, setName, description, quantity, location);
     }
 
-    public static void addItemToDatabase(String name, String barcode, String type, String tagno, String set, String state) {
-        itemDatabase.addEntry(barcode, name, set, state, tagno, type);
+    public static boolean addItemToDatabase(String name, String barcode, String type, String tagno, String set, String state) {
+        return itemDatabase.addEntry(barcode, name, set, state, tagno, type);
     }
     /**
      * Alter a product in the database

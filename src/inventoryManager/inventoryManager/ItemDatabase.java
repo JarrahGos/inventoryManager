@@ -51,9 +51,9 @@ class ItemDatabase implements Database {
      * @param name The name of the new product
      * @param barcode The barcode of the new product
      */
-    public void addEntry(String barcode, String name)
+    public boolean addEntry(String barcode, String name)
     {
-        SQLInterface.addEntry(barcode, name);
+        return SQLInterface.addEntry(barcode, name);
 
     }
 
@@ -150,8 +150,8 @@ class ItemDatabase implements Database {
      * @param tagPos The tag number or position number of the item.
      * @param type The type of the item.
      */
-    public void addEntry(String barcode, String name, String setName, String state, String tagPos, String type) {
-        SQLInterface.addEntry(barcode, name, setName, state, tagPos, type);
+    public boolean addEntry(String barcode, String name, String setName, String state, String tagPos, String type) {
+        return SQLInterface.addEntry(barcode, name, setName, state, tagPos, type);
     }
 
     /**
@@ -178,8 +178,8 @@ class ItemDatabase implements Database {
      * @param description A description of the item.
      * @param quantity The quantity of the item that exists.
      */
-    public void addEntry(String barcode, String name, String setName, String description, long quantity, String location) {
-        SQLInterface.addEntry(barcode, name, setName, description, quantity, location);
+    public boolean addEntry(String barcode, String name, String setName, String description, long quantity, String location) {
+        return SQLInterface.addEntry(barcode, name, setName, description, quantity, location);
     }
 
     /**
