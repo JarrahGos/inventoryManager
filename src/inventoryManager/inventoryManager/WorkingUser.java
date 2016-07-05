@@ -413,7 +413,7 @@ public final class WorkingUser {
      * @param oldBarcode The old barcode of the product
      */
     public static void changeDatabaseProduct(String name, String oldName, String barcode, String oldBarcode) {
-        itemDatabase.changeItem(oldName, barcode, oldBarcode);
+        itemDatabase.changeItem(name, barcode, oldBarcode);
     }
 
     /**

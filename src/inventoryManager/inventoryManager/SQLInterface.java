@@ -268,7 +268,7 @@ public class SQLInterface {
 
 
         }
-        return false;
+        return true;
     }
 
     /**

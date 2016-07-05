@@ -360,7 +360,7 @@ public class AdminInterface extends Interface {
             outList.setItems(retlist);
 
         });
-        grid.add(checkIn, 2, 2);
+        grid.add(checkIn, 1, 2);
 
         Button signIn = new Button("Sign In Items");
         signIn.setOnAction((ActionEvent e) -> {
@@ -370,7 +370,7 @@ public class AdminInterface extends Interface {
             retlist.removeAll(outList.getSelectionModel().getSelectedItems());
             outList.setItems(retlist);
         });
-        grid.add(signIn, 1, 2);
+        grid.add(signIn, 2, 2);
     }
 
     private static void addItem(GridPane grid) {
@@ -591,7 +591,9 @@ public class AdminInterface extends Interface {
             barCodeEntry.requestFocus();
         });
         barCodeEntry.setOnAction((ActionEvent e) -> {
-            if (WorkingUser.itemExists(barCodeEntry.getText())) {
+            if (WorkingUser.itemExists(WorkingUser.getProductBarCode(productList.getSelectionModel().getSelectedItem()))) {
+                WorkingUser.changeDatabaseProduct(nameEntry.getText(), productList.getSelectionModel().getSelectedItem(),
+                        barCodeEntry.getText(), WorkingUser.getProductBarCode(productList.getSelectionModel().getSelectedItem()));
                 flashColour(1500, Color.AQUAMARINE, barCodeEntry);
             } else flashColour(1500, Color.RED, barCodeEntry);
 
