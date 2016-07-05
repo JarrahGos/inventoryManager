@@ -395,7 +395,7 @@ public final class WorkingUser {
      */
     public static boolean addItemToDatabase(String barcode, String name) {
         return itemDatabase.addEntry(barcode, name);
-    } //TODO: make this work for general and controlled items
+    }
 
     public static boolean addItemToDatabase(String name, String barcode, String description, long quantity, String location, String setName) {
         return itemDatabase.addEntry(barcode, name, setName, description, quantity, location);

@@ -135,17 +135,23 @@ public class SQLInterface {
             case TABPERSON:
                 statement = "DELETE FROM " + TABPERSON + " WHERE " + COLPERSONID + " = ?";
                 break;
+            case TABITEM:
+                statement = "DELETE FROM " + TABITEM + " WHERE " + COLITEMID + " = ?";
+                break;
             case TABGENERAL:
                 statement = "DELETE FROM " + TABGENERAL + " WHERE " + COLGENERALID + " = ?";
                 break;
             case TABCONTROLLED:
-                statement = "DELETE FROM " + TABCONTROLLED + " WHERE " + COLCONTROLLEDID + " = ?"; // TODO: this will delete controlled but not item. Use the key and a cascade on delete.
+                statement = "DELETE FROM " + TABCONTROLLED + " WHERE " + COLCONTROLLEDID + " = ?";
         }
         try {
             PreparedStatement ps = db.prepareStatement(statement);
-            ps.setString(1, barcode); //TODO: statement not executing, due to not having controlled and general set properly.
+            ps.setString(1, barcode);
             executePS(db, ps);
             System.out.println("_X_X_X_X_X_X_X_ DB closed in deleteEntry");
+            if(type.equals(TABGENERAL) || type.equals(TABCONTROLLED)) {
+                deleteEntry(TABITEM, barcode);
+            }
         } catch (SQLException e) {
             e.printStackTrace();
             System.exit(32);
@@ -314,7 +320,7 @@ public class SQLInterface {
                 }
                 rs.close();
 
-                statement = "INSERT INTO " + TABCONTROLLED + " (" + COLCONTROLLEDID + ", " + COLCONTROLLEDTAGNO + ", " + COLCONTROLLEDSTATE + ", " + COLCONTROLLEDTYPE + ")" + // TODO: DAFAQ is state (servicable or not)
+                statement = "INSERT INTO " + TABCONTROLLED + " (" + COLCONTROLLEDID + ", " + COLCONTROLLEDTAGNO + ", " + COLCONTROLLEDSTATE + ", " + COLCONTROLLEDTYPE + ")" +
                         "VALUES(?, ?, ?, ?)";
                 try {
                     db = getDatabase().get();
@@ -462,7 +468,6 @@ public class SQLInterface {
     public static void addLog(String itemID, String persID, boolean controlled) { // Sign an item out
         Connection db = getDatabase().get();
         System.out.println("_X_X_X_X_X_X_X_ New DB in addLog2");
-        //TODO: Should this check the item as out in the controlled table?
         String statment = "INSERT INTO " + TABITEMLOG + " (" + COLITEMLOGITEMID + ", " + COLITEMLOGOUTDATE + ", " + COLITEMLOGINDATE + ", " + COLITEMLOGPERSID + ", " + COLITEMLOGCONTROLLED + ") " +
                 "VALUES(?, DATE('now', 'localtime'), \"Signed Out\", ?, ?)";
         try {
@@ -700,7 +705,7 @@ public class SQLInterface {
      * @param ID   The ID to get the log for.
      * @return An arraylist of the records in the log file.
      */
-    public static ArrayList<String> getLog(String type, String ID) { //TODO: Need a way to generate headings.
+    public static ArrayList<String> getLog(String type, String ID) {
         Connection db = getDatabase().get();
         System.out.println("_X_X_X_X_X_X_X_ New DB in getLog2");
         String statement;
@@ -717,12 +722,12 @@ public class SQLInterface {
                         "WHERE " + COLITEMLOGID + " = ?";
                 noOfResults = TABITEMLOGCOUNT;
                 break;
-            case "controlled":
+            case TABCONTROLLED:
                 statement = "SELECT * FROM " + TABITEMLOG + " " +
                         "WHERE " + COLITEMLOGCONTROLLED + "=TRUE AND " +
                         COLITEMLOGID + " = ?";
                 break;
-            case "general":
+            case TABGENERAL:
                 statement = "SELECT * FROM " + TABITEMLOG + " " +
                         "WHERE " + COLITEMLOGCONTROLLED + "=FALSE AND " +
                         COLITEMLOGID + " = ?";
@@ -1539,7 +1544,7 @@ public class SQLInterface {
      * @param path The location within the filesystem to export the table(s) to.
      */
     @SuppressWarnings("Duplicates")
-    public static void export(String type, String path) { //TODO: At least one of these would work in normal SQL.
+    public static void export(String type, String path) {
         Connection db = getDatabase().get();
         System.out.println("_X_X_X_X_X_X_X_ New DB in export");
         String statement;
@@ -1580,7 +1585,7 @@ public class SQLInterface {
                         + " JOIN " + TABSET + " ON " + TABITEM + "." + COLITEMSETID + " = " + TABSET + "." + COLSETID;
                 noCols = 3;
                 labels = "ID, Name, Set Name";
-                break; //TODO: Maybe have them all happen here.
+                break;
         }
         try {
             PreparedStatement ps = db.prepareStatement(statement);

@@ -75,7 +75,7 @@ public class AdminInterface extends Interface {
         final String[] itemSettingsList = {"Return Items", "Add Items", "Remove General Items", "Change a General Item", "Enter General Item Counts", "Save Item Database", "Create Set", "Add Controlled Type"};
         final String[] AdminSettingsList = {"Change Password", "Save Databases To USB", "Close The Program", "Delete Controlled Items"};
         final String[] LogSettingsList = {"Item Logs", "Password Logs"};
-        final String[] RootSettingsList = {"Create Admins"}; //TODO: finish this by looking at the spec.
+        final String[] RootSettingsList = {"Create Admins"};
         items.setAll(PersonSettingsList);
         optionList.setItems(items);
         optionList.maxWidthProperty().bind(split.widthProperty().multiply(0.2));
@@ -158,7 +158,7 @@ public class AdminInterface extends Interface {
                         case "Change Password":
                             changeAdminPassword(grid);
                             break;
-                        case "Save Databases To USB": //TODO SQL here is dead.
+                        case "Save Databases To USB":
                             SaveDatabases(adminStage, grid);
                             break;
                         case "Close The Program":
@@ -572,7 +572,7 @@ public class AdminInterface extends Interface {
         product.setAll(WorkingUser.getProductNames(type));
     }
 
-    private static void changeItem(GridPane grid) { //TODO: Changing an item does nothing.
+    private static void changeItem(GridPane grid) {
         grid.getChildren().clear();
         ListView<String> productList = new ListView<>();
         ObservableList<String> product = FXCollections.observableArrayList();
@@ -641,7 +641,7 @@ public class AdminInterface extends Interface {
 
                 });
         numberEntry.setOnKeyPressed((KeyEvent ke) -> {
-            if (ke.getCode() == KeyCode.ENTER) { //TODO: Next line needs to convert from name to ID before processing.
+            if (ke.getCode() == KeyCode.ENTER) {
                 WorkingUser.setNumberOfProducts(WorkingUser.getProductBarCode(productList.getSelectionModel().getSelectedItem()), Integer.parseInt(numberEntry.getText()));
                 productList.getSelectionModel().select(productList.getSelectionModel().getSelectedIndex() + 1);
                 numberEntry.requestFocus();
@@ -1064,12 +1064,12 @@ public class AdminInterface extends Interface {
             }
         });
         adminPass.setOnKeyPressed((KeyEvent ke) -> {
-            int success = 0; //TODO: This needs to be updated with the result of setPassword
+            int success = 3;
             if (ke.getCode().equals(KeyCode.ENTER)) {
                 if (firstInput.getText().equals(secondInput.getText()) && IDInput != adminID) {
-                    new Thread(() -> {
-                        WorkingUser.setPassword(IDInput.getText(), firstInput.getText(), adminID.getText(), adminPass.getText());
-                    }).start();
+                    //new Thread(() -> {
+                      success = WorkingUser.setPassword(IDInput.getText(), firstInput.getText(), adminID.getText(), adminPass.getText());
+                    //}).start();
 
                 }
 
