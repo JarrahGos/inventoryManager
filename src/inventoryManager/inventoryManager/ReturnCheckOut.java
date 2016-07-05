@@ -4,6 +4,7 @@ import inventoryManager.formatters.ReturnItem;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.stream.Collectors;
 
 /***
  * Copyright (C) 2015  Jarrah Gosbell
@@ -69,11 +70,7 @@ final class ReturnCheckOut {
 
     public final ArrayList<ReturnItem> getCheckOutNames(String search) {
         ArrayList<ReturnItem> ret = new ArrayList<>();
-        for(ReturnItem item : items) {
-            if(item.getID().equals(search)) {
-                ret.add(item);
-            }
-        }
+        ret.addAll(items.stream().filter(item -> item.getID().equals(search)).collect(Collectors.toList()));
         return ret;
     }
 

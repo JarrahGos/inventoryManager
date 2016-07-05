@@ -189,9 +189,7 @@ public class AdminInterface extends Interface {
                 });
         Scene adminScene = new Scene(split, horizontalSize, verticalSize);
         adminStage.setScene(adminScene);
-        adminStage.setOnCloseRequest((WindowEvent event) -> {
-            lastStage.show();
-        });
+        adminStage.setOnCloseRequest((WindowEvent event) -> lastStage.show());
         adminStage.show();
         adminStage.toFront();
 
@@ -220,7 +218,7 @@ public class AdminInterface extends Interface {
                     @Override
                     public void handle(TableColumn.CellEditEvent<Person, String> t) {
                         WorkingUser.changeDatabasePerson(personList.getSelectionModel().getSelectedItem().getName(),
-                                t.getNewValue().toString(), t.getOldValue().toString());
+                                t.getNewValue(), t.getOldValue());
                     }
                 }
         );
@@ -595,9 +593,7 @@ public class AdminInterface extends Interface {
                     barCodeEntry.setText(BC);
 
                 });
-        nameEntry.setOnAction((ActionEvent e) -> {
-            barCodeEntry.requestFocus();
-        });
+        nameEntry.setOnAction((ActionEvent e) -> barCodeEntry.requestFocus());
         barCodeEntry.setOnAction((ActionEvent e) -> {
             if (WorkingUser.itemExists(WorkingUser.getProductBarCode(productList.getSelectionModel().getSelectedItem()))) {
                 WorkingUser.changeDatabaseProduct(nameEntry.getText(), productList.getSelectionModel().getSelectedItem(),
@@ -784,7 +780,7 @@ public class AdminInterface extends Interface {
         grid.getChildren().clear();
         Text IDLabel = new Text("New admin's ID:");
         TextField ID = new TextField();
-        ChoiceBox<String> level = new ChoiceBox<String>();
+        ChoiceBox<String> level = new ChoiceBox<>();
         level.getItems().setAll("USER", "ADMIN", "STAFF");
         Button save = new Button("Save");
         save.setOnAction((ActionEvent e) -> {
@@ -1102,7 +1098,7 @@ public class AdminInterface extends Interface {
     private static boolean elementsAreNotEmpty(Node... nodes) {
         for (Node node : nodes) {
             if (node == null) return false;
-            if (node instanceof TextField && ((TextField) node).getText() == "") return false;
+            if (node instanceof TextField && ((TextField) node).getText().equals("")) return false;
         }
         return true;
     }

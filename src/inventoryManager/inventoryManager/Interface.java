@@ -168,9 +168,7 @@ public class Interface extends Application {
 
         // Reset password button
         Button resetButton = new Button("Reset Password");
-        resetButton.setOnAction((ActionEvent e) -> {
-            AdminInterface.changePassword(WorkingUser.getUserID());
-        });
+        resetButton.setOnAction((ActionEvent e) -> AdminInterface.changePassword(WorkingUser.getUserID()));
 
         // create the lists for the checkout.
 
@@ -184,9 +182,7 @@ public class Interface extends Application {
 
         Button adminMode = new Button("Enter Admin Mode");
 
-        enterBarCode.setOnAction((ActionEvent e) -> {
-            OnOKPressed(grid, inputLabel, input, userLabel, pass, addUser, itemList, items, adminMode);
-        });
+        enterBarCode.setOnAction((ActionEvent e) -> OnOKPressed(grid, inputLabel, input, userLabel, pass, addUser, itemList, items, adminMode));
         input.setOnKeyPressed((KeyEvent ke) -> { // the following allows the user to hit enter rather than OK. Works exactly the same as hitting OK.
             if (ke.getCode().equals(KeyCode.ENTER) && !WorkingUser.userLoggedIn()) {
                 pass.requestFocus();
@@ -223,9 +219,7 @@ public class Interface extends Application {
             AdminInterface.enterAdminMode(primaryStage, privelage); // method which will work the admin mode features.
         });
 
-        addUser.setOnAction((ActionEvent e) -> {
-            AdminInterface.addUser(input.getText());
-        });
+        addUser.setOnAction((ActionEvent e) -> AdminInterface.addUser(input.getText()));
 
         Button removeProduct = new Button("Remove"); // button which will bring up the admin mode.
         removeProduct.setOnAction((ActionEvent e) -> {

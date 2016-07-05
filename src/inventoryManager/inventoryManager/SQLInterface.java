@@ -1551,19 +1551,19 @@ public class SQLInterface {
         int noCols = 0;
         String labels = "";
         switch (type) {
-            case "person":
+            case TABPERSON:
                 statement = "SELECT " + COLPERSONID + ", " + COLPERSONNAME + " FROM " + TABPERSON + "";
                 noCols = 2;
                 labels = "ID, Name\n";
                 break;
-            case "item":
+            case TABITEM:
                 statement = "SELECT " + TABITEM + "." + COLITEMID + ", " + TABITEM + "." + COLITEMNAME + ", " + TABSET + "." + COLSETNAME + " FROM " + TABITEM
                         + " JOIN " + TABSET + " ON " + TABITEM + "." + COLITEMSETID + " = " + TABSET + "." + COLSETID;
                 noCols = 3;
                 labels = "ID, Name, Set Name";
                 break;
-            case "controlled":
-                statement = "SELECT " + TABCONTROLLED + "." + COLCONTROLLEDID + ", " + TABITEM + "." + COLITEMNAME + ", " + COLCONTROLLEDTYPENAME + ", " +
+            case TABCONTROLLED:
+                statement = "SELECT " + TABCONTROLLED + "." + COLCONTROLLEDID + ", " + TABITEM + "." + COLITEMNAME + ", " + COLCONTROLLEDTYPENAME +
                         ", " + COLSETNAME + " FROM " + TABCONTROLLED + " JOIN " + TABITEM + " ON " + TABCONTROLLED + "." +
                         COLCONTROLLEDID + " = " + TABITEM + "." + COLITEMID + " JOIN " + TABCONTROLLEDTYPE + " ON " +
                         TABCONTROLLED + "." + COLCONTROLLEDTYPE + " = " + TABCONTROLLEDTYPE + "." + COLCONTROLLEDTYPEID +
@@ -1571,7 +1571,7 @@ public class SQLInterface {
                 noCols = 4;
                 labels = "ID, Name, Type, Set Name";
                 break;
-            case "general":
+            case TABGENERAL:
                 statement = "SELECT " + TABGENERAL + "." + COLGENERALID + ", " + TABITEM + "." + COLITEMNAME + ", " + COLGENERALLOCATION + ", " +
                         COLGENERALDESCRIPTION + ", " + COLGENERALQUANTITY +
                         ", " + TABSET + "." + COLSETNAME + " FROM " + TABGENERAL + " JOIN " + TABITEM + " ON " + TABGENERAL + "." +
