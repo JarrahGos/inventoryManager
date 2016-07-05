@@ -619,4 +619,9 @@ public final class WorkingUser {
     public static void addSet(String name, String barcode) {
         itemDatabase.addSet(barcode, name);
     }
+
+    public static void addControlledType(String name, String barcode) {
+        itemDatabase.addControlledType(barcode, name);
+    }
+
 }

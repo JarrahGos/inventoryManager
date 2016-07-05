@@ -412,6 +412,22 @@ public class SQLInterface {
         }
     }
 
+    public static void addControlledType(String ID, String name) {
+        Connection db = getDatabase().get();
+        System.out.println("_X_X_X_X_X_X_X_ New DB in addEntry5");
+        String statement = "INSERT INTO " + TABCONTROLLEDTYPE + " (" + COLCONTROLLEDTYPEID + ", " +
+                COLCONTROLLEDTYPENAME + ") " + "VALUES(?, ?)";
+        try {
+            PreparedStatement ps = db.prepareStatement(statement);
+            ps.setString(1, ID);
+            ps.setString(2, name);
+            executePS(db, ps);
+            System.out.println("_X_X_X_X_X_X_X_ DB closed in addEntry5");
+        } catch (SQLException e) {
+            Log.print(e);
+            System.exit(32);
+        }
+    }
     /**
      * Add a new person log to the database.
      *

@@ -219,4 +219,7 @@ class ItemDatabase implements Database {
     public final void addSet(String ID, String name) {
         SQLInterface.addSet(ID, name);
     }
+    public final void addControlledType(String ID, String name) {
+        SQLInterface.addControlledType(ID, name);
+    }
 }
