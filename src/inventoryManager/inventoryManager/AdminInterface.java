@@ -598,14 +598,14 @@ public class AdminInterface extends Interface {
 
         productList.getSelectionModel().selectedItemProperty().addListener(
                 (ObservableValue<? extends String> vo, String oldVal, String selectedProduct) -> {
-                    String numberOfProduct = Integer.toString(WorkingUser.getProductNumber(productList.getSelectionModel().getSelectedItem()));
+                    String numberOfProduct = Integer.toString(WorkingUser.getProductNumber(WorkingUser.getProductBarCode(productList.getSelectionModel().getSelectedItem())));
                     numberEntry.setText(numberOfProduct);
                     numberEntry.requestFocus();
 
                 });
         numberEntry.setOnKeyPressed((KeyEvent ke) -> {
             if (ke.getCode() == KeyCode.ENTER) { //TODO: Next line needs to convert from name to ID before processing.
-                WorkingUser.setNumberOfProducts(productList.getSelectionModel().getSelectedItem(), Integer.parseInt(numberEntry.getText()));
+                WorkingUser.setNumberOfProducts(WorkingUser.getProductBarCode(productList.getSelectionModel().getSelectedItem()), Integer.parseInt(numberEntry.getText()));
                 productList.getSelectionModel().select(productList.getSelectionModel().getSelectedIndex() + 1);
                 numberEntry.requestFocus();
                 flashColour(1500, Color.AQUAMARINE, numberEntry);
